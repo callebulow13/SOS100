@@ -1,6 +1,10 @@
 .display-4 {
     margin: 0px;
 }
+body {
+    background: linear-gradient(to bottom right, #F5F7FA, #E3ECF5);
+    min-height: 100vh;
+}
 .search-form {
     display: flex;
     justify-content: center;

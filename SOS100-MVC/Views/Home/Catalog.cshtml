@@ -1,0 +1,36 @@
+@model List<SOS100_MVC.Models.Item>
+
+@{
+    ViewData["Title"] = "Katalog";
+}
+
+<h2 class="mb-4">Vår Katalog</h2>
+
+<table class="table table-striped table-hover">
+    <thead class="table-dark">
+    <tr>
+        <th>ID</th>
+        <th>Namn</th>
+    </tr>
+    </thead>
+    <tbody>
+    @if (Model != null && Model.Any())
+    {
+        foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Id</td>
+                <td>@item.Name</td>
+            </tr>
+        }
+    }
+    else
+    {
+        <tr>
+            <td colspan="2" class="text-center text-muted">Inga objekt hittades i katalogen. API:et kanske är nere?</td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+<a class="btn btn-outline-secondary mt-3" asp-controller="Home" asp-action="Index">Tillbaka</a>

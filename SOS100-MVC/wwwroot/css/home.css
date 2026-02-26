@@ -2,7 +2,7 @@
     margin: 0px;
 }
 body {
-    background: linear-gradient(to bottom right, #F5F7FA, #E3ECF5);
+    background: linear-gradient(to bottom right, rgba(245, 247, 250, 0.98), #E3ECF5);
     min-height: 100vh;
 }
 .search-form {

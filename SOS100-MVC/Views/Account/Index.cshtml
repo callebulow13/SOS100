@@ -1,18 +1,37 @@
 @model Account
+@using Microsoft.AspNetCore.Hosting
+@inject IWebHostEnvironment Env
+@{
+    Layout = null;
+}
+<link rel="stylesheet" href="~/css/account.css" asp-append-version="true"/>
+<div>
+    <h1>Login</h1>
+    <form asp-route-returnurl="@ViewBag.ReturnUrl">
+        <table>
+            <tr>
+                <td><input placeholder="Username" asp-for="Username"/></td>
+            </tr>
+            <tr>
+                <td><input type="password" placeholder="Password" asp-for="Password"/></td>
+            </tr>
+            <tr>
+                <td><input type="submit" value="Login"/></td>
+            </tr>
+        </table>
+    </form>
+    @if (Env.IsDevelopment())
+    {
+        <form asp-action="QuickAdminLogin" method="post">
+            <input type="hidden" name="returnUrl" value="@ViewBag.ReturnUrl"/>
+            <button type="submit">Login as Admin</button>
+        </form>
 
-<h1>Login</h1>
-<form asp-route-returnurl="@ViewBag.ReturnUrl">
-    <table>
-        <tr>
-            <td>Username</td>
-            <td><input asp-for="Username"/></td>
-        </tr>
-        <tr>
-            <td>Password</td>
-            <td><input type="password" asp-for="Password"/></td>
-        </tr>
-        <tr>
-            <td><input type="submit" value="Login"/></td>
-        </tr>
-    </table>
-</form>
+        <form asp-action="QuickUserLogin" method="post">
+            <input type="hidden" name="returnUrl" value="@ViewBag.ReturnUrl"/>
+            <button type="submit">Login as User</button>
+        </form>
+    }
+
+
+</div>

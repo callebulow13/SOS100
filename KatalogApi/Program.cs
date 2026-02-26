@@ -20,7 +20,8 @@ app.UseAuthorization();
 
 app.Use(async (context, next) =>
 {
-    var configuredApiKey = builder.Configuration.GetValue<string>("KatalogApiKey");
+    // Litet bonustips: Använd app.Configuration istället för builder.Configuration här!
+    var configuredApiKey = app.Configuration.GetValue<string>("KatalogApiKey");
     var extractedApiKey = context.Request.Headers["X-Api-Key"].FirstOrDefault();
 
     if (extractedApiKey != configuredApiKey)
@@ -29,7 +30,9 @@ app.Use(async (context, next) =>
         await context.Response.WriteAsync("Ogiltig eller saknad API-nyckel.");
         return; 
     }
-    await next(); 
+    
+    // Fixen är här nere:
+    await next(context); 
 });
 
 app.MapControllers();

@@ -5,6 +5,7 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <RootNamespace>SOS100_MVC</RootNamespace>
+        <UserSecretsId>0b522644-3cca-413f-aafc-d097c3a80f00</UserSecretsId>
     </PropertyGroup>
 
 </Project>

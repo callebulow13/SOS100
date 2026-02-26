@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
 namespace SOS100_MVC;
 
 public class Program
@@ -8,7 +9,10 @@ public class Program
 
         // Add services to the container.
         builder.Services.AddControllersWithViews();
-
+        
+        builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+            .AddCookie(options => options.LoginPath = "/Account/Index");
+        
         var app = builder.Build();
 
         // Configure the HTTP request pipeline.
@@ -21,6 +25,8 @@ public class Program
 
         app.UseHttpsRedirection();
         app.UseRouting();
+        
+        app.UseAuthentication();
 
         app.UseAuthorization();
 

@@ -1,6 +1,17 @@
 @KatalogApi_HostAddress = http://localhost:5017
+@ApiKey = HemligNyckel123
 
-GET {{KatalogApi_HostAddress}}/weatherforecast/
+### 1. Hämta alla prylar från katalogen
+GET {{KatalogApi_HostAddress}}/api/items
 Accept: application/json
+X-Api-Key: {{ApiKey}}
 
-###
+### 2. Hämta en specifik pryl (t.ex. Kaffebryggaren med ID 5)
+GET {{KatalogApi_HostAddress}}/api/items/2
+Accept: application/json
+X-Api-Key: {{ApiKey}}
+
+### 3. Testa att skicka in fel API-nyckel (Ska ge 401 Unauthorized!)
+GET {{KatalogApi_HostAddress}}/api/items
+Accept: application/json
+X-Api-Key: FelLösenord123

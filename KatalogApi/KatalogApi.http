@@ -15,3 +15,18 @@ X-Api-Key: {{ApiKey}}
 GET {{KatalogApi_HostAddress}}/api/items
 Accept: application/json
 X-Api-Key: FelLösenord123
+
+### 4. Skapa en helt ny pryl i databasen (POST)
+POST {{KatalogApi_HostAddress}}/api/items
+Accept: application/json
+Content-Type: application/json
+X-Api-Key: {{ApiKey}}
+
+{
+  "name": "Skruvdragare",
+  "type": 2,
+  "description": "Bosch 18V med dubbla batterier.",
+  "status": 0,
+  "placement": "Verktygslådan",
+  "purchaseDate": "2024-02-27T10:00:00Z"
+}

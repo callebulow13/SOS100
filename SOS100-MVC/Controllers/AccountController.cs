@@ -3,12 +3,19 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SOS100_MVC.Dtos;
 using SOS100_MVC.Models;
 
 namespace SOS100_MVC.Controllers;
 [AllowAnonymous]
 public class AccountController : Controller
 {
+    private readonly IHttpClientFactory _httpClientFactory;
+    public AccountController(IHttpClientFactory httpClientFactory)
+    {
+        _httpClientFactory = httpClientFactory;
+    }
+    
     public IActionResult Index(string returnUrl)
     {
         ViewBag.ReturnUrl = returnUrl;
@@ -18,32 +25,33 @@ public class AccountController : Controller
     [HttpPost]
     public async Task<IActionResult> Index(Account account, string returnUrl)
     {
-        //Roll för att avgöra admin eller user
-        string role = null;
+        var loginDto = new
+        {
+            Username = account.Username,
+            Password = account.Password,
+        };
         
-        //Kolla användarnamn och lösenord
-        if (account.Username == "admin" && account.Password == "abc123")
-        {
-            role = "Admin";
-        }
-        else if (account.Username == "user" && account.Password == "123456")
-        {
-            role = "User";
-        }
+        var client = _httpClientFactory.CreateClient();
+
+        var response = await client.PostAsJsonAsync(
+            "http://localhost:5196/user/login",
+            loginDto);
         
         //Fel användarnamn eller lösenord
-        if (role == null)
+        if (!response.IsSuccessStatusCode)
         {
             ViewBag.ErrorMessage = "Login failed: Wrong username or password";
             ViewBag.ReturnUrl = returnUrl;
             return View();
         }
+
+        var apiUser = await response.Content.ReadFromJsonAsync<ApiUserDto>();
         
         //Korrekt användarnamn och lösenord
         var identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme);
         
-        identity.AddClaim(new Claim(ClaimTypes.Name, account.Username));
-        identity.AddClaim(new Claim(ClaimTypes.Role, role));
+        identity.AddClaim(new Claim(ClaimTypes.Name, apiUser.Username));
+        identity.AddClaim(new Claim(ClaimTypes.Role, apiUser.Role));
         
         await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
             new ClaimsPrincipal(identity));

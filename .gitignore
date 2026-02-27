@@ -420,3 +420,6 @@ FodyWeavers.xsd
 # Rider
 .idea/
 
+# SQLite database files
+*.db-shm
+*.db-wal

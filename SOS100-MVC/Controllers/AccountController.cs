@@ -31,11 +31,10 @@ public class AccountController : Controller
             Password = account.Password,
         };
         
-        var client = _httpClientFactory.CreateClient();
+        var client = _httpClientFactory.CreateClient("UserService");
 
         var response = await client.PostAsJsonAsync(
-            "http://localhost:5196/user/login",
-            loginDto);
+            "user/login", loginDto);
         
         //Fel användarnamn eller lösenord
         if (!response.IsSuccessStatusCode)

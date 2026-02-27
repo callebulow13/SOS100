@@ -25,6 +25,16 @@ public class Program
 
         builder.Services.AddHttpClient();
         
+        var baseUrl = builder.Configuration["UserServiceBaseUrl"];
+        if (baseUrl != null)
+        {
+            builder.Services.AddHttpClient("UserService", client =>
+            {
+            client.BaseAddress = new Uri(baseUrl);
+            });
+        }
+        
+        
         var app = builder.Build();
 
         // Configure the HTTP request pipeline.

@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="~/css/account.css" asp-append-version="true"/>
 <div>
     <h1>Login</h1>
-    <form asp-route-returnurl="@ViewBag.ReturnUrl">
+    <form method="post" asp-route-returnurl="@ViewBag.ReturnUrl">
         <table>
             <tr>
                 <td><input placeholder="Username" asp-for="Username"/></td>

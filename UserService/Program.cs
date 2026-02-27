@@ -19,8 +19,17 @@ builder.Services.AddDbContext<UserServiceDbContext>(options =>
 
 var app = builder.Build();
 
+//Database migrations at startup
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var dbContext = services.GetRequiredService<UserServiceDbContext>();
+    dbContext.Database.Migrate();
+}
+
+
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+//if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
     app.MapScalarApiReference();

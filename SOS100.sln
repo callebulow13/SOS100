@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SOS100-MVC", "SOS100-MVC\SO
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KatalogApi", "KatalogApi\KatalogApi.csproj", "{65CC6C2E-5926-44D6-AF3A-131BC35DDC5E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SOS100-LoanAPI", "SOS100-LoanAPI\SOS100-LoanAPI.csproj", "{0988F218-A4FC-4270-B279-A3AD49190A59}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{65CC6C2E-5926-44D6-AF3A-131BC35DDC5E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{65CC6C2E-5926-44D6-AF3A-131BC35DDC5E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{65CC6C2E-5926-44D6-AF3A-131BC35DDC5E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0988F218-A4FC-4270-B279-A3AD49190A59}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0988F218-A4FC-4270-B279-A3AD49190A59}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0988F218-A4FC-4270-B279-A3AD49190A59}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0988F218-A4FC-4270-B279-A3AD49190A59}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

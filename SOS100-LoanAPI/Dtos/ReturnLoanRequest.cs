@@ -1,4 +1,4 @@
-﻿namespace SOS100_LoanAPI.Dtos;
+﻿namespace SOS100_LoanApi.Dtos;
 
 public class ReturnLoanRequest
 {

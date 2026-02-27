@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace SOS100_LoanAPI.Dtos;
+namespace SOS100_LoanApi.Dtos;
 
 public class CreateLoanRequest
 {

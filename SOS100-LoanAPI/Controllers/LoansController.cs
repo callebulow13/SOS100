@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using SOS100_LoanAPI.Dtos;
+using SOS100_LoanApi.Dtos;
 using SOS100_LoansApi.Data;
 using SOS100_LoansApi.Domain;
 
@@ -45,15 +45,27 @@ public class LoansController : ControllerBase
         var loan = new Loan
         {
             ItemId = req.ItemId,
-            BorrowerId = req.BorrowerId!,
-            LoanedAt = now,
-            DueAt = now.AddDays(req.LoanDays),
-            Status = LoanStatus.Active
+            BorrowerId = req.BorrowerId,
+            LoanedAt = DateTimeOffset.UtcNow,
+            DueAt = DateTimeOffset.UtcNow.AddDays(req.LoanDays),
+            Status = LoanStatus.Active,
+
+            // 🔒 VATTENTÄT REGEL
+            ActiveItemKey = req.ItemId
         };
 
         _db.Loans.Add(loan);
-        await _db.SaveChangesAsync(ct);
-        await tx.CommitAsync(ct);
+
+        try
+        {
+            await _db.SaveChangesAsync(ct);
+            await tx.CommitAsync(ct);
+        }
+        catch (DbUpdateException)
+        {
+            // Detta händer t.ex. när unique index på ActiveItemKey triggas
+            return Conflict(new { message = "Objektet är redan utlånat." });
+        }
 
         return CreatedAtAction(
             nameof(GetLoanById),
@@ -78,13 +90,9 @@ public class LoansController : ControllerBase
 
     // POST: api/loans/{loanId}/return
     [HttpPost("{loanId:guid}/return")]
-    public async Task<IActionResult> ReturnLoan(
-        Guid loanId,
-        CancellationToken ct)
+    public async Task<IActionResult> ReturnLoan(Guid loanId, CancellationToken ct)
     {
-        var loan = await _db.Loans
-            .FirstOrDefaultAsync(l => l.Id == loanId, ct);
-
+        var loan = await _db.Loans.FirstOrDefaultAsync(l => l.Id == loanId, ct);
         if (loan is null)
             return NotFound();
 
@@ -94,7 +102,17 @@ public class LoansController : ControllerBase
         loan.Status = LoanStatus.Returned;
         loan.ReturnedAt = DateTimeOffset.UtcNow;
 
-        await _db.SaveChangesAsync(ct);
+        // 🔓 släpper “låset” så item kan lånas igen
+        loan.ActiveItemKey = null;
+
+        try
+        {
+            await _db.SaveChangesAsync(ct);
+        }
+        catch (DbUpdateException)
+        {
+            return Problem("Databasfel vid återlämning.", statusCode: 500);
+        }
 
         return Ok(loan);
     }

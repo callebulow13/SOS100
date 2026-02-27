@@ -21,6 +21,8 @@ public class Loan
     public DateTimeOffset? ReturnedAt { get; set; }
 
     public LoanStatus Status { get; set; } = LoanStatus.Active;
+    
+    public string? ActiveItemKey { get; set; }
 
     [Timestamp] // vattentät concurrency
     public byte[] RowVersion { get; set; } = default!;

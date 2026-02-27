@@ -14,5 +14,10 @@ public class LoanDbContext : DbContext
         // Index för snabb uppslagning och för att stötta regeln "ett aktivt lån per Item"
         modelBuilder.Entity<Loan>()
             .HasIndex(l => new { l.ItemId, l.Status });
+        
+        // Endast ett aktivt lån per Item
+        modelBuilder.Entity<Loan>()
+            .HasIndex(l => l.ActiveItemKey)
+            .IsUnique();
     }
 }

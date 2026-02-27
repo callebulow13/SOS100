@@ -22,6 +22,8 @@ public class Program
         
         builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
             .AddCookie(options => options.LoginPath = "/Account/Index");
+
+        builder.Services.AddHttpClient();
         
         var app = builder.Build();
 

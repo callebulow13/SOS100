@@ -1,3 +1,7 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Authorization;
+
 namespace SOS100_MVC;
 
 public class Program
@@ -7,8 +11,20 @@ public class Program
         var builder = WebApplication.CreateBuilder(args);
 
         // Add services to the container.
-        builder.Services.AddControllersWithViews();
+        builder.Services.AddControllersWithViews(options =>
+        {
+            var policy = new AuthorizationPolicyBuilder()
+                .RequireAuthenticatedUser()
+                .Build();
+            
+            options.Filters.Add(new AuthorizeFilter(policy));
+        });
+        
+        builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+            .AddCookie(options => options.LoginPath = "/Account/Index");
 
+        builder.Services.AddHttpClient();
+        
         var app = builder.Build();
 
         // Configure the HTTP request pipeline.
@@ -21,6 +37,8 @@ public class Program
 
         app.UseHttpsRedirection();
         app.UseRouting();
+        
+        app.UseAuthentication();
 
         app.UseAuthorization();
 

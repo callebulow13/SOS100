@@ -4,12 +4,11 @@
         <TargetFramework>net10.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
-        <RootNamespace>SOS100_MVC</RootNamespace>
-        <UserSecretsId>0b522644-3cca-413f-aafc-d097c3a80f00</UserSecretsId>
     </PropertyGroup>
 
     <ItemGroup>
-      <_ContentIncludedByDefault Remove="Views\Test\Index.cshtml" />
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.3"/>
+        <PackageReference Include="Scalar.AspNetCore" Version="2.12.48" />
     </ItemGroup>
 
 </Project>

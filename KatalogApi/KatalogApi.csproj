@@ -4,7 +4,11 @@
         <TargetFramework>net10.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
+<<<<<<< Hameds-API
+        <UserSecretsId>4c195bf6-abef-4954-854a-98c6fe715a75</UserSecretsId>
+=======
         <UserSecretsId>1d4f4675-32b3-4f73-90e8-416d169d2c75</UserSecretsId>
+>>>>>>> main
     </PropertyGroup>
 
     <ItemGroup>

@@ -1,35 +1,74 @@
-@model List<SOS100_MVC.Models.Item>
+@model IEnumerable<SOS100_MVC.Models.Item>
+
 @{
-    ViewData["Title"] = "Katalog";
+    ViewData["Title"] = "Katalogen";
 }
 
-<h2 class="mb-4">Vår Katalog</h2>
-
-<table class="table table-striped table-hover">
-    <thead class="table-dark">
-    <tr>
-        <th>ID</th>
-        <th>Namn</th>
-    </tr>
-    </thead>
-    <tbody>
-    @if (Model != null && Model.Any())
-    {
-        foreach (var item in Model)
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Katalog av objekt</h2>
+        @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
         {
-            <tr>
-                <td>@item.Id</td>
-                <td>@item.Name</td>
-            </tr>
+            <a href="#" class="btn btn-primary">+ Lägg till nytt objekt</a>
         }
-    }
-    else
-    {
-        <tr>
-            <td colspan="2" class="text-center text-muted">Inga objekt hittades i katalogen. API:et kanske är nere?</td>
-        </tr>
-    }
-    </tbody>
-</table>
 
-<a class="btn btn-outline-secondary mt-3" asp-controller="Home" asp-action="Index">Tillbaka</a>
+    </div>
+    
+    <hr/>
+
+    <div class="table-responsive shadow-sm rounded">
+        <table class="table table-striped table-hover mb-0">
+            <thead class="table-dark">
+            <tr>
+                <th>Namn</th>
+                <th>Kategori</th>
+                <th>Beskrivning</th>
+                <th>Status</th>
+                <th>Plats</th>
+                <th>Inköpsdatum</th>
+            </tr>
+            </thead>
+            <tbody>
+            @if (Model != null && Model.Any())
+            {
+                foreach (var item in Model)
+                {
+                    <tr>
+                        <td class="fw-bold">@item.Name</td>
+                        <td>@item.Type</td>
+                        <td>@item.Description</td>
+                        <td>
+                            @switch (item.Status)
+                            {
+                                case SOS100_MVC.Models.ItemStatus.Tillgänglig:
+                                    <span class="badge bg-success">@item.Status</span>
+                                    break;
+                                case SOS100_MVC.Models.ItemStatus.Trasig:
+                                    <span class="badge bg-danger">@item.Status</span>
+                                    break;
+                                case SOS100_MVC.Models.ItemStatus.Saknas:
+                                    <span class="badge bg-secondary">@item.Status</span>
+                                    break;
+                                case SOS100_MVC.Models.ItemStatus.Utlånad:
+                                default:
+                                    <span class="badge bg-warning text-dark">@item.Status</span>
+                                    break;
+                            }
+                        </td>
+                        <td>@item.Placement</td>
+                        <td>@item.PurchaseDate.ToShortDateString()</td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="6" class="text-center py-4 text-muted">
+                        <em>Katalogen är tom eller kunde inte laddas från API:et.</em>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>

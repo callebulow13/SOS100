@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SOS100_MVC.Models;
 
@@ -65,6 +66,7 @@ public class CatalogController : Controller
         return View("Error");
     }
     // 1. Visar det tomma formuläret på skärmen
+    [Authorize(Roles = "Admin")]
     [HttpGet]
     public IActionResult Create()
     {
@@ -72,6 +74,7 @@ public class CatalogController : Controller
     }
 
     // 2. Tar emot datan när användaren klickar på "Spara"
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     public async Task<IActionResult> Create(Item newItem)
     {

@@ -4,3 +4,6 @@ GET {{SOS100_LoanAPI_HostAddress}}/weatherforecast/
 Accept: application/json
 
 ###
+### Testa att hämta från KatalogApi via LoanApi
+GET {{SOS100_LoanAPI_HostAddress}}/api/loans/test-hamta-pryl/2
+Accept: application/json

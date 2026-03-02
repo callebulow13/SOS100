@@ -43,4 +43,24 @@ public class ItemsController : ControllerBase
         // (nu med sitt nya, riktiga databas-ID) till den som skapade den.
         return Created($"/api/items/{newItem.Id}", newItem);
     }
+    
+    // Denna [HttpGet] lyssnar efter ett specifikt ID i webbadressen, t.ex. /api/items/3
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetItemById(int id)
+    {
+        // 1. Vi ber databasen leta upp prylen som har exakt detta ID.
+        // FindAsync är supersnabb eftersom den letar direkt efter primärnyckeln.
+        var item = await _context.Items.FindAsync(id);
+
+        // 2. Om databasen returnerar null, betyder det att ID:t inte finns.
+        if (item == null)
+        {
+            // Vi skickar tillbaka HTTP 404 (Not Found) och ett litet meddelande
+            return NotFound($"Kunde inte hitta någon pryl med ID {id} i katalogen.");
+        }
+
+        // 3. Om prylen finns, skickar vi tillbaka den!
+        // Ok() ger HTTP 200 och förvandlar automatiskt C#-objektet till JSON-kod.
+        return Ok(item);
+    }
 }

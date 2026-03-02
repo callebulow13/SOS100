@@ -30,3 +30,24 @@ X-Api-Key: {{ApiKey}}
   "placement": "Verktygslådan",
   "purchaseDate": "2024-02-27T10:00:00Z"
 }
+
+### 5. Uppdatera en pryl (PUT) - t.ex. ändra status till Trasig (3)
+PUT {{KatalogApi_HostAddress}}/api/items/2
+Accept: application/json
+Content-Type: application/json
+X-Api-Key: {{ApiKey}}
+
+{
+  "id": 2,
+  "name": "Skruvdragare",
+  "type": 2,
+  "description": "Bosch 18V - Motorn har brunnit och ryker!",
+  "status": 3,
+  "placement": "Skrotbänken",
+  "purchaseDate": "2024-02-27T10:00:00Z"
+}
+
+### 6. Ta bort en pryl (DELETE)
+DELETE {{KatalogApi_HostAddress}}/api/items/2
+Accept: application/json
+X-Api-Key: {{ApiKey}}

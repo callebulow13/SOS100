@@ -23,6 +23,15 @@ builder.Services.AddRateLimiter(options =>
 
 builder.Services.AddProblemDetails();
 
+// Läggs till i kompisens Program.cs (innan builder.Build())
+builder.Services.AddHttpClient("KatalogClient", client =>
+{
+    // Kompisen måste skriva in porten som DITT API körs på (t.ex. 5017 eller 7032)
+    client.BaseAddress = new Uri("http://localhost:5017"); 
+    
+    // Här skickar kompisen med nyckeln så att din dörrvakt släpper in anropet!
+    client.DefaultRequestHeaders.Add("X-Api-Key", "HemligNyckel123"); 
+});
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 builder.Services.AddDbContext<LoanDbContext>(options =>

@@ -11,10 +11,12 @@ namespace SOS100_LoanAPI.Controllers;
 public class LoansController : ControllerBase
 {
     private readonly LoanDbContext _db;
+    private readonly IHttpClientFactory _httpClientFactory;
 
-    public LoansController(LoanDbContext db)
+    public LoansController(LoanDbContext db, IHttpClientFactory httpClientFactory)
     {
         _db = db;
+        _httpClientFactory = httpClientFactory;
     }
 
     // POST: api/loans
@@ -138,4 +140,19 @@ public class LoansController : ControllerBase
 
         return Ok(result);
     }
-}
+    // --- HÄR KLISTRAR NI IN DEN NYA METODEN ISTÄLLET ---
+    [HttpGet("test-hamta-pryl/{id}")]
+    public async Task<IActionResult> TestFetch(int id)
+    {
+        var client = _httpClientFactory.CreateClient("KatalogClient");
+
+        var pryl = await client.GetFromJsonAsync<ItemDto>($"/api/items/{id}");
+
+        if (pryl == null)
+        {
+            return NotFound("Kunde inte hämta prylen från KatalogAPI.");
+        }
+
+        return Ok($"Hämtade {pryl.Name} som har status {pryl.Status}!");
+    }
+} // Här slutar hela LoansController-klassen!

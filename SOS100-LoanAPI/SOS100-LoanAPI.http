@@ -1,0 +1,6 @@
+@SOS100_LoanAPI_HostAddress = http://localhost:5125
+
+GET {{SOS100_LoanAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

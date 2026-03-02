@@ -1,0 +1,31 @@
+@model SOS100_MVC.Models.User
+
+<h2>Redigera användare</h2>
+
+<form asp-action="EditUser" method="post">
+    <input type="hidden" asp-for="UserID"/>
+    <div>
+        <label>Användarnamn</label>
+        <input asp-for="Username"/>
+    </div>
+    <div>
+        <label>Förnamn</label>
+        <input asp-for="FirstName"/>
+    </div>
+    <div>
+        <label>Efternamn</label>
+        <input asp-for="LastName"/>
+    </div>
+    <div>
+        <label>Email</label>
+        <input asp-for="Email"/>
+    </div>
+    <div>
+        <label>Roll</label>
+        <select asp-for="Role">
+            <option value="Admin">Admin</option>
+            <option value="User">User</option>
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Spara</button>
+</form>

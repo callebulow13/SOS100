@@ -13,12 +13,64 @@
         }
 
     </div>
-    
+    @if (Model != null && Model.Any())
+    {
+        <div class="row text-center mb-4">
+            <div class="col-md-3 mb-2">
+                <div class="card shadow-sm border-primary border-bottom border-3">
+                    <div class="card-body py-3">
+                        <h6 class="card-title text-muted text-uppercase fw-bold mb-1">Antal objekt</h6>
+                        <h2 class="mb-0 text-primary fw-bold">@Model.Count()</h2>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3 mb-2">
+                <div class="card shadow-sm border-success border-bottom border-3">
+                    <div class="card-body py-3">
+                        <h6 class="card-title text-muted text-uppercase fw-bold mb-1">Tillgängliga</h6>
+                        <h2 class="mb-0 text-success fw-bold">
+                            @Model.Count(i => i.Status == SOS100_MVC.Models.ItemStatus.Tillgänglig)
+                        </h2>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3 mb-2">
+                <div class="card shadow-sm border-warning border-bottom border-3">
+                    <div class="card-body py-3">
+                        <h6 class="card-title text-muted text-uppercase fw-bold mb-1">Utlånade</h6>
+                        <h2 class="mb-0 text-warning fw-bold">
+                            @Model.Count(i => i.Status == SOS100_MVC.Models.ItemStatus.Utlånad)
+                        </h2>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3 mb-2">
+                <div class="card shadow-sm border-danger border-bottom border-3">
+                    <div class="card-body py-3">
+                        <h6 class="card-title text-muted text-uppercase fw-bold mb-1">Trasiga / Saknas</h6>
+                        <h2 class="mb-0 text-danger fw-bold">
+                            @Model.Count(i => i.Status == SOS100_MVC.Models.ItemStatus.Trasig || i.Status == SOS100_MVC.Models.ItemStatus.Saknas)
+                        </h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
     <hr/>
-    <div class="mb-4">
-        <div class="row">
-            <div class="col-md-6">
-                <input type="text" id="searchInput" class="form-control shadow-sm" placeholder="Sök efter namn eller kategori..." />
+    <div class="row mb-5 justify-content-center">
+        <div class="col-md-8">
+            <label for="searchInput" class="form-label fw-bold text-secondary px-1">Sök i katalogen</label>
+            <div class="input-group input-group-lg shadow-sm">
+                <span class="input-group-text bg-primary text-white border-primary" id="search-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
+                        <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
+                    </svg>
+                </span>
+                
+                <input type="text" id="searchInput" class="form-control border-primary" placeholder="T.ex. Skruvdragare, Bok, Elektronik..." aria-label="Sök" aria-describedby="search-icon" />
             </div>
         </div>
     </div>

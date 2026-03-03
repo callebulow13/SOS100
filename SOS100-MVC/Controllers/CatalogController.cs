@@ -104,7 +104,58 @@ public class CatalogController : Controller
         ModelState.AddModelError("", "Kunde inte spara objektet i API:et. Kontrollera uppgifterna.");
         return View(newItem);
     }
+    
+    // 1. Visar formuläret för att redigera en befintlig pryl
+    [Authorize(Roles = "Admin")] // Bara administratörer får redigera
+    [HttpGet]
+    public async Task<IActionResult> Edit(int id)
+    {
+        // Hämta prylen från API:et på samma sätt som vi gör i Details-vyn
+        HttpResponseMessage response = await _httpClient.GetAsync($"/api/items/{id}");
 
+        if (response.IsSuccessStatusCode)
+        {
+            string data = await response.Content.ReadAsStringAsync();
+            var item = JsonSerializer.Deserialize<Item>(data, new JsonSerializerOptions 
+            { 
+                PropertyNameCaseInsensitive = true 
+            });
+
+            if (item != null)
+            {
+                // Skicka den befintliga datan till HTML-vyn så formuläret är förifyllt
+                return View(item); 
+            }
+        }
+
+        return NotFound("Kunde inte hitta prylen för redigering.");
+    }
+
+    // 2. Tar emot datan när admin klickar på "Spara ändringar"
+    [Authorize(Roles = "Admin")]
+    [HttpPost]
+    public async Task<IActionResult> Edit(Item updatedItem)
+    {
+        // Kolla så att admin inte har fyllt i något knasigt i formuläret
+        if (!ModelState.IsValid)
+        {
+            return View(updatedItem);
+        }
+
+        // Gör ett PUT-anrop till API:et för att skriva över den gamla datan
+        // Notera att vi skickar med updatedItem.Id i webbadressen, precis som vi testade tidigare!
+        HttpResponseMessage response = await _httpClient.PutAsJsonAsync($"/api/items/{updatedItem.Id}", updatedItem);
+
+        if (response.IsSuccessStatusCode)
+        {
+            // Om API:et svarar 204 No Content (eller 200 OK), skicka tillbaka användaren till katalogen
+            return RedirectToAction("Index"); 
+        }
+
+        // Om något gick fel
+        ModelState.AddModelError("", "Kunde inte uppdatera objektet i API:et.");
+        return View(updatedItem);
+    }
     public async Task<IActionResult> Index()
     {
         List<Item> items = new List<Item>();

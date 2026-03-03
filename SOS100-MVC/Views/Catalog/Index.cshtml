@@ -59,8 +59,14 @@
                         </td>
                         <td class="text-end">
                             <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-primary btn-sm">
-                                Visa detaljer
+                                Detaljer
                             </a>
+                            @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+                            {
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-warning btn-sm ms-1">
+                                    Redigera
+                                </a>
+                            }
                         </td>
                     </tr>
                 }

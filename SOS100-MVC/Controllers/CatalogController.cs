@@ -156,6 +156,48 @@ public class CatalogController : Controller
         ModelState.AddModelError("", "Kunde inte uppdatera objektet i API:et.");
         return View(updatedItem);
     }
+    // 1. Visar bekräftelsesidan: "Är du säker på att du vill ta bort..."
+    [Authorize(Roles = "Admin")]
+    [HttpGet]
+    public async Task<IActionResult> Delete(int id)
+    {
+        // Vi måste hämta prylen så vi kan visa vad det är som håller på att raderas
+        HttpResponseMessage response = await _httpClient.GetAsync($"/api/items/{id}");
+
+        if (response.IsSuccessStatusCode)
+        {
+            string data = await response.Content.ReadAsStringAsync();
+            var item = JsonSerializer.Deserialize<Item>(data, new JsonSerializerOptions 
+            { 
+                PropertyNameCaseInsensitive = true 
+            });
+
+            if (item != null)
+            {
+                return View(item);
+            }
+        }
+
+        return NotFound("Kunde inte hitta prylen.");
+    }
+
+    // 2. Utför själva raderingen när admin klickar på "Ja, ta bort"
+    [Authorize(Roles = "Admin")]
+    [HttpPost, ActionName("Delete")] // ActionName berättar att denna svarar på formuläret i Delete-vyn
+    public async Task<IActionResult> DeleteConfirmed(int id)
+    {
+        // Skicka ett HTTP DELETE-anrop till ditt API
+        HttpResponseMessage response = await _httpClient.DeleteAsync($"/api/items/{id}");
+
+        if (response.IsSuccessStatusCode)
+        {
+            // Om API:et sa OK, skicka tillbaka admin till listan
+            return RedirectToAction("Index");
+        }
+
+        // Om något gick fel
+        return View("Error"); // Man kan skapa en specifik felsida här om man vill
+    }
     public async Task<IActionResult> Index()
     {
         List<Item> items = new List<Item>();

@@ -63,4 +63,57 @@ public class ItemsController : ControllerBase
         // Ok() ger HTTP 200 och förvandlar automatiskt C#-objektet till JSON-kod.
         return Ok(item);
     }
+    // Uppdatera en befintlig pryl (PUT)
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateItem(int id, [FromBody] Item updatedItem)
+    {
+        // 1. Kontrollera att ID:t i webbadressen stämmer överens med ID:t i objektet vi skickar in
+        if (id != updatedItem.Id)
+        {
+            return BadRequest("ID i webbadressen matchar inte objektets ID.");
+        }
+
+        // 2. Leta upp den befintliga prylen i databasen
+        var item = await _context.Items.FindAsync(id);
+        
+        if (item == null)
+        {
+            return NotFound($"Kunde inte hitta någon pryl med ID {id} att uppdatera.");
+        }
+
+        // 3. Uppdatera alla egenskaper på prylen
+        item.Name = updatedItem.Name;
+        item.Type = updatedItem.Type;
+        item.Description = updatedItem.Description;
+        item.Status = updatedItem.Status;
+        item.Placement = updatedItem.Placement;
+        item.PurchaseDate = updatedItem.PurchaseDate;
+
+        // 4. Spara ändringarna i SQLite-filen
+        await _context.SaveChangesAsync();
+
+        // 5. Returnera 204 No Content (Standard för lyckade PUT-anrop där vi inte behöver skicka tillbaka data)
+        return NoContent();
+    }
+    // Ta bort en pryl (DELETE)
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteItem(int id)
+    {
+        // 1. Leta upp prylen i databasen
+        var item = await _context.Items.FindAsync(id);
+        
+        if (item == null)
+        {
+            return NotFound($"Kunde inte hitta någon pryl med ID {id} att ta bort.");
+        }
+
+        // 2. Säg till databas-bron att vi vill radera prylen
+        _context.Items.Remove(item);
+        
+        // 3. Spara ändringarna till SQLite-filen
+        await _context.SaveChangesAsync();
+
+        // 4. Returnera 204 No Content
+        return NoContent();
+    }
 }

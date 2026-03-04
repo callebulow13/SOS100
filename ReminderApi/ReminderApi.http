@@ -1,6 +1,24 @@
-@ReminderApi_HostAddress = http://localhost:5038
+@host = http://localhost:5038
+@apiKey = reminder-hemlig-123
 
-GET {{ReminderApi_HostAddress}}/weatherforecast/
-Accept: application/json
+### Skapa en påminnelse
+POST {{host}}/api/reminders
+Content-Type: application/json
+X-Api-Key: {{apiKey}}
 
-###
+{
+  "userId": 1,
+  "loanId": 1,
+  "itemId": 1,
+  "itemTitle": "Testbok",
+  "dueDate": "2025-12-01T00:00:00Z",
+  "isSent": false
+}
+
+### Hämta alla påminnelser
+GET {{host}}/api/reminders
+X-Api-Key: {{apiKey}}
+
+### Räkna försenade
+GET {{host}}/api/reminders/overdue/count
+X-Api-Key: {{apiKey}}

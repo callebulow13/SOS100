@@ -5,8 +5,7 @@ namespace SOS100_LoanApi.Dtos;
 public class CreateLoanRequest
 {
     [Required]
-    [MaxLength(100)]
-    public string ItemId { get; set; } = default!;
+    public int ItemId { get; set; }
 
     [Range(1, 60)]
     public int LoanDays { get; set; } = 14;

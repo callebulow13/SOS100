@@ -20,6 +20,7 @@ public class LoansController : ControllerBase
     }
 
     // POST: api/loans
+   // POST: api/loans
     [HttpPost]
     public async Task<IActionResult> CreateLoan(
         [FromBody] CreateLoanRequest req,
@@ -31,18 +32,36 @@ public class LoansController : ControllerBase
         if (string.IsNullOrWhiteSpace(req.BorrowerId))
             return BadRequest(new { message = "BorrowerId måste anges (tills auth är på plats)." });
 
+        // =========================================================
+        // NYTT STEG 1: Fråga Katalogen om prylen finns och är ledig
+        // =========================================================
+        var catalogClient = _httpClientFactory.CreateClient("KatalogClient");
+        
+        // Hämta prylen från ditt API
+        var itemResponse = await catalogClient.GetAsync($"/api/items/{req.ItemId}", ct);
+        
+        if (!itemResponse.IsSuccessStatusCode)
+        {
+            return NotFound(new { message = "Kunde inte hitta prylen i katalogen. Kontrollera ID." });
+        }
+
+        var pryl = await itemResponse.Content.ReadFromJsonAsync<ItemDto>(cancellationToken: ct);
+
+        // Om prylen inte har status 0 (Tillgänglig), avbryt!
+        if (pryl == null || pryl.Status != 0)
+        {
+            return Conflict(new { message = "Prylen är tyvärr redan utlånad, saknas eller är trasig i katalogen." });
+        }
+        // =========================================================
+
+        // Kompisens befintliga kod för att spara i sin egen databas börjar här...
         await using var tx = await _db.Database.BeginTransactionAsync(ct);
 
         var alreadyActive = await _db.Loans
-            .AnyAsync(l =>
-                l.ItemId == req.ItemId &&
-                l.Status == LoanStatus.Active,
-                ct);
+            .AnyAsync(l => l.ItemId == req.ItemId && l.Status == LoanStatus.Active, ct);
 
         if (alreadyActive)
-            return Conflict(new { message = "Objektet är redan utlånat." });
-
-        var now = DateTimeOffset.UtcNow;
+            return Conflict(new { message = "Objektet är redan utlånat lokalt." });
 
         var loan = new Loan
         {
@@ -51,8 +70,6 @@ public class LoansController : ControllerBase
             LoanedAt = DateTimeOffset.UtcNow,
             DueAt = DateTimeOffset.UtcNow.AddDays(req.LoanDays),
             Status = LoanStatus.Active,
-
-            // 🔒 VATTENTÄT REGEL
             ActiveItemKey = req.ItemId
         };
 
@@ -63,11 +80,34 @@ public class LoansController : ControllerBase
             await _db.SaveChangesAsync(ct);
             await tx.CommitAsync(ct);
         }
-        catch (DbUpdateException)
+        catch (DbUpdateException ex)
         {
-            // Detta händer t.ex. när unique index på ActiveItemKey triggas
-            return Conflict(new { message = "Objektet är redan utlånat." });
+            // NYTT: Vi plockar ut det inre, sanna felmeddelandet från SQLite
+            var realError = ex.InnerException?.Message ?? ex.Message;
+            
+            return Conflict(new { 
+                message = "Ett databasfel uppstod!", 
+                detaljer = realError 
+            });
         }
+
+        // =========================================================
+        // NYTT STEG 3: Säg till Katalogen att ändra status till Utlånad
+        // =========================================================
+        
+        // Ändra statusen på kopian vi hämtade till 1 (eller vad Utlånad motsvarar i er enum)
+        pryl.Status = 1; 
+
+        // Skicka tillbaka den med en PUT-request till din uppdateringsmetod
+        var updateResponse = await catalogClient.PutAsJsonAsync($"/api/items/{pryl.Id}", pryl, ct);
+
+        if (!updateResponse.IsSuccessStatusCode)
+        {
+            // Här kan man välja att logga ett fel eller hantera det, 
+            // men lånet har skapats lokalt!
+            Console.WriteLine("Varning: Kunde inte uppdatera status i Katalog-API:et.");
+        }
+        // =========================================================
 
         return CreatedAtAction(
             nameof(GetLoanById),
@@ -123,7 +163,7 @@ public class LoansController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> Query(
         [FromQuery] LoanStatus? status,
-        [FromQuery] string? itemId,
+        [FromQuery] int? itemId,
         CancellationToken ct)
     {
         var query = _db.Loans.AsQueryable();
@@ -131,7 +171,7 @@ public class LoansController : ControllerBase
         if (status is not null)
             query = query.Where(l => l.Status == status);
 
-        if (!string.IsNullOrWhiteSpace(itemId))
+         if (itemId.HasValue)
             query = query.Where(l => l.ItemId == itemId);
 
         var result = await query

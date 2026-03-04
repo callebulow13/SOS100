@@ -14,7 +14,7 @@ Accept: application/json
 Content-Type: application/json
 
 {
-  "itemId": "10",
+  "itemId": "12",
   "borrowerId": "Anna Andersson",
   "loanDays": 14
 }

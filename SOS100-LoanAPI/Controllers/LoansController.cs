@@ -103,9 +103,17 @@ public class LoansController : ControllerBase
 
         if (!updateResponse.IsSuccessStatusCode)
         {
-            // Här kan man välja att logga ett fel eller hantera det, 
-            // men lånet har skapats lokalt!
-            Console.WriteLine("Varning: Kunde inte uppdatera status i Katalog-API:et.");
+            // Läs det exakta felmeddelandet från ditt KatalogApi
+            var errorText = await updateResponse.Content.ReadAsStringAsync();
+            
+            // Logga det tydligt i kompisens terminal
+            Console.WriteLine($"\n--- FEL VID PUT TILL KATALOG ---");
+            Console.WriteLine($"Statuskod: {updateResponse.StatusCode}");
+            Console.WriteLine($"Felmeddelande: {errorText}");
+            Console.WriteLine($"--------------------------------\n");
+            
+            // Tills vi har löst felet, avbryter vi lånet om katalogen inte kan uppdateras!
+            return StatusCode(500, $"Lånet kunde inte slutföras eftersom Katalog-API vägrade uppdatera. Orsak: {errorText}");
         }
         // =========================================================
 

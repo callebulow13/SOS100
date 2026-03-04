@@ -7,8 +7,7 @@ public class Loan
     public Guid Id { get; set; } = Guid.NewGuid();
 
     [Required]
-    [MaxLength(100)]
-    public string ItemId { get; set; } = default!;
+    public int ItemId { get; set; }
 
     [Required]
     [MaxLength(200)]
@@ -22,8 +21,8 @@ public class Loan
 
     public LoanStatus Status { get; set; } = LoanStatus.Active;
     
-    public string? ActiveItemKey { get; set; }
-
-    [Timestamp] // vattentät concurrency
-    public byte[] RowVersion { get; set; } = default!;
+    public int? ActiveItemKey { get; set; }
+    //Kommentera bort sålänge
+    //[Timestamp] // vattentät concurrency
+    //public byte[] RowVersion { get; set; } = default! ;
 }

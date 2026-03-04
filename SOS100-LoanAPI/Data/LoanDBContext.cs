@@ -1,7 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using SOS100_LoansApi.Domain;
+using SOS100_LoanAPI.Domain;
 
-namespace SOS100_LoansApi.Data;
+
+namespace SOS100_LoanAPI.Data;
 
 public class LoanDbContext : DbContext
 {
@@ -9,7 +10,7 @@ public class LoanDbContext : DbContext
 
     public DbSet<Loan> Loans => Set<Loan>();
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    /*protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         // Index för snabb uppslagning och för att stötta regeln "ett aktivt lån per Item"
         modelBuilder.Entity<Loan>()
@@ -19,5 +20,5 @@ public class LoanDbContext : DbContext
         modelBuilder.Entity<Loan>()
             .HasIndex(l => l.ActiveItemKey)
             .IsUnique();
-    }
+    }*/
 }

@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using SOS100_LoansApi.Data;
+using SOS100_LoanAPI.Data;
 using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.RateLimiting;
 
@@ -56,7 +56,7 @@ app.MapControllers().RequireRateLimiting("fixed");
 // --- AUTOMATISK DATABAS-UPPDATERING ---
 using (var scope = app.Services.CreateScope())
 {
-    var context = scope.ServiceProvider.GetRequiredService<SOS100_LoansApi.Data.LoanDbContext>();
+    var context = scope.ServiceProvider.GetRequiredService<SOS100_LoanAPI.Data.LoanDbContext>();
     
     // Detta kommando tvingar databasen att skapas och bygga alla tabeller (Loans) 
     // utifrån era modeller, varje gång API:et startar!

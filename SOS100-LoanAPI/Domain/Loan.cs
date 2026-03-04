@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace SOS100_LoansApi.Domain;
+namespace SOS100_LoanAPI.Domain;
 
 public class Loan
 {

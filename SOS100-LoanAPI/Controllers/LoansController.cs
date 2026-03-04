@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SOS100_LoanApi.Dtos;
-using SOS100_LoansApi.Data;
-using SOS100_LoansApi.Domain;
+using SOS100_LoanAPI.Data;
+using SOS100_LoanAPI.Domain;
 
 namespace SOS100_LoanAPI.Controllers;
 

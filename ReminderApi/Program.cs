@@ -1,26 +1,27 @@
-using Scalar.AspNetCore;
+using Microsoft.EntityFrameworkCore;
+using ReminderApi.Data;
+using ReminderApi.Filters;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlite(builder.Configuration
+        .GetConnectionString("DefaultConnection")));
 
+builder.Services.AddScoped<ApiKeyFilter>();
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi();
+
+builder.Services.AddCors(options =>
+    options.AddPolicy("AllowAll", policy =>
+        policy.AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader()));
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-// if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-    app.MapScalarApiReference();
-}
-
-app.UseHttpsRedirection();
-
-app.UseAuthorization();
-
+app.MapOpenApi();
+app.UseCors("AllowAll");
 app.MapControllers();
-
 app.Run();

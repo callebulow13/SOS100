@@ -40,10 +40,14 @@ public class LoansController : ControllerBase
         // Hämta prylen från ditt API
         var itemResponse = await catalogClient.GetAsync($"/api/items/{req.ItemId}", ct);
         
+        if (itemResponse.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            return StatusCode(502, new { message = "LoanAPI kunde inte autentisera mot KatalogAPI (fel/saknad X-Api-Key)." });
+
+        if (itemResponse.StatusCode == System.Net.HttpStatusCode.NotFound)
+            return NotFound(new { message = "Prylen finns inte i katalogen. Kontrollera ID." });
+
         if (!itemResponse.IsSuccessStatusCode)
-        {
-            return NotFound(new { message = "Kunde inte hitta prylen i katalogen. Kontrollera ID." });
-        }
+            return StatusCode(502, new { message = $"KatalogAPI fel: {(int)itemResponse.StatusCode} {itemResponse.StatusCode}" });
 
         var pryl = await itemResponse.Content.ReadFromJsonAsync<ItemDto>(cancellationToken: ct);
 
@@ -82,12 +86,19 @@ public class LoansController : ControllerBase
         }
         catch (DbUpdateException ex)
         {
-            // NYTT: Vi plockar ut det inre, sanna felmeddelandet från SQLite
             var realError = ex.InnerException?.Message ?? ex.Message;
-            
-            return Conflict(new { 
-                message = "Ett databasfel uppstod!", 
-                detaljer = realError 
+
+            // 1) Skriv ut till LoanAPI-konsolen (Run/Debug)
+            Console.WriteLine("\n--- DB UPDATE ERROR ---");
+            Console.WriteLine(realError);
+            Console.WriteLine(ex.ToString());
+            Console.WriteLine("-----------------------\n");
+
+            // 2) Skicka tillbaka detaljer så MVC kan visa dem
+            return Conflict(new
+            {
+                message = "Ett databasfel uppstod!",
+                detaljer = realError
             });
         }
 

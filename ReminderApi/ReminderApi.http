@@ -22,3 +22,23 @@ X-Api-Key: {{apiKey}}
 ### Räkna försenade
 GET {{host}}/api/reminders/overdue/count
 X-Api-Key: {{apiKey}}
+
+### Skapa en bevakning
+POST {{host}}/api/watches
+Content-Type: application/json
+X-Api-Key: {{apiKey}}
+
+{
+  "userId": 1,
+  "itemId": 7,
+  "itemTitle": "Att leda i offentlig sektor",
+  "isActive": true
+}
+
+### Hämta alla bevakningar
+GET {{host}}/api/watches
+X-Api-Key: {{apiKey}}
+
+### Hämta bevakningar för användare 1
+GET {{host}}/api/watches?userId=1
+X-Api-Key: {{apiKey}}

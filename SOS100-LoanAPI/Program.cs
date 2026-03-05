@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using SOS100_LoansApi.Data;
+using SOS100_LoanAPI.Data;
 using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.RateLimiting;
 
@@ -26,11 +26,11 @@ builder.Services.AddProblemDetails();
 // Läggs till i kompisens Program.cs (innan builder.Build())
 builder.Services.AddHttpClient("KatalogClient", client =>
 {
-    // Kompisen måste skriva in porten som DITT API körs på (t.ex. 5017 eller 7032)
-    client.BaseAddress = new Uri("http://localhost:5017"); 
-    
-    // Här skickar kompisen med nyckeln så att din dörrvakt släpper in anropet!
-    client.DefaultRequestHeaders.Add("X-Api-Key", "HemligNyckel123"); 
+    var baseUrl = builder.Configuration["KatalogApiBaseUrl"];
+    var apiKey = builder.Configuration["KatalogApiKey"];
+
+    client.BaseAddress = new Uri(baseUrl!);
+    client.DefaultRequestHeaders.Add("X-Api-Key", apiKey!);
 });
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
@@ -56,7 +56,7 @@ app.MapControllers().RequireRateLimiting("fixed");
 // --- AUTOMATISK DATABAS-UPPDATERING ---
 using (var scope = app.Services.CreateScope())
 {
-    var context = scope.ServiceProvider.GetRequiredService<SOS100_LoansApi.Data.LoanDbContext>();
+    var context = scope.ServiceProvider.GetRequiredService<SOS100_LoanAPI.Data.LoanDbContext>();
     
     // Detta kommando tvingar databasen att skapas och bygga alla tabeller (Loans) 
     // utifrån era modeller, varje gång API:et startar!

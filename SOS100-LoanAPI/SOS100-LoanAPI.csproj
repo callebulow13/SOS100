@@ -5,6 +5,7 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <RootNamespace>SOS100_LoanAPI</RootNamespace>
+        <UserSecretsId>8cdc41ff-07c2-4548-a93f-5ace367dcc83</UserSecretsId>
     </PropertyGroup>
 
     <ItemGroup>

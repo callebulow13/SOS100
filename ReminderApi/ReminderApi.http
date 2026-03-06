@@ -93,3 +93,6 @@ X-Api-Key: {{apiKey}}
 ### Test 8: Ta bort påminnelse
 DELETE {{host}}/api/reminders/1
 X-Api-Key: {{apiKey}}
+### Test Azure: Räkna försenade (live)
+GET https://app-sos100-reminder-service.azurewebsites.net/api/reminders/overdue/count
+X-Api-Key: reminder-hemlig-123

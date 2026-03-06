@@ -20,6 +20,12 @@ builder.Services.AddCors(options =>
             .AllowAnyHeader()));
 
 var app = builder.Build();
+// Skapa databasen automatiskt på Azure
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.EnsureCreated();
+}
 
 app.MapOpenApi();
 app.UseCors("AllowAll");

@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SOS100_LoanAPI.Domain;
 
@@ -19,10 +20,13 @@ public class Loan
 
     public DateTimeOffset? ReturnedAt { get; set; }
 
-    public LoanStatus Status { get; set; } = LoanStatus.Active;
+    // Status är nu HÄRLEDD från ReturnedAt och lagras inte i DB
+    [NotMapped]
+    public LoanStatus Status => ReturnedAt is null 
+        ? LoanStatus.Active 
+        : LoanStatus.Returned;
     
-    public int? ActiveItemKey { get; set; }
-    //Kommentera bort sålänge
-    //[Timestamp] // vattentät concurrency
-    //public byte[] RowVersion { get; set; } = default! ;
+
+    // [Timestamp]
+    // public byte[] RowVersion { get; set; } = default!;
 }

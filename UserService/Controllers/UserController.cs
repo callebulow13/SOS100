@@ -59,7 +59,7 @@ public class UserController : ControllerBase
         _dbContext.Users.Add(user);
         _dbContext.SaveChanges();
     }
-
+    
     [HttpPut("{id}")]
     public IActionResult UpdateUser(int id, User updatedUser)
     {
@@ -72,6 +72,21 @@ public class UserController : ControllerBase
         user.FirstName = updatedUser.FirstName;
         user.LastName = updatedUser.LastName;
         user.Role = updatedUser.Role;
+
+        _dbContext.SaveChanges();
+        
+        return NoContent();
+    }
+    [HttpPut("profile/{id}")]
+    public IActionResult UpdateProfile(int id, User updatedUser)
+    {
+        var user = _dbContext.Users.Find(id);
+        if (user == null)
+            return NotFound();
+        
+        user.Email = updatedUser.Email;
+        user.FirstName = updatedUser.FirstName;
+        user.LastName = updatedUser.LastName;
 
         _dbContext.SaveChanges();
         

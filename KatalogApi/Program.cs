@@ -28,6 +28,25 @@ app.UseAuthorization();
 
 app.Use(async (context, next) =>
 {
+    // =========================================================================
+    // NYTT: Om vi kör lokalt (Development), hoppa över alla säkerhetskontroller!
+    // =========================================================================
+    if (app.Environment.IsDevelopment())
+    {
+        await next(context); // Gå vidare direkt till controllern
+        return; // Avbryt här så vi inte gör några fler API-kollar
+    }
+    // =========================================================================
+
+    // --- NYTT: Släpp förbi webbläsaren till Scalar och OpenAPI utan nyckel ---
+    var path = context.Request.Path;
+    if (path.StartsWithSegments("/scalar") || path.StartsWithSegments("/openapi"))
+    {
+        await next(context); // Låt anropet gå vidare
+        return; // Avbryt här så vi inte kollar nyckeln nedanför!
+    }
+    // -------------------------------------------------------------------------
+
     // Litet bonustips: Använd app.Configuration istället för builder.Configuration här!
     var configuredApiKey = app.Configuration.GetValue<string>("KatalogApiKey");
     var extractedApiKey = context.Request.Headers["X-Api-Key"].FirstOrDefault();

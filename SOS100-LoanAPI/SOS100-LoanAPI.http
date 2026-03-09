@@ -1,0 +1,20 @@
+@SOS100_LoanAPI_HostAddress = http://localhost:5125
+
+GET {{SOS100_LoanAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
+### Testa att hämta från KatalogApi via LoanApi
+GET {{SOS100_LoanAPI_HostAddress}}/api/loans/test-hamta-pryl/2
+Accept: application/json
+
+### Testa att låna pryl nummer 1 (som måste finnas och vara Tillgänglig i din databas!)
+POST http://localhost:5125/api/loans
+Accept: application/json
+Content-Type: application/json
+
+{
+  "itemId": "12",
+  "borrowerId": "Anna Andersson",
+  "loanDays": 14
+}

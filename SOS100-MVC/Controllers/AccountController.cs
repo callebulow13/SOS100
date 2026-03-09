@@ -11,9 +11,12 @@ namespace SOS100_MVC.Controllers;
 public class AccountController : Controller
 {
     private readonly IHttpClientFactory _httpClientFactory;
-    public AccountController(IHttpClientFactory httpClientFactory)
+    private readonly IConfiguration _configuration;
+    
+    public AccountController(IHttpClientFactory httpClientFactory,  IConfiguration configuration)
     {
         _httpClientFactory = httpClientFactory;
+        _configuration = configuration;
     }
     
     public IActionResult Index(string returnUrl)
@@ -32,9 +35,10 @@ public class AccountController : Controller
         };
         
         var client = _httpClientFactory.CreateClient();
+        var baseUrl = _configuration["UserServiceBaseUrl"];
 
         var response = await client.PostAsJsonAsync(
-            "http://localhost:5196/user/login",
+            $"{baseUrl}/User/Login",
             loginDto);
         
         //Fel användarnamn eller lösenord

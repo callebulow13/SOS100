@@ -1,0 +1,54 @@
+@model SOS100_MVC.Models.Item
+
+@{
+    ViewData["Title"] = "Detaljer om " + Model.Name;
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                    <h3 class="mb-0">@Model.Name</h3>
+                    
+                    @if (Model.Status == SOS100_MVC.Models.ItemStatus.Tillgänglig)
+                    {
+                        <span class="badge bg-success fs-6">Tillgänglig</span>
+                    }
+                    else if (Model.Status == SOS100_MVC.Models.ItemStatus.Trasig)
+                    {
+                        <span class="badge bg-danger fs-6">Trasig</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-warning text-dark fs-6">@Model.Status</span>
+                    }
+                </div>
+                
+                <div class="card-body">
+                    <h5 class="card-title text-muted">Kategori: @Model.Type</h5>
+                    <p class="card-text fs-5 mt-3">@Model.Description</p>
+                    
+                    <hr />
+                    
+                    <ul class="list-unstyled">
+                        <li><strong>Plats:</strong> @Model.Placement</li>
+                        <li><strong>Inköpt:</strong> @Model.PurchaseDate.ToShortDateString()</li>
+                        <li><strong>System-ID:</strong> @Model.Id</li>
+                    </ul>
+                </div>
+                
+                <div class="card-footer bg-light d-flex justify-content-between align-items-center p-3">
+                    <a asp-action="Index" class="btn btn-secondary">Tillbaka till katalogen</a>
+                    
+                    @if (Model.Status == SOS100_MVC.Models.ItemStatus.Tillgänglig)
+                    {
+                        <a asp-controller="Loan" asp-action="Create" asp-route-itemId="@Model.Id" class="btn btn-success btn-lg shadow-sm">
+                            Låna denna pryl
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

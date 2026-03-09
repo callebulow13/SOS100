@@ -1,0 +1,69 @@
+@model SOS100_MVC.Models.Item
+
+@{
+    ViewData["Title"] = "Redigera " + Model.Name;
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-warning text-dark">
+                    <h3 class="mb-0">Redigera: @Model.Name</h3>
+                </div>
+                <div class="card-body p-4">
+                    
+                    <form asp-action="Edit" method="post">
+                        
+                        <input type="hidden" asp-for="Id" />
+                        
+                        <div class="mb-3">
+                            <label asp-for="Name" class="form-label fw-bold">Namn på objektet</label>
+                            <input asp-for="Name" class="form-control" required />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Type" class="form-label fw-bold">Kategori (0=Elektronik, 1=Bok, 2=Rapport, 3=Annat)</label>
+                            <input asp-for="Type" class="form-control" type="number" required />
+                            <span asp-validation-for="Type" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label fw-bold">Beskrivning</label>
+                            <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Status" class="form-label fw-bold">Status (0=Tillgänglig, 1=Utlånad, 2=Saknas, 3=Trasig)</label>
+                            <input asp-for="Status" class="form-control" type="number" required />
+                            <span asp-validation-for="Status" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Placement" class="form-label fw-bold">Plats / Förvaring</label>
+                            <input asp-for="Placement" class="form-control" />
+                            <span asp-validation-for="Placement" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="PurchaseDate" class="form-label fw-bold">Inköpsdatum</label>
+                            <input asp-for="PurchaseDate" class="form-control" type="date" required />
+                            <span asp-validation-for="PurchaseDate" class="text-danger"></span>
+                        </div>
+
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        <hr class="my-4" />
+
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Index" class="btn btn-outline-secondary">Avbryt</a>
+                            <button type="submit" class="btn btn-warning px-4 text-dark fw-bold">Spara ändringar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

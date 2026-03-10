@@ -8,6 +8,34 @@
 
 <h2>Mina sidor</h2>
 
+@model User
+
+<form>
+    <div class="mb-3">
+        <label class="form-label">Användarnamn</label>
+        <input asp-for="Username" class="form-control" readonly />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Förnamn</label>
+        <input asp-for="FirstName" class="form-control" readonly />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Efternamn</label>
+        <input asp-for="LastName" class="form-control" readonly />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">E-post</label>
+        <input asp-for="Email" class="form-control" readonly />
+    </div>
+    
+    <a asp-controller="MyPages" asp-action="EditProfile" class="btn btn-primary">
+        Ändra uppgifter
+    </a>
+</form>
+
 <h4>🔔 Mina påminnelser (@reminders.Count)</h4>
 
 @if (!reminders.Any())

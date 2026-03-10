@@ -1,0 +1,26 @@
+@model User
+
+<h2>Ändra uppgifter</h2>
+
+<form asp-action="EditProfile" method="post">
+
+    <input type="hidden" asp-for="UserID" />
+
+    <div class="mb-3">
+        <label>Förnamn</label>
+        <input asp-for="FirstName" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label>Efternamn</label>
+        <input asp-for="LastName" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label>Email</label>
+        <input asp-for="Email" class="form-control" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Spara</button>
+
+</form>

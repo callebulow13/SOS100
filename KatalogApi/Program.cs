@@ -28,6 +28,16 @@ app.UseAuthorization();
 
 app.Use(async (context, next) =>
 {
+    // =========================================================================
+    // NYTT: Om vi kör lokalt (Development), hoppa över alla säkerhetskontroller!
+    // =========================================================================
+    if (app.Environment.IsDevelopment())
+    {
+        await next(context); // Gå vidare direkt till controllern
+        return; // Avbryt här så vi inte gör några fler API-kollar
+    }
+    // =========================================================================
+
     // --- NYTT: Släpp förbi webbläsaren till Scalar och OpenAPI utan nyckel ---
     var path = context.Request.Path;
     if (path.StartsWithSegments("/scalar") || path.StartsWithSegments("/openapi"))
@@ -99,6 +109,15 @@ using (var scope = app.Services.CreateScope())
                 Description = "Bosch 18V med dubbla batterier.", 
                 Status = ItemStatus.Trasig, 
                 Placement = "Verktygslådan", 
+                PurchaseDate = DateTime.Now.AddDays(-25) 
+            },
+            new Item 
+            { 
+                Name = "Ekonomirapport", 
+                Type = ItemType.Rapport, 
+                Description = "Bokslut 2021-2022.", 
+                Status = ItemStatus.Saknas, 
+                Placement = "Bokhylla B", 
                 PurchaseDate = DateTime.Now.AddDays(-25) 
             }
         );

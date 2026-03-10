@@ -2,53 +2,92 @@
 
 @{
     ViewData["Title"] = "Detaljer om " + Model.Name;
+
+    // Samma snygga färgkodning som vi har i Index-vyn
+    string statusClass = Model.Status switch
+    {
+        SOS100_MVC.Models.ItemStatus.Tillgänglig => "bg-success-subtle text-success border border-success",
+        SOS100_MVC.Models.ItemStatus.Utlånad => "bg-warning-subtle text-warning-emphasis border border-warning",
+        SOS100_MVC.Models.ItemStatus.Trasig => "bg-danger-subtle text-danger border border-danger",
+        _ => "bg-secondary-subtle text-secondary border border-secondary"
+    };
+
+    // Ikon baserat på typ
+    string typeIcon = Model.Type switch
+    {
+        SOS100_MVC.Models.ItemType.Bok => "bi-book",
+        SOS100_MVC.Models.ItemType.Elektronik => "bi-laptop",
+        SOS100_MVC.Models.ItemType.Rapport => "bi-file-earmark-text",
+        _ => "bi-box-seam"
+    };
 }
+<style>
+    /* Mjukare bakgrund på hela sidan för att låta vita boxar poppa */
+    body {
+        background-color: #f4f7f6;
+    }
+</style>
 
 <div class="container mt-5">
     <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow">
-                <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
-                    <h3 class="mb-0">@Model.Name</h3>
+        <div class="col-md-8 col-lg-7">
+            
+            <div class="card shadow border-0 rounded-4">
+                
+                <div class="card-header bg-white border-bottom-0 pt-4 pb-2 d-flex justify-content-between align-items-center">
+                    <h2 class="fw-bold mb-0">@Model.Name</h2>
+                    <span class="badge rounded-pill @statusClass fs-6 px-3 py-2 fw-medium">
+                        @Model.Status
+                    </span>
+                </div>
+                
+                <div class="card-body px-4 pb-4 pt-2">
+                    <div class="d-flex align-items-center mb-4 text-muted">
+                        <i class="bi @typeIcon fs-4 me-2"></i>
+                        <span class="fs-5 text-uppercase tracking-wide" style="letter-spacing: 1px;">@Model.Type</span>
+                    </div>
+                    
+                    <h5 class="fw-bold mb-2">Beskrivning</h5>
+                    <p class="card-text text-secondary mb-4" style="line-height: 1.6;">
+                        @Model.Description
+                    </p>
+                    
+                    <div class="bg-light p-4 rounded-3 mb-2">
+                        <div class="row g-3">
+                            <div class="col-sm-6">
+                                <div class="col-sm-6">
+                                    <div class="text-muted small text-uppercase fw-bold mb-1">Plats / Förvaring</div>
+                                    <div class="fs-6"><i class="bi bi-geo-alt text-primary me-2"></i><span class="fs-6">@Model.Placement</span></div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="text-muted small text-uppercase fw-bold mb-1">Inköpsdatum</div>
+                                <div class="fs-6"><i class="bi bi-calendar3 text-primary me-2"></i>@Model.PurchaseDate.ToShortDateString()</div>
+                            </div>
+                            <div class="col-sm-6 mt-3">
+                                <div class="text-muted small text-uppercase fw-bold mb-1">System-ID</div>
+                                <div class="fs-6"><i class="bi bi-upc-scan text-primary me-2"></i>#@Model.Id</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-footer bg-white border-top-0 pb-4 px-4 d-flex justify-content-between align-items-center">
+                    
+                    <a asp-action="Index" class="btn btn-outline-secondary px-4 rounded-pill">
+                        <i class="bi bi-arrow-left me-2"></i> Tillbaka till katalogen
+                    </a>
                     
                     @if (Model.Status == SOS100_MVC.Models.ItemStatus.Tillgänglig)
                     {
-                        <span class="badge bg-success fs-6">Tillgänglig</span>
-                    }
-                    else if (Model.Status == SOS100_MVC.Models.ItemStatus.Trasig)
-                    {
-                        <span class="badge bg-danger fs-6">Trasig</span>
-                    }
-                    else
-                    {
-                        <span class="badge bg-warning text-dark fs-6">@Model.Status</span>
-                    }
-                </div>
-                
-                <div class="card-body">
-                    <h5 class="card-title text-muted">Kategori: @Model.Type</h5>
-                    <p class="card-text fs-5 mt-3">@Model.Description</p>
-                    
-                    <hr />
-                    
-                    <ul class="list-unstyled">
-                        <li><strong>Plats:</strong> @Model.Placement</li>
-                        <li><strong>Inköpt:</strong> @Model.PurchaseDate.ToShortDateString()</li>
-                        <li><strong>System-ID:</strong> @Model.Id</li>
-                    </ul>
-                </div>
-                
-                <div class="card-footer bg-light d-flex justify-content-between align-items-center p-3">
-                    <a asp-action="Index" class="btn btn-secondary">Tillbaka till katalogen</a>
-                    
-                    @if (Model.Status == SOS100_MVC.Models.ItemStatus.Tillgänglig)
-                    {
-                        <a asp-controller="Loan" asp-action="Create" asp-route-itemId="@Model.Id" class="btn btn-success btn-lg shadow-sm">
-                            Låna denna pryl
+                        <a asp-controller="Loan" asp-action="Create" asp-route-itemId="@Model.Id" class="btn btn-success px-4 rounded-pill shadow-sm fw-bold">
+                            <i class="bi bi-bookmark-check me-2"></i> Låna detta objekt
                         </a>
                     }
                 </div>
+                
             </div>
+            
         </div>
     </div>
 </div>

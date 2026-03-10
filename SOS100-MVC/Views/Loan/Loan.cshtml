@@ -1,0 +1,100 @@
+﻿@model SOS100_MVC.Models.Item
+
+@{
+    ViewData["Title"] = "Låna: " + Model.Name;
+    var borrowerId = User?.Identity?.Name ?? "";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                    <div>
+                        <h3 class="mb-0">Låna pryl</h3>
+                        <div class="text-white-50 small">Du lånar: <strong>@Model.Name</strong> (ID: @Model.Id)</div>
+                    </div>
+
+                    @if (Model.Status == SOS100_MVC.Models.ItemStatus.Tillgänglig)
+                    {
+                        <span class="badge bg-success fs-6">Tillgänglig</span>
+                    }
+                    else if (Model.Status == SOS100_MVC.Models.ItemStatus.Trasig)
+                    {
+                        <span class="badge bg-danger fs-6">Trasig</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-warning text-dark fs-6">@Model.Status</span>
+                    }
+                </div>
+
+                <div class="card-body p-4">
+                    <div class="mb-4">
+                        <h5 class="text-muted mb-2">Info om objektet</h5>
+                        <div class="border rounded p-3 bg-light">
+                            <div><strong>Kategori:</strong> @Model.Type</div>
+                            <div><strong>Plats:</strong> @Model.Placement</div>
+                            <div class="mt-2"><strong>Beskrivning:</strong><br />@Model.Description</div>
+                        </div>
+                    </div>
+
+                    @if (Model.Status != SOS100_MVC.Models.ItemStatus.Tillgänglig)
+                    {
+                        <div class="alert alert-warning">
+                            Den här prylen är inte markerad som <strong>Tillgänglig</strong> i katalogen.
+                            Låneförsök kan stoppas av LoanAPI (Conflict).
+                        </div>
+                    }
+
+                    <form asp-controller="Loan" asp-action="Create" method="post" class="mt-3">
+                        @Html.AntiForgeryToken()
+
+                        <input type="hidden" name="ItemId" value="@Model.Id" />
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Låntagare (BorrowerId)</label>
+                            <input class="form-control" name="BorrowerId" value="@borrowerId" readonly />
+                            <div class="form-text">
+                                Hämtas från inloggad användare (User.Identity.Name). LoanAPI kräver detta fält just nu.
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Antal lånedagar (1–60)</label>
+                            <input class="form-control" type="number" name="LoanDays" value="14" min="1" max="60" required />
+                        </div>
+
+                        @if (TempData["LoanError"] != null)
+                        {
+                            <div class="alert alert-danger">
+                                @TempData["LoanError"]
+                            </div>
+                        }
+
+                        @if (TempData["LoanSuccess"] != null)
+                        {
+                            <div class="alert alert-success">
+                                @TempData["LoanSuccess"]
+                            </div>
+                        }
+
+                        <div class="d-flex justify-content-between align-items-center mt-4">
+                            <a asp-controller="Catalog" asp-action="Details" asp-route-id="@Model.Id" class="btn btn-secondary">
+                                Tillbaka
+                            </a>
+
+                            <button type="submit" class="btn btn-success btn-lg shadow-sm" @(Model.Status == SOS100_MVC.Models.ItemStatus.Tillgänglig ? "" : "disabled")>
+                                Bekräfta lån
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="card-footer bg-light small text-muted">
+                    Lånet skapas via LoanAPI som i sin tur kontrollerar och uppdaterar item i KatalogAPI.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

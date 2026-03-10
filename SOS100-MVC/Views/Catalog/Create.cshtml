@@ -3,60 +3,76 @@
 @{
     ViewData["Title"] = "Lägg till nytt objekt";
 }
+<style>
+    /* Mjukare bakgrund på hela sidan för att låta vita boxar poppa */
+    body {
+        background-color: #f4f7f6;
+    }
+</style>
 
-<div class="container mt-5">
+<div class="container mt-5 mb-5">
     <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <h3 class="mb-0">Registrera ny pryl</h3>
+        <div class="col-md-8 col-lg-7">
+            
+            <div class="card shadow border-0 rounded-4">
+                <div class="card-header bg-white border-bottom-0 pt-4 pb-2 px-4">
+                    <h3 class="mb-0 fw-bold d-flex align-items-center">
+                        <i class="bi bi-plus-circle text-primary me-2"></i> Registrera nytt objekt
+                    </h3>
+                    <p class="text-muted small mt-1 mb-0">Fyll i uppgifterna nedan för att lägga till ett objekt i katalogen.</p>
                 </div>
+                
                 <div class="card-body p-4">
-                    
                     <form asp-action="Create" method="post">
                         
-                        <div class="mb-3">
-                            <label asp-for="Name" class="form-label fw-bold">Namn på objektet</label>
-                            <input asp-for="Name" class="form-control" placeholder="T.ex. Skruvdragare" required />
-                            <span asp-validation-for="Name" class="text-danger"></span>
+                        <div class="mb-4">
+                            <label asp-for="Name" class="form-label fw-bold text-secondary small text-uppercase">Namn på objektet</label>
+                            <input asp-for="Name" class="form-control bg-light border-0 px-3 py-2 rounded-3" placeholder="T.ex. Skruvdragare eller C# för nybörjare" required />
+                            <span asp-validation-for="Name" class="text-danger small"></span>
                         </div>
 
-                        <div class="mb-3">
-                            <label asp-for="Type" class="form-label fw-bold">Kategori (0=Elektronik, 1=Bok, 2=Rapport, 3=Annat)</label>
-                            <input asp-for="Type" class="form-control" type="number" required />
-                            <span asp-validation-for="Type" class="text-danger"></span>
+                        <div class="mb-4">
+                            <label asp-for="Type" class="form-label fw-bold text-secondary small text-uppercase">Kategori</label>
+                            <select asp-for="Type" class="form-select bg-light border-0 px-3 py-2 rounded-3" asp-items="Html.GetEnumSelectList<SOS100_MVC.Models.ItemType>()" required>
+                                <option value="">-- Välj en kategori --</option>
+                            </select>
+                            <span asp-validation-for="Type" class="text-danger small"></span>
                         </div>
 
-                        <div class="mb-3">
-                            <label asp-for="Description" class="form-label fw-bold">Beskrivning</label>
-                            <textarea asp-for="Description" class="form-control" rows="3" placeholder="Beskriv prylen och dess skick..."></textarea>
-                            <span asp-validation-for="Description" class="text-danger"></span>
+                        <div class="mb-4">
+                            <label asp-for="Description" class="form-label fw-bold text-secondary small text-uppercase">Beskrivning</label>
+                            <textarea asp-for="Description" class="form-control bg-light border-0 px-3 py-2 rounded-3" rows="3" placeholder="Beskriv objektet och dess skick..."></textarea>
+                            <span asp-validation-for="Description" class="text-danger small"></span>
                         </div>
                         
-                        <div class="mb-3">
-                            <label asp-for="Placement" class="form-label fw-bold">Plats / Förvaring</label>
-                            <input asp-for="Placement" class="form-control" placeholder="T.ex. Hylla A3" />
-                            <span asp-validation-for="Placement" class="text-danger"></span>
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label asp-for="Placement" class="form-label fw-bold text-secondary small text-uppercase">Plats / Förvaring</label>
+                                <input asp-for="Placement" class="form-control bg-light border-0 px-3 py-2 rounded-3" placeholder="T.ex. Hylla A3" />
+                                <span asp-validation-for="Placement" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-4">
+                                <label asp-for="PurchaseDate" class="form-label fw-bold text-secondary small text-uppercase">Inköpsdatum</label>
+                                <input asp-for="PurchaseDate" class="form-control bg-light border-0 px-3 py-2 rounded-3" type="date" required />
+                                <span asp-validation-for="PurchaseDate" class="text-danger small"></span>
+                            </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label asp-for="PurchaseDate" class="form-label fw-bold">Inköpsdatum</label>
-                            <input asp-for="PurchaseDate" class="form-control" type="date" required />
-                            <span asp-validation-for="PurchaseDate" class="text-danger"></span>
-                        </div>
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3 small"></div>
 
-                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
-
-                        <hr class="my-4" />
-
-                        <div class="d-flex justify-content-between">
-                            <a asp-action="Index" class="btn btn-outline-secondary">Avbryt</a>
-                            <button type="submit" class="btn btn-primary px-4">Spara objekt</button>
+                        <div class="d-flex justify-content-between align-items-center mt-2 pt-3 border-top">
+                            <a asp-action="Index" class="btn btn-outline-secondary rounded-pill px-4">
+                                <i class="bi bi-x-circle me-1"></i> Avbryt
+                            </a>
+                            <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm">
+                                <i class="bi bi-check2-circle me-1"></i> Spara objekt
+                            </button>
                         </div>
                     </form>
-                    
                 </div>
             </div>
+            
         </div>
     </div>
 </div>

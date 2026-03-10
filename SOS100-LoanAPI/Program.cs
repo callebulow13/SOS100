@@ -54,13 +54,13 @@ app.UseAuthorization();
 
 app.MapControllers().RequireRateLimiting("fixed");
 // --- AUTOMATISK DATABAS-UPPDATERING ---
+
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<SOS100_LoanAPI.Data.LoanDbContext>();
-    
-    // Detta kommando tvingar databasen att skapas och bygga alla tabeller (Loans) 
-    // utifrån era modeller, varje gång API:et startar!
-    context.Database.EnsureCreated(); 
+
+    // Kör migrations (uppdaterar schema och index på en befintlig DB)
+    context.Database.Migrate();
 }
 // --------------------------------------
 app.Run();

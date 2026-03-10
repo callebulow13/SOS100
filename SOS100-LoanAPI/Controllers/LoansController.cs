@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using SOS100_LoanApi.Dtos;
 using SOS100_LoanAPI.Data;
 using SOS100_LoanAPI.Domain;
+using SOS100_LoanAPI.Infrastructure;
 
 namespace SOS100_LoanAPI.Controllers;
 
@@ -62,7 +63,7 @@ public class LoansController : ControllerBase
         await using var tx = await _db.Database.BeginTransactionAsync(ct);
 
         var alreadyActive = await _db.Loans
-            .AnyAsync(l => l.ItemId == req.ItemId && l.Status == LoanStatus.Active, ct);
+            .AnyAsync(l => l.ItemId == req.ItemId && l.ReturnedAt == null, ct);
 
         if (alreadyActive)
             return Conflict(new { message = "Objektet är redan utlånat lokalt." });
@@ -73,8 +74,6 @@ public class LoansController : ControllerBase
             BorrowerId = req.BorrowerId,
             LoanedAt = DateTimeOffset.UtcNow,
             DueAt = DateTimeOffset.UtcNow.AddDays(req.LoanDays),
-            Status = LoanStatus.Active,
-            ActiveItemKey = req.ItemId
         };
 
         _db.Loans.Add(loan);
@@ -84,17 +83,29 @@ public class LoansController : ControllerBase
             await _db.SaveChangesAsync(ct);
             await tx.CommitAsync(ct);
         }
+        catch (DbUpdateException ex) when (ex.IsSqliteUniqueConstraintViolation())
+        {
+            await tx.RollbackAsync(ct);
+
+            // Detta är vårt "förväntade" fel: någon försöker skapa ett aktivt lån
+            // fast item redan har ett aktivt lån. DB-indexet stoppar det.
+            return Conflict(new
+            {
+                message = "Det finns redan ett aktivt lån för detta item.",
+                code = "ACTIVE_LOAN_EXISTS"
+            });
+        }
         catch (DbUpdateException ex)
         {
+            await tx.RollbackAsync(ct);
+
             var realError = ex.InnerException?.Message ?? ex.Message;
 
-            // 1) Skriv ut till LoanAPI-konsolen (Run/Debug)
             Console.WriteLine("\n--- DB UPDATE ERROR ---");
             Console.WriteLine(realError);
             Console.WriteLine(ex.ToString());
-            Console.WriteLine("-----------------------\n");
+            Console.WriteLine("----------------------\n");
 
-            // 2) Skicka tillbaka detaljer så MVC kan visa dem
             return Conflict(new
             {
                 message = "Ett databasfel uppstod!",
@@ -157,14 +168,10 @@ public class LoansController : ControllerBase
         if (loan is null)
             return NotFound();
 
-        if (loan.Status != LoanStatus.Active)
+        if (loan.ReturnedAt is not null)
             return Conflict(new { message = "Lånet är inte aktivt." });
 
-        loan.Status = LoanStatus.Returned;
         loan.ReturnedAt = DateTimeOffset.UtcNow;
-
-        // 🔓 släpper “låset” så item kan lånas igen
-        loan.ActiveItemKey = null;
 
         try
         {
@@ -190,8 +197,15 @@ public class LoansController : ControllerBase
         if (status is not null)
             query = query.Where(l => l.Status == status);
 
-         if (itemId.HasValue)
-            query = query.Where(l => l.ItemId == itemId);
+        if (status is not null)
+        {
+            query = status switch
+            {
+                LoanStatus.Active => query.Where(l => l.ReturnedAt == null),
+                LoanStatus.Returned => query.Where(l => l.ReturnedAt != null),
+                _ => query
+            };
+        }
 
         var result = await query
             .OrderByDescending(l => l.LoanedAt)

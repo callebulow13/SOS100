@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using SOS100_MVC.Models; // För att kunna använda User-klassen
+using SOS100_MVC.Models;
 
 namespace SOS100_MVC.Controllers;
 
@@ -8,30 +8,58 @@ public class TestProfileController : Controller
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IConfiguration _configuration;
 
-    // Vi berövar in de verktyg din kompis använder för API-anrop
     public TestProfileController(IHttpClientFactory httpClientFactory, IConfiguration configuration)
     {
         _httpClientFactory = httpClientFactory;
         _configuration = configuration;
     }
 
-    // Genom att lägga till "int id = 1" hämtar vi automatiskt användare 1 om inget annat anges
     public async Task<IActionResult> Index(int id = 1)
     {
         var client = _httpClientFactory.CreateClient();
-        var baseUrl = _configuration["UserServiceBaseUrl"];
+        
+        // 1. HÄMTA ANVÄNDAREN (Från din UserService)
+        var userBaseUrl = _configuration["UserServiceBaseUrl"];
+        var userResponse = await client.GetAsync($"{userBaseUrl}/User/{id}");
 
-        // Gör anropet till din kompis API för att hämta den specifika användaren
-        var response = await client.GetAsync($"{baseUrl}/User/{id}");
+        if (!userResponse.IsSuccessStatusCode) 
+            return Content($"Kunde inte hämta användare med ID {id}.");
 
-        if (!response.IsSuccessStatusCode) 
+        var user = await userResponse.Content.ReadFromJsonAsync<User>();
+
+// 2. HÄMTA LÅNEN
+        var loanBaseUrl = _configuration["LoanServiceBaseUrl"] ?? "http://localhost:5125"; // Din kompis port
+        
+        // NYTT TRICK: Vi hämtar ALLA lån utan att ange någon status. 
+        // Då kringgår vi kraschen i kompisens API helt och hållet!
+        // Den ska sluta precis efter "loans"
+        var loanResponse = await client.GetAsync($"{loanBaseUrl}/api/loans");
+        
+        var myActiveLoans = new List<LoanDto>();
+        
+        if (loanResponse.IsSuccessStatusCode)
         {
-            return Content($"Kunde inte hämta användare med ID {id} från API:et. Är UserService igång?");
+            var allLoans = await loanResponse.Content.ReadFromJsonAsync<List<LoanDto>>();
+            if (allLoans != null)
+            {
+                // NYTT: Nu kollar vi BARA mot den specifika användarens ID eller Användarnamn.
+                // Inga hårdkodade "admin"-undantag kvar!
+                myActiveLoans = allLoans.Where(l => 
+                    l.ReturnedAt == null && 
+                    (l.BorrowerId == user.UserID.ToString() || l.BorrowerId == user.Username)
+                ).ToList();
+            }
+            
+            ViewBag.DebugMessage = $"Hämtade {allLoans?.Count ?? 0} lån totalt. Filtrerade fram {myActiveLoans.Count} st lån för {user.Username}.";
         }
 
-        var user = await response.Content.ReadFromJsonAsync<User>();
+        // 3. LÄGG ALLT I KORGEN (ViewModel)
+        var viewModel = new ProfileViewModel
+        {
+            User = user,
+            ActiveLoans = myActiveLoans
+        };
 
-        // Skicka den RIKTIGA användaren till din test-vy
-        return View(user);
+        return View(viewModel);
     }
 }

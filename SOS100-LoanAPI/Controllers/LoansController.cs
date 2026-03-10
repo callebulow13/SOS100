@@ -207,11 +207,15 @@ public class LoansController : ControllerBase
             };
         }
 
-        var result = await query
-            .OrderByDescending(l => l.LoanedAt)
-            .ToListAsync(ct);
+// 1. Hämta datan från SQLite först (utan sortering)
+        var result = await query.ToListAsync(ct);
 
-        return Ok(result);
+        // 2. Sortera listan i minnet istället (C# klarar DateTimeOffset galant!)
+        var sortedResult = result
+            .OrderByDescending(l => l.LoanedAt)
+            .ToList();
+
+        return Ok(sortedResult);
     }
     // --- HÄR KLISTRAR NI IN DEN NYA METODEN ISTÄLLET ---
     [HttpGet("test-hamta-pryl/{id}")]

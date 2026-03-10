@@ -1,1 +1,95 @@
+@{
+    ViewData["Title"] = "Mina sidor";
+    var reminders = ViewBag.Reminders as List<SOS100_MVC.Models.Reminder>
+                    ?? new List<SOS100_MVC.Models.Reminder>();
+    var watches = ViewBag.Watches as List<SOS100_MVC.Models.Watch>
+                  ?? new List<SOS100_MVC.Models.Watch>();
+}
+
+<h2>Mina sidor</h2>
+
+@model User
+
+<form>
+    <div class="mb-3">
+        <label class="form-label">Användarnamn</label>
+        <input asp-for="Username" class="form-control" readonly />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Förnamn</label>
+        <input asp-for="FirstName" class="form-control" readonly />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Efternamn</label>
+        <input asp-for="LastName" class="form-control" readonly />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">E-post</label>
+        <input asp-for="Email" class="form-control" readonly />
+    </div>
+    
+    <a asp-controller="MyPages" asp-action="EditProfile" class="btn btn-primary">
+        Ändra uppgifter
+    </a>
+</form>
+
+<h4>🔔 Mina påminnelser (@reminders.Count)</h4>
+
+@if (!reminders.Any())
+{
+    <p>Inga påminnelser just nu.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Objekt</th>
+            <th>Förfaller</th>
+            <th>Status</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var r in reminders)
+        {
+            <tr class="@(r.DueDate < DateTime.Now ? "table-danger" : "")">
+                <td>@r.ItemTitle</td>
+                <td>@r.DueDate.ToString("yyyy-MM-dd")</td>
+                <td>@(r.IsSent ? "✅ Skickad" : "⏰ Väntar")</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+
+<h4>👁️ Mina bevakningar (@watches.Count)</h4>
+
+@if (!watches.Any())
+{
+    <p>Inga bevakningar just nu.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Objekt</th>
+            <th>Status</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var w in watches)
+        {
+            <tr>
+                <td>@w.ItemTitle</td>
+                <td>@(w.IsActive ? "👁️ Bevakas" : "Inaktiv")</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+
 <a asp-controller="Account" asp-action="SignOutUser">Log out</a>

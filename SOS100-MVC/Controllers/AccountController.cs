@@ -19,14 +19,13 @@ public class AccountController : Controller
         _configuration = configuration;
     }
     
-    public IActionResult Index(string returnUrl)
+    public IActionResult Index()
     {
-        ViewBag.ReturnUrl = returnUrl;
         return View();
     }
 
     [HttpPost]
-    public async Task<IActionResult> Index(Account account, string returnUrl)
+    public async Task<IActionResult> Index(Account account)
     {
         var loginDto = new
         {
@@ -45,29 +44,24 @@ public class AccountController : Controller
         if (!response.IsSuccessStatusCode)
         {
             ViewBag.ErrorMessage = "Login failed: Wrong username or password";
-            ViewBag.ReturnUrl = returnUrl;
             return View();
         }
 
         var apiUser = await response.Content.ReadFromJsonAsync<ApiUserDto>();
         
-        //Korrekt användarnamn och lösenord
-        var identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme);
-        
-        identity.AddClaim(new Claim(ClaimTypes.Name, apiUser.Username));
-        identity.AddClaim(new Claim(ClaimTypes.Role, apiUser.Role));
-        
-        await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
-            new ClaimsPrincipal(identity));
-        
-        //Ifall ingen returnUrl, gå till Home
-        if (String.IsNullOrEmpty(returnUrl))
+        var claims = new List<Claim>
         {
-            return RedirectToAction("Index", "Home");
-        }
+            new Claim(ClaimTypes.NameIdentifier, apiUser.UserID.ToString()),
+            new Claim(ClaimTypes.Name, apiUser.Username),
+            new Claim(ClaimTypes.Role, apiUser.Role)
+        };
+        var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+        var principal = new ClaimsPrincipal(identity);
+        await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
+            new ClaimsPrincipal(principal));
         
         //Gå tillbaka via returnUrl
-        return Redirect(returnUrl);
+        return Redirect($"Home/Index/");
     }
     
     public async Task<IActionResult> SignOutUser()
@@ -86,6 +80,7 @@ public class AccountController : Controller
 
         identity.AddClaim(new Claim(ClaimTypes.Name, "admin"));
         identity.AddClaim(new Claim(ClaimTypes.Role, "Admin"));
+        identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, "1"));
 
         await HttpContext.SignInAsync(
             CookieAuthenticationDefaults.AuthenticationScheme,
@@ -105,6 +100,7 @@ public class AccountController : Controller
 
         identity.AddClaim(new Claim(ClaimTypes.Name, "user"));
         identity.AddClaim(new Claim(ClaimTypes.Role, "User"));
+        identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, "2"));
 
         await HttpContext.SignInAsync(
             CookieAuthenticationDefaults.AuthenticationScheme,

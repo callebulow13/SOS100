@@ -1,11 +1,37 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Hem";
 }
 <link rel="stylesheet" href="~/css/home.css" asp-append-version="true"/>
 
-<div class="text-center">
-    <h1 class="display-4">Vad söker du idag?</h1>
-    <a class="btn btn-primary btn-lg mt-4" asp-controller="Catalog" asp-action="Index">
-        Katalog
-    </a>
+<div class="hero">
+    <div class="hero-tag">Kommunbiblioteket</div>
+    <h1 class="hero-title">Vad söker du<br><em>idag?</em></h1>
+    <p class="hero-subtitle">Utforska tusentals böcker, verktyg och resurser i vår samling.</p>
+
+    <div class="hero-search">
+        <input type="text" placeholder="Sök titel, författare, ämne…"/>
+        <button onclick="window.location.href='@Url.Action("Index", "Catalog")'">Sök</button>
+    </div>
+
+    <div class="hero-cards">
+        <a class="hero-card" asp-controller="Catalog" asp-action="Index">
+            <span class="hero-card-icon">📚</span>
+            <span class="hero-card-label">Katalogen</span>
+        </a>
+        <a class="hero-card" asp-controller="MyPages" asp-action="Index">
+            <span class="hero-card-icon">🔔</span>
+            <span class="hero-card-label">Mina sidor</span>
+        </a>
+        <a class="hero-card" asp-controller="Reports" asp-action="Index">
+            <span class="hero-card-icon">📊</span>
+            <span class="hero-card-label">Rapporter</span>
+        </a>
+        @if (User.Identity != null && User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+        {
+            <a class="hero-card" asp-controller="Admin" asp-action="Index">
+                <span class="hero-card-icon">⚙️</span>
+                <span class="hero-card-label">Admin</span>
+            </a>
+        }
+    </div>
 </div>

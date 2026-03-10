@@ -110,6 +110,15 @@ using (var scope = app.Services.CreateScope())
                 Status = ItemStatus.Trasig, 
                 Placement = "Verktygslådan", 
                 PurchaseDate = DateTime.Now.AddDays(-25) 
+            },
+            new Item 
+            { 
+                Name = "Ekonomirapport", 
+                Type = ItemType.Rapport, 
+                Description = "Bokslut 2021-2022.", 
+                Status = ItemStatus.Saknas, 
+                Placement = "Bokhylla B", 
+                PurchaseDate = DateTime.Now.AddDays(-25) 
             }
         );
 

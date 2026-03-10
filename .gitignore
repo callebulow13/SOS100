@@ -421,5 +421,9 @@ FodyWeavers.xsd
 .idea/
 
 # SQLite database files
+# Ignorera SQLite-databaser
+*.db
 *.db-shm
 *.db-wal
+*.sqlite
+*.sqlite3

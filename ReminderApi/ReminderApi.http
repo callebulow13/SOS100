@@ -42,3 +42,57 @@ X-Api-Key: {{apiKey}}
 ### Hämta bevakningar för användare 1
 GET {{host}}/api/watches?userId=1
 X-Api-Key: {{apiKey}}
+
+### Test 1: Skapa bevakning
+POST {{host}}/api/watches
+Content-Type: application/json
+X-Api-Key: {{apiKey}}
+
+{
+  "userId": 1,
+  "itemId": 5,
+  "itemTitle": "Clean Code",
+  "isActive": true
+}
+### Test 2: Hämta alla bevakningar
+GET {{host}}/api/watches
+X-Api-Key: {{apiKey}}
+### Test 3: Skapa påminnelse
+POST {{host}}/api/reminders
+Content-Type: application/json
+X-Api-Key: {{apiKey}}
+
+{
+  "userId": 1,
+  "loanId": 10,
+  "itemId": 5,
+  "itemTitle": "Clean Code",
+  "dueDate": "2026-03-08T00:00:00Z",
+  "isSent": false,
+  "watchId": 2
+}
+### Test 4: Hämta försenade påminnelser
+GET {{host}}/api/reminders?overdue=true
+X-Api-Key: {{apiKey}}
+### Test 5: Räkna försenade
+GET {{host}}/api/reminders/overdue/count
+X-Api-Key: {{apiKey}}
+### Test 6: Markera påminnelse som skickad
+PUT {{host}}/api/reminders/1
+Content-Type: application/json
+X-Api-Key: {{apiKey}}
+
+{
+  "isSent": true,
+  "dueDate": "2026-03-08T00:00:00Z",
+  "itemTitle": "Clean Code"
+}
+### Test 7: Ta bort bevakning
+DELETE {{host}}/api/watches/2
+X-Api-Key: {{apiKey}}
+### Test 8: Ta bort påminnelse
+DELETE {{host}}/api/reminders/1
+X-Api-Key: {{apiKey}}
+### Test Azure: Räkna försenade (live)
+GET https://app-sos100-reminder-service.azurewebsites.net/api/reminders/overdue/count
+X-Api-Key: reminder-hemlig-123

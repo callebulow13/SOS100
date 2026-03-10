@@ -60,7 +60,6 @@ public class WatchesController : ControllerBase
     public async Task<IActionResult> Update(int id, [FromBody] Watch updated)
     {
         var watch = await _db.Watches.FindAsync(id);
-
         if (watch == null)
             return NotFound(new { error = "Bevakning hittades inte." });
 
@@ -75,12 +74,17 @@ public class WatchesController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var watch = await _db.Watches.FindAsync(id);
+        var watch = await _db.Watches
+            .Include(w => w.Reminders)
+            .FirstOrDefaultAsync(w => w.Id == id);
 
         if (watch == null)
             return NotFound(new { error = "Bevakning hittades inte." });
 
+        // Ta bort kopplade påminnelser först
+        _db.Reminders.RemoveRange(watch.Reminders);
         _db.Watches.Remove(watch);
+    
         await _db.SaveChangesAsync();
         return NoContent();
     }

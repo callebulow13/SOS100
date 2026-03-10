@@ -62,4 +62,28 @@ public class TestProfileController : Controller
 
         return View(viewModel);
     }
+    [HttpPost]
+    public async Task<IActionResult> ReturnItem(Guid loanId, int userId)
+    {
+        var client = _httpClientFactory.CreateClient();
+        var loanBaseUrl = _configuration["LoanServiceBaseUrl"] ?? "http://localhost:5125";
+
+        // Kompisens API väntar sig ett POST-anrop till adressen: /api/loans/{loanId}/return
+        // Eftersom vi inte behöver skicka med någon data i själva "kroppen" av anropet, skickar vi "null".
+        var response = await client.PostAsync($"{loanBaseUrl}/api/loans/{loanId}/return", null);
+
+        if (response.IsSuccessStatusCode)
+        {
+            // Om API:et returnerade Ok (200), ladda om profilsidan för samma användare!
+            return RedirectToAction("Index", new { id = userId });
+        }
+        else
+        {
+            // Om något gick fel, läser vi felmeddelandet och skickar med det till vyn via TempData
+            var errorText = await response.Content.ReadAsStringAsync();
+            TempData["ErrorMessage"] = $"Kunde inte återlämna. API svarade: {errorText}";
+            
+            return RedirectToAction("Index", new { id = userId });
+        }
+    }
 }

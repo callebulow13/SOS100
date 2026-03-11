@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using SOS100_MVC.Models;
+using System.Security.Claims;
 
 namespace SOS100_MVC.Controllers;
 
@@ -14,27 +15,33 @@ public class TestProfileController : Controller
         _configuration = configuration;
     }
 
-    public async Task<IActionResult> Index(int id = 1)
+public async Task<IActionResult> Index()
     {
+        // 1. LÄS AV VEM SOM ÄR INLOGGAD
+        var loggedInUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        // Om ingen är inloggad, avbryt och visa ett fel (eller skicka till startsidan)
+        if (string.IsNullOrEmpty(loggedInUserId))
+        {
+            return Content("Du måste vara inloggad för att se denna sida.");
+        }
+
         var client = _httpClientFactory.CreateClient();
         
-        // 1. HÄMTA ANVÄNDAREN (Från din UserService)
+        // 2. HÄMTA ANVÄNDAREN
         var userBaseUrl = _configuration["UserServiceBaseUrl"];
-        var userResponse = await client.GetAsync($"{userBaseUrl}/User/{id}");
+        // Vi skickar in det inloggade ID:t till kompisens API
+        var userResponse = await client.GetAsync($"{userBaseUrl}/User/{loggedInUserId}");
 
         if (!userResponse.IsSuccessStatusCode) 
-            return Content($"Kunde inte hämta användare med ID {id}.");
+            return Content($"Kunde inte hämta användare med ID {loggedInUserId}.");
 
         var user = await userResponse.Content.ReadFromJsonAsync<User>();
 
-// 2. HÄMTA LÅNEN
-        var loanBaseUrl = _configuration["LoanServiceBaseUrl"] ?? "http://localhost:5125"; // Din kompis port
+        // 3. HÄMTA LÅNEN
+        var loanBaseUrl = _configuration["LoanServiceBaseUrl"] ?? "http://localhost:5125"; 
         
-        // NYTT TRICK: Vi hämtar ALLA lån utan att ange någon status. 
-        // Då kringgår vi kraschen i kompisens API helt och hållet!
-        // Den ska sluta precis efter "loans"
         var loanResponse = await client.GetAsync($"{loanBaseUrl}/api/loans");
-        
         var myActiveLoans = new List<LoanDto>();
         
         if (loanResponse.IsSuccessStatusCode)
@@ -42,8 +49,7 @@ public class TestProfileController : Controller
             var allLoans = await loanResponse.Content.ReadFromJsonAsync<List<LoanDto>>();
             if (allLoans != null)
             {
-                // NYTT: Nu kollar vi BARA mot den specifika användarens ID eller Användarnamn.
-                // Inga hårdkodade "admin"-undantag kvar!
+                // Vi filtrerar fram lånen för den inloggade användaren
                 myActiveLoans = allLoans.Where(l => 
                     l.ReturnedAt == null && 
                     (l.BorrowerId == user.UserID.ToString() || l.BorrowerId == user.Username)
@@ -53,7 +59,7 @@ public class TestProfileController : Controller
             ViewBag.DebugMessage = $"Hämtade {allLoans?.Count ?? 0} lån totalt. Filtrerade fram {myActiveLoans.Count} st lån för {user.Username}.";
         }
 
-        // 3. LÄGG ALLT I KORGEN (ViewModel)
+        // 4. LÄGG ALLT I KORGEN (ViewModel)
         var viewModel = new ProfileViewModel
         {
             User = user,

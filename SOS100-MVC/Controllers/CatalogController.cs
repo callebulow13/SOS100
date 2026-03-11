@@ -216,4 +216,35 @@ public class CatalogController : Controller
         
         return View(items);
     }
+    // POST: /Catalog/SeedCatalog
+    [Authorize(Roles = "Admin")]
+    [HttpPost]
+    public async Task<IActionResult> SeedCatalog()
+    {
+        // Eftersom _httpClient redan är uppsatt i din konstruktor gör vi bara ett snabbt anrop
+        HttpResponseMessage response = await _httpClient.PostAsync("/api/items/seed", null);
+        
+        if (response.IsSuccessStatusCode)
+            TempData["SuccessMessage"] = "Katalogen fylldes på med testdata!";
+        else
+            TempData["ErrorMessage"] = "Kunde inte fylla på katalogen. Har API:et seed-metoden?";
+
+        return RedirectToAction("Index");
+    }
+
+    // POST: /Catalog/ClearCatalog
+    [Authorize(Roles = "Admin")]
+    [HttpPost]
+    public async Task<IActionResult> ClearCatalog()
+    {
+        // Samma sak här, vi använder den färdiga klienten
+        HttpResponseMessage response = await _httpClient.DeleteAsync("/api/items/clear");
+
+        if (response.IsSuccessStatusCode)
+            TempData["SuccessMessage"] = "Katalogen är nu helt tom!";
+        else
+            TempData["ErrorMessage"] = "Kunde inte rensa katalogen. Har API:et clear-metoden?";
+
+        return RedirectToAction("Index");
+    }
 }

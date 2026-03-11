@@ -23,8 +23,8 @@ builder.Services.AddRateLimiter(options =>
 
 builder.Services.AddProblemDetails();
 
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+//builder.Services.AddEndpointsApiExplorer();
+//builder.Services.AddSwaggerGen();
 
 // Läggs till i kompisens Program.cs (innan builder.Build())
 builder.Services.AddHttpClient("KatalogClient", client =>
@@ -43,8 +43,8 @@ builder.Services.AddDbContext<LoanDbContext>(options =>
 var app = builder.Build();
 app.UseExceptionHandler();
 
-app.UseSwagger();
-app.UseSwaggerUI();
+//app.UseSwagger();
+//app.UseSwaggerUI();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using SOS100_MVC.Models;
+using System.Security.Claims;
 
 namespace SOS100_MVC.Controllers;
 
@@ -14,16 +15,21 @@ public class TestProfileController : Controller
         _configuration = configuration;
     }
 
-    public async Task<IActionResult> Index(int id = 1)
+    public async Task<IActionResult> Index()
     {
+        var loggedInUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (string.IsNullOrEmpty(loggedInUserId))
+            return Content("Du måste vara inloggad för att se denna sida.");
+
         var client = _httpClientFactory.CreateClient();
-        
-        // 1. HÄMTA ANVÄNDAREN
+
+        // Hämta användaren
         User? user = null;
         try
         {
             var userBaseUrl = _configuration["UserServiceBaseUrl"];
-            var userResponse = await client.GetAsync($"{userBaseUrl}/User/{id}");
+            var userResponse = await client.GetAsync($"{userBaseUrl}/User/{loggedInUserId}");
             if (userResponse.IsSuccessStatusCode)
                 user = await userResponse.Content.ReadFromJsonAsync<User>();
         }
@@ -33,22 +39,22 @@ public class TestProfileController : Controller
         }
 
         if (user == null)
-            return Content($"Kunde inte hämta användare med ID {id}. UserService kanske inte körs.");
+            return Content($"Kunde inte hämta användare med ID {loggedInUserId}. UserService kanske inte körs.");
 
-        // 2. HÄMTA LÅNEN
+        // Hämta lånen
         var myActiveLoans = new List<LoanDto>();
         try
         {
             var loanBaseUrl = _configuration["LoanServiceBaseUrl"] ?? "http://localhost:5125";
             var loanResponse = await client.GetAsync($"{loanBaseUrl}/api/loans");
-            
+
             if (loanResponse.IsSuccessStatusCode)
             {
                 var allLoans = await loanResponse.Content.ReadFromJsonAsync<List<LoanDto>>();
                 if (allLoans != null)
                 {
-                    myActiveLoans = allLoans.Where(l => 
-                        l.ReturnedAt == null && 
+                    myActiveLoans = allLoans.Where(l =>
+                        l.ReturnedAt == null &&
                         (l.BorrowerId == user.UserID.ToString() || l.BorrowerId == user.Username)
                     ).ToList();
                 }
@@ -57,11 +63,9 @@ public class TestProfileController : Controller
         }
         catch
         {
-            // LoanService är nere
             ViewBag.DebugMessage = "LoanService är inte tillgänglig just nu.";
         }
 
-        // 3. BYGG VIEWMODEL
         var viewModel = new ProfileViewModel
         {
             User = user,

@@ -67,6 +67,7 @@ public class LoansController : ControllerBase
 
         if (alreadyActive)
             return Conflict(new { message = "Objektet är redan utlånat lokalt." });
+        
 
         var loan = new Loan
         {
@@ -165,26 +166,42 @@ public class LoansController : ControllerBase
     public async Task<IActionResult> ReturnLoan(Guid loanId, CancellationToken ct)
     {
         var loan = await _db.Loans.FirstOrDefaultAsync(l => l.Id == loanId, ct);
+
         if (loan is null)
             return NotFound();
 
-        if (loan.ReturnedAt is not null)
-            return Conflict(new { message = "Lånet är inte aktivt." });
+        return await CompleteReturnAsync(loan, ct);
+    }
+   
+    
+    // POST: api/loans/return-by-item/{itemId}
+    [HttpPost("return-by-item/{itemId:int}")]
+    public async Task<IActionResult> ReturnLoanByItemId(int itemId, CancellationToken ct)
+    {
+        var loan = await _db.Loans
+            .FirstOrDefaultAsync(l => l.ItemId == itemId && l.ReturnedAt == null, ct);
 
-        loan.ReturnedAt = DateTimeOffset.UtcNow;
+        if (loan is null)
+            return NotFound(new { message = "Det finns inget aktivt lån för detta item." });
 
-        try
-        {
-            await _db.SaveChangesAsync(ct);
-        }
-        catch (DbUpdateException)
-        {
-            return Problem("Databasfel vid återlämning.", statusCode: 500);
-        }
+        return await CompleteReturnAsync(loan, ct);
+    }
+
+
+
+    // GET: api/loans/active-by-item/{itemId}
+    [HttpGet("active-by-item/{itemId:int}")]
+    public async Task<IActionResult> GetActiveLoanByItemId(int itemId, CancellationToken ct)
+    {
+        var loan = await _db.Loans
+            .FirstOrDefaultAsync(l => l.ItemId == itemId && l.ReturnedAt == null, ct);
+
+        if (loan is null)
+            return NotFound(new { message = "Det finns inget aktivt lån för detta item." });
 
         return Ok(loan);
     }
-
+    
     // GET: api/loans?status=Active&itemId=...
     [HttpGet]
     public async Task<IActionResult> Query(
@@ -206,6 +223,9 @@ public class LoansController : ControllerBase
                 _ => query
             };
         }
+        
+        if (itemId is not null)
+            query = query.Where(l => l.ItemId == itemId.Value);
 
         var result = await query
             .OrderByDescending(l => l.LoanedAt)
@@ -213,6 +233,69 @@ public class LoansController : ControllerBase
 
         return Ok(result);
     }
+    
+    private async Task<IActionResult> CompleteReturnAsync(Loan loan, CancellationToken ct)
+{
+    if (loan.ReturnedAt is not null)
+        return Conflict(new { message = "Lånet är inte aktivt." });
+
+    loan.ReturnedAt = DateTimeOffset.UtcNow;
+
+    var catalogClient = _httpClientFactory.CreateClient("KatalogClient");
+
+    var itemResponse = await catalogClient.GetAsync($"/api/items/{loan.ItemId}", ct);
+
+    if (itemResponse.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        return StatusCode(502, new { message = "LoanAPI kunde inte autentisera mot KatalogAPI vid återlämning." });
+
+    if (itemResponse.StatusCode == System.Net.HttpStatusCode.NotFound)
+        return NotFound(new { message = "Itemet finns inte i katalogen." });
+
+    if (!itemResponse.IsSuccessStatusCode)
+        return StatusCode(502, new { message = $"KatalogAPI fel vid hämtning: {(int)itemResponse.StatusCode} {itemResponse.StatusCode}" });
+
+    var pryl = await itemResponse.Content.ReadFromJsonAsync<ItemDto>(cancellationToken: ct);
+
+    if (pryl == null)
+        return StatusCode(502, new { message = "LoanAPI kunde inte läsa item från KatalogAPI." });
+
+    pryl.Status = 0;
+
+    var updateResponse = await catalogClient.PutAsJsonAsync($"/api/items/{pryl.Id}", pryl, ct);
+
+    if (updateResponse.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        return StatusCode(502, new { message = "LoanAPI kunde inte autentisera mot KatalogAPI vid statusuppdatering." });
+
+    if (!updateResponse.IsSuccessStatusCode)
+    {
+        var errorText = await updateResponse.Content.ReadAsStringAsync(ct);
+
+        return StatusCode(502, new
+        {
+            message = $"KatalogAPI fel vid uppdatering: {(int)updateResponse.StatusCode} {updateResponse.StatusCode}",
+            details = errorText
+        });
+    }
+
+    try
+    {
+        await _db.SaveChangesAsync(ct);
+    }
+    catch (DbUpdateException)
+    {
+        return Problem("Databasfel vid återlämning.", statusCode: 500);
+    }
+
+    var response = new ReturnLoanResponse
+    {
+        LoanId = loan.Id,
+        ItemId = loan.ItemId,
+        ReturnedAt = loan.ReturnedAt!.Value,
+        Message = "Lånet är återlämnat."
+    };
+
+    return Ok(response);
+}
     // --- HÄR KLISTRAR NI IN DEN NYA METODEN ISTÄLLET ---
     [HttpGet("test-hamta-pryl/{id}")]
     public async Task<IActionResult> TestFetch(int id)

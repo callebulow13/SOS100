@@ -56,7 +56,7 @@
                             <label class="form-label fw-bold">Låntagare (BorrowerId)</label>
                             <input class="form-control" name="BorrowerId" value="@borrowerId" readonly />
                             <div class="form-text">
-                                Hämtas från inloggad användare (User.Identity.Name). LoanAPI kräver detta fält just nu.
+                                Hämtas från inloggad användare (User.Identity.Name).
                             </div>
                         </div>
 
@@ -69,13 +69,6 @@
                         {
                             <div class="alert alert-danger">
                                 @TempData["LoanError"]
-                            </div>
-                        }
-
-                        @if (TempData["LoanSuccess"] != null)
-                        {
-                            <div class="alert alert-success">
-                                @TempData["LoanSuccess"]
                             </div>
                         }
 

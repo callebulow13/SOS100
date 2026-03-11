@@ -3,7 +3,6 @@ using SOS100_MVC.Services;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Mvc;
 using SOS100_MVC.Models;
 
 namespace SOS100_MVC.Controllers;
@@ -20,6 +19,7 @@ public class MyPagesController : Controller
         _httpClientFactory = httpClientFactory;
         _configuration = configuration;
     }
+
     public async Task<IActionResult> Logout()
     {
         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
@@ -30,10 +30,9 @@ public class MyPagesController : Controller
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (!int.TryParse(userId, out int userIdInt))
-        {
             return Content("Invalid user id");
-        }
-        
+
+        // Hämta påminnelser och bevakningar från ReminderService
         var reminders = await _reminderService.GetRemindersAsync(userIdInt);
         var watches = await _reminderService.GetWatchesAsync(userIdInt);
         var overdueCount = await _reminderService.GetOverdueCountAsync();
@@ -42,18 +41,48 @@ public class MyPagesController : Controller
         ViewBag.Watches = watches;
         ViewBag.OverdueCount = overdueCount;
 
-        if (string.IsNullOrEmpty(userId))
-                return Content("UserId missing");
+        // Hämta användare från UserService
+        User? user = null;
+        try
+        {
+            var client = _httpClientFactory.CreateClient();
+            var baseUrl = _configuration["UserServiceBaseUrl"];
+            var response = await client.GetAsync($"{baseUrl}/User/{userId}");
+            if (response.IsSuccessStatusCode)
+                user = await response.Content.ReadFromJsonAsync<User>();
+        }
+        catch
+        {
+            // UserService är nere
+        }
 
-        var client = _httpClientFactory.CreateClient();
-        var baseUrl = _configuration["UserServiceBaseUrl"];
+        // Hämta aktiva lån från LoanService
+        var activeLoans = new List<LoanDto>();
+        try
+        {
+            var loanClient = _httpClientFactory.CreateClient();
+            var loanBaseUrl = _configuration["LoanApiBaseUrl"] ?? "http://localhost:5125";
+            var loanResponse = await loanClient.GetAsync($"{loanBaseUrl}/api/loans");
+            
+            if (loanResponse.IsSuccessStatusCode)
+            {
+                var allLoans = await loanResponse.Content
+                    .ReadFromJsonAsync<List<LoanDto>>();
+                if (allLoans != null)
+                {
+                    activeLoans = allLoans
+                        .Where(l => l.ReturnedAt == null && 
+                               l.BorrowerId == userId)
+                        .ToList();
+                }
+            }
+        }
+        catch
+        {
+            // LoanService är nere
+        }
 
-        var response = await client.GetAsync($"{baseUrl}/User/{userId}");
-
-        if (!response.IsSuccessStatusCode) 
-            return Content("API call failed");
-
-        var user = await response.Content.ReadFromJsonAsync<User>();
+        ViewBag.ActiveLoans = activeLoans;
 
         return View(user);
     }
@@ -62,30 +91,39 @@ public class MyPagesController : Controller
     public async Task<IActionResult> EditProfile()
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        var client = _httpClientFactory.CreateClient();
-        var baseUrl = _configuration["UserServiceBaseUrl"];
         
-        var response = await client.GetAsync($"{baseUrl}/User/{userId}");
-        
-        if (!response.IsSuccessStatusCode)
-            return Content("Kan inte visa användare");
-        
-        var user = await response.Content.ReadFromJsonAsync<User>();
+        User? user = null;
+        try
+        {
+            var client = _httpClientFactory.CreateClient();
+            var baseUrl = _configuration["UserServiceBaseUrl"];
+            var response = await client.GetAsync($"{baseUrl}/User/{userId}");
+            if (response.IsSuccessStatusCode)
+                user = await response.Content.ReadFromJsonAsync<User>();
+        }
+        catch
+        {
+            return Content("Kan inte nå UserService");
+        }
+
         return View(user);
     }
     
     [HttpPost]
     public async Task<IActionResult> EditProfile(User user)
     {
-        var client = _httpClientFactory.CreateClient();
-        var baseUrl = _configuration["UserServiceBaseUrl"];
-        
-        client.DefaultRequestHeaders.Add("Cookie", Request.Headers["Cookie"].ToString());
-        
-        var response = await client.PutAsJsonAsync($"{baseUrl}/User/profile/{user.UserID}", user);
-
-        if (!response.IsSuccessStatusCode)
-            return Content("Update failed");
+        try
+        {
+            var client = _httpClientFactory.CreateClient();
+            var baseUrl = _configuration["UserServiceBaseUrl"];
+            var response = await client.PutAsJsonAsync($"{baseUrl}/User/profile/{user.UserID}", user);
+            if (!response.IsSuccessStatusCode)
+                return Content("Update failed");
+        }
+        catch
+        {
+            return Content("Kan inte nå UserService");
+        }
 
         return RedirectToAction("Index");
     }

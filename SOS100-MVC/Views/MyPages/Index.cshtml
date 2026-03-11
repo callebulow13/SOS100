@@ -1,40 +1,79 @@
+@model SOS100_MVC.Models.User?
+@using SOS100_MVC.Models
+@using SOS100_MVC.Dtos
+
 @{
     ViewData["Title"] = "Mina sidor";
-    var reminders = ViewBag.Reminders as List<SOS100_MVC.Models.Reminder>
-                    ?? new List<SOS100_MVC.Models.Reminder>();
-    var watches = ViewBag.Watches as List<SOS100_MVC.Models.Watch>
-                  ?? new List<SOS100_MVC.Models.Watch>();
+    var reminders = ViewBag.Reminders as List<Reminder> ?? new List<Reminder>();
+    var watches = ViewBag.Watches as List<Watch> ?? new List<Watch>();
+    var activeLoans = ViewBag.ActiveLoans as List<LoanDto> ?? new List<LoanDto>();
 }
 
 <h2>Mina sidor</h2>
 
-@model User
+@if (Model != null)
+{
+    <form>
+        <div class="mb-3">
+            <label class="form-label">Användarnamn</label>
+            <input asp-for="Username" class="form-control" readonly />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Förnamn</label>
+            <input asp-for="FirstName" class="form-control" readonly />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Efternamn</label>
+            <input asp-for="LastName" class="form-control" readonly />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">E-post</label>
+            <input asp-for="Email" class="form-control" readonly />
+        </div>
+        <a asp-controller="MyPages" asp-action="EditProfile" class="btn btn-primary">
+            Ändra uppgifter
+        </a>
+    </form>
+}
 
-<form>
-    <div class="mb-3">
-        <label class="form-label">Användarnamn</label>
-        <input asp-for="Username" class="form-control" readonly />
-    </div>
+<h4>📚 Mina aktiva lån (@activeLoans.Count)</h4>
 
-    <div class="mb-3">
-        <label class="form-label">Förnamn</label>
-        <input asp-for="FirstName" class="form-control" readonly />
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label">Efternamn</label>
-        <input asp-for="LastName" class="form-control" readonly />
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label">E-post</label>
-        <input asp-for="Email" class="form-control" readonly />
-    </div>
-    
-    <a asp-controller="MyPages" asp-action="EditProfile" class="btn btn-primary">
-        Ändra uppgifter
-    </a>
-</form>
+@if (!activeLoans.Any())
+{
+    <p>Inga aktiva lån just nu.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Objekt ID</th>
+                <th>Lånat</th>
+                <th>Förfaller</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var loan in activeLoans)
+            {
+                <tr class="@(loan.DueAt < DateTimeOffset.Now ? "table-danger" : "")">
+                    <td>@loan.ItemId</td>
+                    <td>@loan.LoanedAt.ToString("yyyy-MM-dd")</td>
+                    <td>@loan.DueAt.ToString("yyyy-MM-dd")</td>
+                    <td>
+                        <form asp-controller="TestProfile" asp-action="ReturnItem" method="post">
+                            <input type="hidden" name="loanId" value="@loan.Id"/>
+                            <input type="hidden" name="userId" value="@User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value"/>
+                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                Återlämna
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
 
 <h4>🔔 Mina påminnelser (@reminders.Count)</h4>
 
@@ -46,21 +85,21 @@ else
 {
     <table class="table">
         <thead>
-        <tr>
-            <th>Objekt</th>
-            <th>Förfaller</th>
-            <th>Status</th>
-        </tr>
+            <tr>
+                <th>Objekt</th>
+                <th>Förfaller</th>
+                <th>Status</th>
+            </tr>
         </thead>
         <tbody>
-        @foreach (var r in reminders)
-        {
-            <tr class="@(r.DueDate < DateTime.Now ? "table-danger" : "")">
-                <td>@r.ItemTitle</td>
-                <td>@r.DueDate.ToString("yyyy-MM-dd")</td>
-                <td>@(r.IsSent ? "✅ Skickad" : "⏰ Väntar")</td>
-            </tr>
-        }
+            @foreach (var r in reminders)
+            {
+                <tr class="@(r.DueDate < DateTime.Now ? "table-danger" : "")">
+                    <td>@r.ItemTitle</td>
+                    <td>@r.DueDate.ToString("yyyy-MM-dd")</td>
+                    <td>@(r.IsSent ? "✅ Skickad" : "⏰ Väntar")</td>
+                </tr>
+            }
         </tbody>
     </table>
 }
@@ -75,19 +114,19 @@ else
 {
     <table class="table">
         <thead>
-        <tr>
-            <th>Objekt</th>
-            <th>Status</th>
-        </tr>
+            <tr>
+                <th>Objekt</th>
+                <th>Status</th>
+            </tr>
         </thead>
         <tbody>
-        @foreach (var w in watches)
-        {
-            <tr>
-                <td>@w.ItemTitle</td>
-                <td>@(w.IsActive ? "👁️ Bevakas" : "Inaktiv")</td>
-            </tr>
-        }
+            @foreach (var w in watches)
+            {
+                <tr>
+                    <td>@w.ItemTitle</td>
+                    <td>@(w.IsActive ? "👁️ Bevakas" : "Inaktiv")</td>
+                </tr>
+            }
         </tbody>
     </table>
 }

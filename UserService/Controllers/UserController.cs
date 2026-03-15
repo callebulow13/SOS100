@@ -83,6 +83,7 @@ public class UserController : ControllerBase
         if (user == null)
             return NotFound();
         
+        user.Username = updatedUser.Username;
         user.Email = updatedUser.Email;
         user.FirstName = updatedUser.FirstName;
         user.LastName = updatedUser.LastName;

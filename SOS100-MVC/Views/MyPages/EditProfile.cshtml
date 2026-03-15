@@ -3,6 +3,10 @@
 
 <form asp-action="EditProfile" method="post">
     <div class="mb-3">
+        <label>Användarnamn</label>
+        <input asp-for="User.Username" class="form-control" />
+    </div>
+    <div class="mb-3">
         <label>Förnamn</label>
         <input asp-for="User.FirstName" class="form-control" />
     </div>

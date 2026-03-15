@@ -52,7 +52,6 @@ public class UserController : ControllerBase
         return Ok(user);
     }
     
-
     [HttpPost]
     public void AddUser(User user)
     {
@@ -92,6 +91,37 @@ public class UserController : ControllerBase
         
         return NoContent();
     }
+    
+    [HttpPut("changePassword/{id}")]
+    public IActionResult UpdatePassword(int id, PasswordDto passwordDto)
+    {
+        User? user;
+        try
+        {
+            user = _dbContext.Users.Find(id);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+            
+            if (user.Password == passwordDto.Password)
+            {
+                user.Password = passwordDto.NewPassword;
+            }
+            else
+            {
+                return BadRequest("Fel nuvarande lösenord");
+            }
+            _dbContext.SaveChanges();
+        }
+        catch
+        {
+            return Content("Kan inte nå UserService");
+        }
+        return NoContent();
+    }
+    
 
     [HttpDelete("{id}")]
     public IActionResult DeleteUser(int id)

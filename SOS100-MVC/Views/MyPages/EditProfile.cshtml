@@ -1,26 +1,30 @@
-@model User
-
+@model EditProfileViewModel
 <h2>Ändra uppgifter</h2>
 
 <form asp-action="EditProfile" method="post">
-
-    <input type="hidden" asp-for="UserID" />
-
     <div class="mb-3">
         <label>Förnamn</label>
-        <input asp-for="FirstName" class="form-control" />
+        <input asp-for="User.FirstName" class="form-control" />
     </div>
-
     <div class="mb-3">
         <label>Efternamn</label>
-        <input asp-for="LastName" class="form-control" />
+        <input asp-for="User.LastName" class="form-control" />
     </div>
-
     <div class="mb-3">
         <label>Email</label>
-        <input asp-for="Email" class="form-control" />
+        <input asp-for="User.Email" class="form-control" />
     </div>
-
     <button type="submit" class="btn btn-primary">Spara</button>
+</form>
 
+<form asp-action="EditPassword" method="post">
+    <div class="mb-3">
+        <label>Gammalt lösenord</label>
+        <input asp-for="PasswordDto.Password" class="form-control" type="password"/>
+    </div>
+    <div class="mb-3">
+        <label>Nytt lösenord</label>
+        <input asp-for="PasswordDto.NewPassword" class="form-control" type="password" />
+    </div>
+    <button type="submit" class="btn btn-primary">Spara lösenord</button>
 </form>

@@ -5,7 +5,7 @@ using ReminderApi.Models;
 using ReminderApi.Filters;
 
 namespace ReminderApi.Controllers;
-// GET
+// 
 [ApiController]
 [Route("api/[controller]")]
 [ServiceFilter(typeof(ApiKeyFilter))]

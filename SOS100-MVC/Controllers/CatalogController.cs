@@ -2,6 +2,7 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SOS100_MVC.Models;
+using System.Security.Claims;
 
 namespace SOS100_MVC.Controllers;
 
@@ -247,4 +248,62 @@ public class CatalogController : Controller
 
         return RedirectToAction("Index");
     }
+    [Authorize]
+    [HttpPost]
+    public async Task<IActionResult> AddWatch(int itemId, string itemTitle, [FromServices] IHttpClientFactory httpClientFactory, [FromServices] IConfiguration configuration)
+    {
+        // 1. Plocka ut ID på den inloggade användaren
+        var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (!int.TryParse(userIdString, out int userId))
+        {
+            TempData["ErrorMessage"] = "Kunde inte identifiera ditt användarkonto.";
+            return RedirectToAction("Index");
+        }
+
+        // 2. Skapa objektet som kompisens API förväntar sig (baserat på Watch.cs)
+        var newWatch = new
+        {
+            UserId = userId,
+            ItemId = itemId,
+            ItemTitle = itemTitle,
+            IsActive = true
+        };
+
+        // 3. Skicka anropet till ReminderApi
+        try
+        {
+            var client = httpClientFactory.CreateClient();
+        
+            // Här antar jag att ni har dessa i er appsettings.json!
+            var baseUrl = configuration["ReminderApiBaseUrl"] ?? "http://localhost:5038"; // Byt ut porten om ni har en annan
+            var apiKey = configuration["ReminderApiKey"]; // Din kompis API använder ApiKeyFilter
+
+            if (!string.IsNullOrEmpty(apiKey))
+            {
+                client.DefaultRequestHeaders.Add("X-Api-Key", apiKey);
+            }
+
+            var response = await client.PostAsJsonAsync($"{baseUrl}/api/watches", newWatch);
+
+            if (response.IsSuccessStatusCode)
+            {
+                TempData["SuccessMessage"] = $"Du bevakar nu {itemTitle}!";
+            }
+            else
+            {
+                // Läs av det faktiska svaret från kompisens API
+                var errorDetails = await response.Content.ReadAsStringAsync();
+    
+                // Visa HTTP-statuskoden och API:ets eget felmeddelande på skärmen
+                TempData["ErrorMessage"] = $"API-fel ({response.StatusCode}): {errorDetails}";
+            }
+        }
+        catch
+        {
+            TempData["ErrorMessage"] = "Kunde inte nå bevakningstjänsten just nu.";
+        }
+
+        return RedirectToAction("Index");
+    }
 }
+

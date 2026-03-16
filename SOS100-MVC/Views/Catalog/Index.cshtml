@@ -192,7 +192,19 @@
                             </td>
                             <td class="text-end">
                                 <div class="d-flex justify-content-end gap-2">
-                                    
+        
+                                    @if (item.Status == SOS100_MVC.Models.ItemStatus.Utlånad && User.Identity.IsAuthenticated)
+                                    {
+                                        <form asp-controller="Catalog" asp-action="AddWatch" method="post" class="m-0">
+                                            <input type="hidden" name="itemId" value="@item.Id" />
+                                            <input type="hidden" name="itemTitle" value="@item.Name" />
+        
+                                            <button type="submit" class="btn btn-sm btn-outline-warning shadow-sm rounded-circle" title="Bevaka detta objekt">
+                                                <i class="bi bi-bell"></i>
+                                            </button>
+                                        </form>
+                                    }
+        
                                     @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
                                     {
                                         <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger shadow-sm rounded-circle" title="Ta bort">
@@ -203,7 +215,7 @@
                                             <i class="bi bi-pencil-square"></i>
                                         </a>
                                     }
-                                    
+        
                                     <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary shadow-sm rounded-circle" title="Visa detaljer">
                                         <i class="bi bi-chevron-right"></i>
                                     </a>

@@ -4,7 +4,6 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using SOS100_MVC.Models;
-using SOS100_MVC.Dtos;
 
 namespace SOS100_MVC.Controllers;
 
@@ -73,7 +72,8 @@ public class MyPagesController : Controller
                 {
                     activeLoans = allLoans
                         .Where(l => l.ReturnedAt == null && 
-                               l.BorrowerId == userId)
+                                    (l.BorrowerId == userId || 
+                                     l.BorrowerId == user?.Username))
                         .ToList();
                 }
             }
@@ -101,28 +101,23 @@ public class MyPagesController : Controller
             var response = await client.GetAsync($"{baseUrl}/User/{userId}");
             if (response.IsSuccessStatusCode)
                 user = await response.Content.ReadFromJsonAsync<User>();
-            var vm = new EditProfileViewModel()
-            {
-                User = user
-            };
-            return View(vm);
         }
         catch
         {
             return Content("Kan inte nå UserService");
         }
+
+        return View(user);
     }
     
     [HttpPost]
     public async Task<IActionResult> EditProfile(User user)
     {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        
         try
         {
             var client = _httpClientFactory.CreateClient();
             var baseUrl = _configuration["UserServiceBaseUrl"];
-            var response = await client.PutAsJsonAsync($"{baseUrl}/User/profile/{userId}", user);
+            var response = await client.PutAsJsonAsync($"{baseUrl}/User/profile/{user.UserID}", user);
             if (!response.IsSuccessStatusCode)
                 return Content("Update failed");
         }
@@ -131,28 +126,6 @@ public class MyPagesController : Controller
             return Content("Kan inte nå UserService");
         }
 
-        return RedirectToAction("Index");
-    }
-    
-    [HttpPost]
-    public async Task<IActionResult> EditPassword(PasswordDto passwordDto)
-    {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        
-        User? user = null;
-        try
-        {
-            var client = _httpClientFactory.CreateClient();
-            var baseUrl = _configuration["UserServiceBaseUrl"];
-            var response = await client.PutAsJsonAsync($"{baseUrl}/User/changePassword/{userId}", passwordDto);
-            if (!response.IsSuccessStatusCode)
-                return Content("Update failed");
-        }
-        catch
-        {
-            return Content("Kan inte nå UserService");
-        }
-        
         return RedirectToAction("Index");
     }
 }

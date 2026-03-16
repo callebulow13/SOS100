@@ -72,7 +72,8 @@ public class MyPagesController : Controller
                 {
                     activeLoans = allLoans
                         .Where(l => l.ReturnedAt == null && 
-                               l.BorrowerId == userId)
+                                    (l.BorrowerId == userId || 
+                                     l.BorrowerId == user?.Username))
                         .ToList();
                 }
             }

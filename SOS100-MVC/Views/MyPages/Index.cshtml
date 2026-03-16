@@ -83,7 +83,7 @@
     }
 
     <div class="mp-card loans">
-        <div class="mp-section-title">📚 Mina aktiva lån <span class="mp-badge">@activeLoans.Count</span></div>
+        <div class="mp-section-title">📚 Mina påminnelser <span class="mp-badge">@activeLoans.Count</span></div>
         @if (!activeLoans.Any())
         {
             <p class="mp-empty">Inga aktiva lån just nu.</p>
@@ -92,68 +92,43 @@
         {
             <table class="mp-table">
                 <thead>
-                    <tr>
-                        <th>Objekt ID</th>
-                        <th>Lånat</th>
-                        <th>Förfaller</th>
-                        <th></th>
-                    </tr>
+                <tr>
+                    <th>Objekt ID</th>
+                    <th>Lånat</th>
+                    <th>Förfaller</th>
+                    <th>Dagar kvar</th>
+                    <th></th>
+                </tr>
                 </thead>
                 <tbody>
-                    @foreach (var loan in activeLoans)
-                    {
-                        <tr class="@(loan.DueAt < DateTimeOffset.Now ? "overdue" : "")">
-                            <td>@loan.ItemId</td>
-                            <td>@loan.LoanedAt.ToString("yyyy-MM-dd")</td>
-                            <td>@loan.DueAt.ToString("yyyy-MM-dd")</td>
-                            <td>
-                                <form asp-controller="TestProfile" asp-action="ReturnItem" method="post" style="margin:0">
-                                    <input type="hidden" name="loanId" value="@loan.Id"/>
-                                    <input type="hidden" name="userId" value="@User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value"/>
-                                    <button type="submit" class="mp-return-btn">Återlämna</button>
-                                </form>
-                            </td>
-                        </tr>
-                    }
+                @foreach (var loan in activeLoans)
+                {
+                    var daysLeft = (loan.DueAt - DateTimeOffset.Now).Days;
+                    var isOverdue = loan.DueAt < DateTimeOffset.Now;
+                    <tr class="@(isOverdue ? "overdue" : "")">
+                        <td>@loan.ItemId</td>
+                        <td>@loan.LoanedAt.ToString("yyyy-MM-dd")</td>
+                        <td>@loan.DueAt.ToString("yyyy-MM-dd")</td>
+                        <td>
+                            <span class="mp-tag @(isOverdue ? "red" : daysLeft <= 3 ? "amber" : "green")">
+                                @(isOverdue ? $"{Math.Abs(daysLeft)} dagar sen" : $"{daysLeft} dagar kvar")
+                            </span>
+                        </td>
+                        <td>
+                            <form asp-controller="TestProfile" asp-action="ReturnItem" method="post" style="margin:0">
+                                <input type="hidden" name="loanId" value="@loan.Id"/>
+                                <input type="hidden" name="userId" value="@User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value"/>
+                                <button type="submit" class="mp-return-btn">Återlämna</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
                 </tbody>
             </table>
         }
     </div>
 
-    <div class="mp-card reminders">
-        <div class="mp-section-title">🔔 Mina påminnelser <span class="mp-badge">@reminders.Count</span></div>
-        @if (!reminders.Any())
-        {
-            <p class="mp-empty">Inga påminnelser just nu.</p>
-        }
-        else
-        {
-            <table class="mp-table">
-                <thead>
-                    <tr>
-                        <th>Objekt</th>
-                        <th>Förfaller</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var r in reminders)
-                    {
-                        <tr class="@(r.DueDate < DateTime.Now ? "overdue" : "")">
-                            <td>@r.ItemTitle</td>
-                            <td>@r.DueDate.ToString("yyyy-MM-dd")</td>
-                            <td>
-                                <span class="mp-tag @(r.IsSent ? "green" : r.DueDate < DateTime.Now ? "red" : "amber")">
-                                    @(r.IsSent ? "✅ Skickad" : "⏰ Väntar")
-                                </span>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        }
-    </div>
-
+    
     <div class="mp-card watches">
         <div class="mp-section-title">👁️ Mina bevakningar <span class="mp-badge">@watches.Count</span></div>
         @if (!watches.Any())

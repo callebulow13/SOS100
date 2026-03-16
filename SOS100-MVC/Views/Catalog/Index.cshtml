@@ -71,11 +71,48 @@
         </div>
         @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
         {
-            <a asp-action="Create" class="btn btn-primary shadow-sm rounded-pill px-4">
-                <i class="bi bi-plus-lg me-1"></i> Nytt objekt
-            </a>
+            <div class="card shadow-sm border-0 bg-light mb-4 rounded-4">
+                <div class="card-body d-flex flex-wrap justify-content-between align-items-center p-3 px-4 gap-3">
+                    <div>
+                        <i class="bi bi-shield-lock-fill text-primary fs-4 me-2 align-middle"></i>
+                        <span class="fw-bold text-dark">Admin-verktyg</span>
+                    </div>
+                    <div class="d-flex flex-wrap gap-2 align-items-center">
+                    
+                        <form asp-controller="Catalog" asp-action="ClearCatalog" method="post" class="m-0" onsubmit="return confirm('VARNING! Är du helt säker på att du vill radera ALLA prylar i databasen?');">
+                            <button type="submit" class="btn btn-outline-danger btn-sm fw-medium rounded-pill">
+                                <i class="bi bi-trash3 me-1"></i> Rensa databasen
+                            </button>
+                        </form>
+                    
+                        <form asp-controller="Catalog" asp-action="SeedCatalog" method="post" class="m-0">
+                            <button type="submit" class="btn btn-success btn-sm fw-medium rounded-pill shadow-sm">
+                                <i class="bi bi-magic me-1"></i> Fyll med testdata
+                            </button>
+                        </form>
+                    
+                        <div class="vr mx-2 text-secondary d-none d-md-block"></div>
+                    
+                        <a asp-action="Create" class="btn btn-primary shadow-sm rounded-pill px-4">
+                            <i class="bi bi-plus-lg me-1"></i> Nytt objekt
+                        </a>
+                    </div>
+                </div>
+            </div>
         }
     </div>
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success shadow-sm rounded-3 mb-4 fw-medium">
+            <i class="bi bi-check-circle me-2"></i> @TempData["SuccessMessage"]
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger shadow-sm rounded-3 mb-4 fw-medium">
+            <i class="bi bi-exclamation-triangle me-2"></i> @TempData["ErrorMessage"]
+        </div>
+    }
 
     <div class="mb-5 mt-2">
         <div class="row justify-content-center mb-4">
@@ -155,7 +192,19 @@
                             </td>
                             <td class="text-end">
                                 <div class="d-flex justify-content-end gap-2">
-                                    
+        
+                                    @if (item.Status == SOS100_MVC.Models.ItemStatus.Utlånad && User.Identity.IsAuthenticated)
+                                    {
+                                        <form asp-controller="Catalog" asp-action="AddWatch" method="post" class="m-0">
+                                            <input type="hidden" name="itemId" value="@item.Id" />
+                                            <input type="hidden" name="itemTitle" value="@item.Name" />
+        
+                                            <button type="submit" class="btn btn-sm btn-outline-warning shadow-sm rounded-circle" title="Bevaka detta objekt">
+                                                <i class="bi bi-bell"></i>
+                                            </button>
+                                        </form>
+                                    }
+        
                                     @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
                                     {
                                         <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger shadow-sm rounded-circle" title="Ta bort">
@@ -166,7 +215,7 @@
                                             <i class="bi bi-pencil-square"></i>
                                         </a>
                                     }
-                                    
+        
                                     <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary shadow-sm rounded-circle" title="Visa detaljer">
                                         <i class="bi bi-chevron-right"></i>
                                     </a>

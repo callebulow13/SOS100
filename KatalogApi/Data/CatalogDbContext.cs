@@ -12,4 +12,5 @@ public class CatalogDbContext : DbContext
     
     // Här säger vi: "Skapa en SQL-tabell som heter Items, baserat på klassen Item"
     public DbSet<Item> Items { get; set; }
+    public DbSet<LocationCoordinate> LocationCoordinates { get; set; }
 }

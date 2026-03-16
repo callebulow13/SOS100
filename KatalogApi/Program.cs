@@ -5,6 +5,15 @@ using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowReactApp", policy =>
+    {
+        policy.WithOrigins("http://localhost:5173") // Ändra till din Vite-port om den är annorlunda
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
 // Add services to the container.
 
 builder.Services.AddControllers();
@@ -61,6 +70,8 @@ app.Use(async (context, next) =>
     // Fixen är här nere:
     await next(context); 
 });
+
+app.UseCors("AllowReactApp");
 
 app.MapControllers();
 // --- SEEDING AV DATABAS ---

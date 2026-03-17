@@ -53,6 +53,9 @@
 
     <div class="mp-header">
         <h2>Mina sidor</h2>
+        <div style="background: #ffcccc; padding: 10px; font-weight: bold; border: 2px solid red;">
+            TEST: Mitt inloggade ID (NameIdentifier) är just nu: @User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
+        </div>
         @if (Model != null)
         {
             <p>Välkommen tillbaka, @Model.FirstName @Model.LastName 👋</p>

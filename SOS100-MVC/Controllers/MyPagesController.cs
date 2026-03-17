@@ -29,18 +29,16 @@ public class MyPagesController : Controller
     
     public async Task<IActionResult> Index()
     {
+        // Hämta strängen direkt (t.ex. "1")
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (!int.TryParse(userId, out int userIdInt))
+    
+        if (string.IsNullOrEmpty(userId))
             return Content("Invalid user id");
 
-        // Hämta påminnelser och bevakningar från ReminderService
-        var reminders = await _reminderService.GetRemindersAsync(userIdInt);
-        var watches = await _reminderService.GetWatchesAsync(userIdInt);
+        // Skicka in strängen utan att göra om den till en int först
+        var reminders = await _reminderService.GetRemindersAsync(userId);
+        var watches = await _reminderService.GetWatchesAsync(userId);
         var overdueCount = await _reminderService.GetOverdueCountAsync();
-
-        ViewBag.Reminders = reminders;
-        ViewBag.Watches = watches;
-        ViewBag.OverdueCount = overdueCount;
 
         // Hämta användare från UserService
         User? user = null;
@@ -85,6 +83,8 @@ public class MyPagesController : Controller
         }
 
         ViewBag.ActiveLoans = activeLoans;
+        ViewBag.Reminders = reminders;
+        ViewBag.Watches = watches;
 
         return View(user);
     }

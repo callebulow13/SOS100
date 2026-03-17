@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Security.Claims;
+using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using SOS100_MVC.Models;
 
@@ -66,15 +67,17 @@ public class LoanController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(CreateLoanRequestVm form)
     {
-        // Sätt BorrowerId från inloggning om den inte kom in (säkerhet + bekvämlighet)
-        if (string.IsNullOrWhiteSpace(form.BorrowerId))
-            form.BorrowerId = User?.Identity?.Name ?? "";
+        // TA BORT if-satsen helt och hållet!
+        // Vi tvingar ALLTID BorrowerId att vara det unika siffer-ID:t (t.ex. "1")
+        form.BorrowerId = User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier) ?? "";
 
         if (!ModelState.IsValid)
         {
             TempData["LoanError"] = "Formuläret innehåller fel. Kontrollera lånedagar och att BorrowerId finns.";
             return RedirectToAction(nameof(Create), new { itemId = form.ItemId });
         }
+
+        // ... resten av din kod är exakt likadan
 
         // 2) Skicka låneförfrågan till LoanAPI
         HttpResponseMessage response = await _loanClient.PostAsJsonAsync("/api/loans", form);

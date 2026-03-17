@@ -120,13 +120,42 @@ public class MyPagesController : Controller
     [HttpPost]
     public async Task<IActionResult> EditProfile(User user)
     {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         try
         {
             var client = _httpClientFactory.CreateClient();
             var baseUrl = _configuration["UserServiceBaseUrl"];
-            var response = await client.PutAsJsonAsync($"{baseUrl}/User/profile/{user.UserID}", user);
+            var response = await client.PutAsJsonAsync($"{baseUrl}/User/profile/{userId}", user);
             if (!response.IsSuccessStatusCode)
-                return Content("Update failed");
+            {
+                var error = await response.Content.ReadAsStringAsync();
+            return Content($"Error från API: {error}");
+                
+            }
+        }
+        
+        catch
+        {
+            return Content("Kan inte nå UserService");
+        }
+
+        return RedirectToAction("Index");
+    }
+    
+    [HttpPost]
+    public async Task<IActionResult> EditPassword(EditProfileViewModel model)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        try
+        {
+            var client = _httpClientFactory.CreateClient();
+            var baseUrl = _configuration["UserServiceBaseUrl"];
+            var response = await client.PutAsJsonAsync($"{baseUrl}/User/changePassword/{userId}", model.PasswordDto);
+                if (!response.IsSuccessStatusCode)
+                {
+                    var error = await response.Content.ReadAsStringAsync();
+                    return Content($"Error från API: {error}");
+                }
         }
         catch
         {

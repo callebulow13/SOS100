@@ -33,9 +33,8 @@ public class LoansController : ControllerBase
         if (string.IsNullOrWhiteSpace(req.BorrowerId))
             return BadRequest(new { message = "BorrowerId måste anges (tills auth är på plats)." });
 
-        // =========================================================
-        // NYTT STEG 1: Fråga Katalogen om prylen finns och är ledig
-        // =========================================================
+        
+        // Frågar Katalogen om prylen finns och är ledig
         var catalogClient = _httpClientFactory.CreateClient("KatalogClient");
         
         // Hämta prylen från ditt API
@@ -57,9 +56,8 @@ public class LoansController : ControllerBase
         {
             return Conflict(new { message = "Prylen är tyvärr redan utlånad, saknas eller är trasig i katalogen." });
         }
-        // =========================================================
 
-        // Kompisens befintliga kod för att spara i sin egen databas börjar här...
+        // KatalogAPI:s befintliga kod för att spara i sin egen databas börjar här...
         await using var tx = await _db.Database.BeginTransactionAsync(ct);
 
         var alreadyActive = await _db.Loans
@@ -78,6 +76,29 @@ public class LoansController : ControllerBase
         };
 
         _db.Loans.Add(loan);
+        
+        // Uppdaterar eller skapa statistikrad
+        var stat = await _db.LoanUserItemStats
+            .FirstOrDefaultAsync(s =>
+                s.BorrowerId == req.BorrowerId &&
+                s.ItemId == req.ItemId, ct);
+
+        if (stat == null)
+        {
+            stat = new LoanUserItemStat
+            {
+                BorrowerId = req.BorrowerId,
+                ItemId = req.ItemId,
+                TotalLoans = 1,
+                LateReturns = 0
+            };
+
+            _db.LoanUserItemStats.Add(stat);
+        }
+        else
+        {
+            stat.TotalLoans += 1;
+        }
 
         try
         {
@@ -272,6 +293,20 @@ public class LoansController : ControllerBase
         return Conflict(new { message = "Lånet är inte aktivt." });
 
     loan.ReturnedAt = DateTimeOffset.UtcNow;
+    
+    // Registrerar sen återlämning i statistik
+    if (loan.ReturnedAt > loan.DueAt)
+    {
+        var stat = await _db.LoanUserItemStats
+            .FirstOrDefaultAsync(s =>
+                s.BorrowerId == loan.BorrowerId &&
+                s.ItemId == loan.ItemId, ct);
+
+        if (stat != null)
+        {
+            stat.LateReturns += 1;
+        }
+    }
 
     var catalogClient = _httpClientFactory.CreateClient("KatalogClient");
 

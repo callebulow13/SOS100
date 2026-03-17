@@ -8,6 +8,7 @@ public class LoanDbContext : DbContext
     public LoanDbContext(DbContextOptions<LoanDbContext> options) : base(options) { }
 
     public DbSet<Loan> Loans => Set<Loan>();
+    public DbSet<LoanUserItemStat> LoanUserItemStats => Set<LoanUserItemStat>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -19,6 +20,10 @@ public class LoanDbContext : DbContext
             .HasIndex(l => l.ItemId)
             .IsUnique()
             .HasFilter("\"ReturnedAt\" IS NULL");
+        
+        modelBuilder.Entity<LoanUserItemStat>()
+            .HasIndex(s => new { s.BorrowerId, s.ItemId })
+            .IsUnique();
 
         // Valfritt men bra för prestanda vid listning/filtrering
         modelBuilder.Entity<Loan>()

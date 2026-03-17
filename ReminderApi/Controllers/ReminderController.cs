@@ -57,6 +57,7 @@ public class RemindersController : ControllerBase
         await _db.SaveChangesAsync();
         return CreatedAtAction(nameof(GetOne), new { id = reminder.Id }, reminder);
     }
+    
 
     // PUT /api/reminders/5
     [HttpPut("{id}")]

@@ -143,15 +143,25 @@ public class LoansController : ControllerBase
         {
             var reminderClient = _httpClientFactory.CreateClient("ReminderApi");
 
-            await reminderClient.PostAsJsonAsync("/api/reminders", new
+            var reminderResponse = await reminderClient.PostAsJsonAsync("/api/reminders", new
             {
                 userId = req.BorrowerId,
-                itemId = req.ItemId,           // byt om din property heter något annat
+                itemId = req.ItemId,
                 loanId = loan.Id.ToString(),
-                itemTitle = pryl.Name,         // byt om din variabel/property heter något annat
-                dueDate = loan.DueAt,
+                itemTitle = pryl.Name,
+                dueDate = loan.DueAt.UtcDateTime,
                 isSent = false
             }, ct);
+
+            if (!reminderResponse.IsSuccessStatusCode)
+            {
+                var reminderError = await reminderResponse.Content.ReadAsStringAsync(ct);
+
+                Console.WriteLine("\n--- FEL VID POST TILL REMINDER API ---");
+                Console.WriteLine($"Statuskod: {reminderResponse.StatusCode}");
+                Console.WriteLine($"Felmeddelande: {reminderError}");
+                Console.WriteLine("--------------------------------------\n");
+            }
         }
         catch (Exception ex)
         {

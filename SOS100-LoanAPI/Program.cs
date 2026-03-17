@@ -37,10 +37,10 @@ builder.Services.AddHttpClient("KatalogClient", client =>
 });
 builder.Services.AddHttpClient("ReminderApi", client =>
 {
-    client.BaseAddress = new Uri(builder.Configuration["ReminderApi:BaseUrl"]!);
+    client.BaseAddress = new Uri(builder.Configuration["ReminderApiBaseUrl"]!);
 
     client.DefaultRequestHeaders.Add("X-Api-Key",
-        builder.Configuration["ReminderApi:ApiKey"]!);
+        builder.Configuration["ReminderApiApiKey"]!);
 });
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();

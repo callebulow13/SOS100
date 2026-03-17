@@ -122,16 +122,25 @@ public class UserController : ControllerBase
             {
                 return NotFound();
             }
-            
-            if (user.Password == passwordDto.Password)
+            var passwordHasher = new PasswordHasher<User>();
+        
+            var result = passwordHasher.VerifyHashedPassword(
+                user, 
+                user.Password,
+                passwordDto.Password
+            );
+            Console.WriteLine($"INPUT: '{passwordDto.Password}'");
+            Console.WriteLine($"HASH: '{user.Password}'");
+            if (result == PasswordVerificationResult.Success)
             {
-                user.Password = passwordDto.NewPassword;
+                user.Password = passwordHasher.HashPassword(user, passwordDto.NewPassword);
+                _dbContext.SaveChanges();
+                
             }
             else
             {
                 return BadRequest("Fel nuvarande lösenord");
             }
-            _dbContext.SaveChanges();
         }
         catch
         {

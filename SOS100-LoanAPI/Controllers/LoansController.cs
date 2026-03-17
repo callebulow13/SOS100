@@ -307,7 +307,33 @@ public class LoansController : ControllerBase
     {
         return Problem("Databasfel vid återlämning.", statusCode: 500);
     }
+// Ta bort påminnelse från ReminderApi när lånet återlämnas
+    // =========================================================
+    try
+    {
+        var reminderClient = _httpClientFactory.CreateClient("ReminderApi");
+        
+        var remindersResponse = await reminderClient
+            .GetAsync($"/api/reminders?userId={loan.BorrowerId}", ct);
+        
+        if (remindersResponse.IsSuccessStatusCode)
+        {
+            var reminders = await remindersResponse.Content
+                .ReadFromJsonAsync<List<ReminderDto>>(cancellationToken: ct);
+            
+            var reminder = reminders?
+                .FirstOrDefault(r => r.LoanId == loan.Id.ToString());
 
+            if (reminder != null)
+            {
+                await reminderClient.DeleteAsync($"/api/reminders/{reminder.Id}", ct);
+            }
+        }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Kunde inte ta bort påminnelse: {ex.Message}");
+    }
     var response = new ReturnLoanResponse
     {
         LoanId = loan.Id,
@@ -334,3 +360,4 @@ public class LoansController : ControllerBase
         return Ok($"Hämtade {pryl.Name} som har status {pryl.Status}!");
     }
 } // Här slutar hela LoansController-klassen!
+public record ReminderDto(int Id, string LoanId, string UserId);

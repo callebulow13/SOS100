@@ -139,6 +139,24 @@ public class LoansController : ControllerBase
             return StatusCode(500, $"Lånet kunde inte slutföras eftersom Katalog-API vägrade uppdatera. Orsak: {errorText}");
         }
         // =========================================================
+        try
+        {
+            var reminderClient = _httpClientFactory.CreateClient("ReminderApi");
+
+            await reminderClient.PostAsJsonAsync("/api/reminders", new
+            {
+                userId = req.BorrowerId,
+                itemId = req.ItemId,           // byt om din property heter något annat
+                loanId = loan.Id.ToString(),
+                itemTitle = pryl.Name,         // byt om din variabel/property heter något annat
+                dueDate = loan.DueAt,
+                isSent = false
+            }, ct);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"ReminderApi nere för lån {loan.Id}: {ex.Message}");
+        }
 
         return CreatedAtAction(
             nameof(GetLoanById),

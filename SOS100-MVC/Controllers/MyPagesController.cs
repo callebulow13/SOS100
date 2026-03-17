@@ -3,6 +3,7 @@ using SOS100_MVC.Services;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using SOS100_MVC.Dtos;
 using SOS100_MVC.Models;
 
 namespace SOS100_MVC.Controllers;
@@ -107,7 +108,13 @@ public class MyPagesController : Controller
             return Content("Kan inte nå UserService");
         }
 
-        return View(user);
+        var viewmodel = new EditProfileViewModel
+        {
+            User = user,
+            PasswordDto = new PasswordDto()
+        };
+
+        return View(viewmodel);
     }
     
     [HttpPost]

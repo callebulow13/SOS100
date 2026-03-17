@@ -173,19 +173,30 @@
         {
             <table class="mp-table">
                 <thead>
-                    <tr>
-                        <th>Objekt</th>
-                        <th>Status</th>
-                    </tr>
+                <tr>
+                    <th>Objekt</th>
+                    <th>Status</th>
+                    <th></th>
+                </tr>
                 </thead>
                 <tbody>
-                    @foreach (var w in watches)
-                    {
-                        <tr>
-                            <td>@w.ItemTitle</td>
-                            <td><span class="mp-tag @(w.IsActive ? "indigo" : "gray")">@(w.IsActive ? "👁️ Bevakas" : "Inaktiv")</span></td>
-                        </tr>
-                    }
+                @foreach (var w in watches)
+                {
+                    <tr>
+                        <td>@w.ItemTitle</td>
+                        <td>
+                            <span class="mp-tag @(w.IsActive ? "green" : "indigo")">
+                                @(w.IsActive ? "✅ Tillgänglig" : "👁️ Bevakas")
+                            </span>
+                        </td>
+                        <td>
+                            <form asp-controller="MyPages" asp-action="StopWatch" method="post" style="margin:0">
+                                <input type="hidden" name="watchId" value="@w.Id"/>
+                                <button type="submit" class="mp-return-btn">Sluta bevaka</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
                 </tbody>
             </table>
         }

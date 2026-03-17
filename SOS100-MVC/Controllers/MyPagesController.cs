@@ -38,6 +38,26 @@ public class MyPagesController : Controller
         // Skicka in strängen utan att göra om den till en int först
         var reminders = await _reminderService.GetRemindersAsync(userId);
         var watches = await _reminderService.GetWatchesAsync(userId);
+        // Uppdatera watch-status från KatalogApi
+        try
+        {
+            var katalogClient = _httpClientFactory.CreateClient();
+            var katalogBaseUrl = _configuration["KatalogApiBaseUrl"] ?? "http://localhost:5000";
+            foreach (var watch in watches)
+            {
+                var itemResponse = await katalogClient.GetAsync($"{katalogBaseUrl}/api/items/{watch.ItemId}");
+                if (itemResponse.IsSuccessStatusCode)
+                {
+                    var item = await itemResponse.Content.ReadFromJsonAsync<ItemDto>();
+                    if (item != null)
+                        watch.IsActive = item.Status == 0; // 0 = Tillgänglig
+                }
+            }
+        }
+        catch
+        {
+            // KatalogApi är nere - visa befintlig status
+        }
         var overdueCount = await _reminderService.GetOverdueCountAsync();
 
         // Hämta användare från UserService
@@ -88,7 +108,21 @@ public class MyPagesController : Controller
 
         return View(user);
     }
-
+    [HttpPost]
+    public async Task<IActionResult> StopWatch(int watchId)
+    {
+        try
+        {
+            var reminderClient = _httpClientFactory.CreateClient("ReminderApi");
+            await reminderClient.DeleteAsync($"/api/watches/{watchId}");
+        }
+        catch
+        {
+            // ReminderApi nere
+        }
+        return RedirectToAction("Index");
+    }
+    
     [HttpGet]
     public async Task<IActionResult> EditProfile()
     {

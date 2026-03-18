@@ -49,25 +49,47 @@ namespace KatalogApi.Migrations
                     b.ToTable("Items");
                 });
 
-            modelBuilder.Entity("KatalogApi.Models.LocationCoordinate", b =>
+            modelBuilder.Entity("KatalogApi.Models.ServiceLogEntry", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("LocationName")
+                    b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("X")
+                    b.Property<int>("ItemId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("Y")
-                        .HasColumnType("INTEGER");
+                    b.Property<DateTime>("ServiceDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("TechnicianName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
-                    b.ToTable("LocationCoordinates");
+                    b.HasIndex("ItemId");
+
+                    b.ToTable("ServiceLogs");
+                });
+
+            modelBuilder.Entity("KatalogApi.Models.ServiceLogEntry", b =>
+                {
+                    b.HasOne("KatalogApi.Models.Item", "Item")
+                        .WithMany("ServiceLogs")
+                        .HasForeignKey("ItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Item");
+                });
+
+            modelBuilder.Entity("KatalogApi.Models.Item", b =>
+                {
+                    b.Navigation("ServiceLogs");
                 });
 #pragma warning restore 612, 618
         }

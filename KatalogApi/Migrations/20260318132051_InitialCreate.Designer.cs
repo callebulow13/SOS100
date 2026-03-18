@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace KatalogApi.Migrations
 {
     [DbContext(typeof(CatalogDbContext))]
-    [Migration("20260227090427_InitialCreate")]
+    [Migration("20260318132051_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -50,6 +50,49 @@ namespace KatalogApi.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Items");
+                });
+
+            modelBuilder.Entity("KatalogApi.Models.ServiceLogEntry", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("ItemId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("ServiceDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("TechnicianName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ItemId");
+
+                    b.ToTable("ServiceLogs");
+                });
+
+            modelBuilder.Entity("KatalogApi.Models.ServiceLogEntry", b =>
+                {
+                    b.HasOne("KatalogApi.Models.Item", "Item")
+                        .WithMany("ServiceLogs")
+                        .HasForeignKey("ItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Item");
+                });
+
+            modelBuilder.Entity("KatalogApi.Models.Item", b =>
+                {
+                    b.Navigation("ServiceLogs");
                 });
 #pragma warning restore 612, 618
         }

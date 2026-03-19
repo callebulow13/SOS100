@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace KatalogApi.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class AddErrorReports : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -30,21 +30,22 @@ namespace KatalogApi.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ServiceLogs",
+                name: "ErrorReports",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     ItemId = table.Column<int>(type: "INTEGER", nullable: false),
-                    ServiceDate = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    ReportDate = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    ReporterName = table.Column<string>(type: "TEXT", nullable: false),
                     Description = table.Column<string>(type: "TEXT", nullable: false),
-                    TechnicianName = table.Column<string>(type: "TEXT", nullable: false)
+                    IsResolved = table.Column<bool>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ServiceLogs", x => x.Id);
+                    table.PrimaryKey("PK_ErrorReports", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ServiceLogs_Items_ItemId",
+                        name: "FK_ErrorReports_Items_ItemId",
                         column: x => x.ItemId,
                         principalTable: "Items",
                         principalColumn: "Id",
@@ -52,8 +53,8 @@ namespace KatalogApi.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_ServiceLogs_ItemId",
-                table: "ServiceLogs",
+                name: "IX_ErrorReports_ItemId",
+                table: "ErrorReports",
                 column: "ItemId");
         }
 
@@ -61,7 +62,7 @@ namespace KatalogApi.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "ServiceLogs");
+                name: "ErrorReports");
 
             migrationBuilder.DropTable(
                 name: "Items");

@@ -29,6 +29,6 @@ public class Item
     
     // 2. Använd JsonIgnore så dina kamrater inte får med denna i sina anrop
     [JsonIgnore] 
-    public List<ServiceLogEntry> ServiceLogs { get; set; } = new List<ServiceLogEntry>();
+    public List<ErrorReport> ErrorReports { get; set; } = new List<ErrorReport>();
 }
 

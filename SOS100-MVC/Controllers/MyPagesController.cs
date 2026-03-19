@@ -198,4 +198,69 @@ public class MyPagesController : Controller
 
         return RedirectToAction("Index");
     }
+        [HttpPost]
+    public async Task<IActionResult> ReturnItem(Guid loanId, int userId)
+    {
+        var client = _httpClientFactory.CreateClient();
+        var loanBaseUrl = _configuration["LoanServiceBaseUrl"] ?? "http://localhost:5125";
+
+        // ── Steg 1: Återlämna lånet ──
+        var response = await client.PostAsync(
+            $"{loanBaseUrl}/api/loans/{loanId}/return", null);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var errorText = await response.Content.ReadAsStringAsync();
+            TempData["ErrorMessage"] = $"Kunde inte återlämna. API svarade: {errorText}";
+            return RedirectToAction("Index", new { id = userId });
+        }
+
+        // ── Steg 2: Hitta reminder för detta lån och markera som skickad ──
+        try
+        {
+            var reminderBaseUrl = _configuration["ReminderServiceBaseUrl"] ?? "http://localhost:5038";
+            var reminderApiKey = _configuration["ReminderApiKey"] ?? "reminder-hemlig-123";
+
+            var reminderClient = _httpClientFactory.CreateClient();
+            reminderClient.DefaultRequestHeaders.Add("X-Api-Key", reminderApiKey);
+
+            // Hämta alla reminders
+            var remindersResponse = await reminderClient.GetAsync(
+                $"{reminderBaseUrl}/api/reminders");
+
+            if (remindersResponse.IsSuccessStatusCode)
+            {
+                var reminders = await remindersResponse.Content
+                    .ReadFromJsonAsync<List<ReminderDto>>();
+
+                // Hitta reminder som matchar detta lån (loanId som sträng)
+                var match = reminders?.FirstOrDefault(r =>
+                    r.LoanId == loanId.ToString() ||
+                    r.UserId == userId.ToString());
+
+                if (match != null)
+                {
+                    // Markera som skickad
+                    var updated = new
+                    {
+                        isSent = true,
+                        dueDate = match.DueDate,
+                        itemTitle = match.ItemTitle
+                    };
+
+                    await reminderClient.PutAsJsonAsync(
+                        $"{reminderBaseUrl}/api/reminders/{match.Id}", updated);
+
+                    Console.WriteLine($"✅ Reminder {match.Id} markerad som skickad!");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            // Logga men avbryt inte — lånet är redan återlämnat
+            Console.WriteLine($"⚠️ Kunde inte uppdatera reminder: {ex.Message}");
+        }
+
+        return RedirectToAction("Index", new { id = userId });
+    }
 }

@@ -66,6 +66,67 @@ public class CatalogController : Controller
         // Om något annat går fel (t.ex. 500 Internal Server Error)
         return View("Error");
     }
+    [Authorize(Roles = "Admin")]
+    [HttpPost]
+    public async Task<IActionResult> ReportError(int ItemId, string ReporterName, string Description)
+    {
+        try
+        {
+            // 1. Skapa objektet för felanmälan som matchar databasens förväntningar
+            var errorReport = new
+            {
+                ItemId = ItemId,
+                ReporterName = ReporterName,
+                Description = Description,
+                ReportDate = DateTime.UtcNow,
+                IsResolved = false
+            };
+
+            // 2. Skicka felanmälan via ett POST-anrop
+            HttpResponseMessage reportResponse = await _httpClient.PostAsJsonAsync("/api/errorreports", errorReport);
+
+            if (reportResponse.IsSuccessStatusCode)
+            {
+                // 3. EXTRA SÄKERHET: Hämta prylen från API:et och uppdatera status till Trasig
+                // (Detta gör att din röda badge aktiveras direkt när sidan laddas om!)
+                HttpResponseMessage itemResponse = await _httpClient.GetAsync($"/api/items/{ItemId}");
+                
+                if (itemResponse.IsSuccessStatusCode)
+                {
+                    string data = await itemResponse.Content.ReadAsStringAsync();
+                    var item = JsonSerializer.Deserialize<Item>(data, new JsonSerializerOptions 
+                    { 
+                        PropertyNameCaseInsensitive = true 
+                    });
+
+                    if (item != null && item.Status != ItemStatus.Trasig)
+                    {
+                        // Ändra status till Trasig (vilket är 3 i din ItemStatus enum)
+                        item.Status = ItemStatus.Trasig;
+                        
+                        // Skicka PUT-anrop för att spara uppdateringen i databasen
+                        await _httpClient.PutAsJsonAsync($"/api/items/{ItemId}", item);
+                    }
+                }
+
+                // 4. Skicka tillbaka användaren till detaljvyn med ett fint meddelande
+                TempData["ReportSuccess"] = "Tack för hjälpen! Din felanmälan har skickats till service teamet.";
+                return RedirectToAction(nameof(Details), new { id = ItemId });
+            }
+            else
+            {
+                // Om API:et av någon anledning returnerar t.ex. 400 Bad Request
+                TempData["ErrorMessage"] = "Kunde inte skicka felanmälan till servern.";
+                return RedirectToAction(nameof(Details), new { id = ItemId });
+            }
+        }
+        catch (Exception)
+        {
+            // Hanterar om API:et ligger nere eller inte kan nås
+            TempData["ErrorMessage"] = "Ett oväntat nätverksfel uppstod vid felanmälan.";
+            return RedirectToAction(nameof(Details), new { id = ItemId });
+        }
+    }
     // 1. Visar det tomma formuläret på skärmen
     [Authorize(Roles = "Admin")]
     [HttpGet]

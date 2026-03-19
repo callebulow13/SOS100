@@ -326,7 +326,16 @@ public class LoansController : ControllerBase
 
             if (reminder != null)
             {
-                await reminderClient.DeleteAsync($"/api/reminders/{reminder.Id}", ct);
+                var updated = new
+                {
+                    isSent    = true,
+                    dueDate   = reminder.DueDate,
+                    itemTitle = reminder.ItemTitle
+                };
+                var putContent = JsonContent.Create(updated);
+                await reminderClient.PutAsync(
+                    $"/api/reminders/{reminder.Id}", putContent, ct);
+                Console.WriteLine($"✅ Reminder {reminder.Id} markerad som återlämnad!");
             }
         }
     }
@@ -360,4 +369,10 @@ public class LoansController : ControllerBase
         return Ok($"Hämtade {pryl.Name} som har status {pryl.Status}!");
     }
 } // Här slutar hela LoansController-klassen!
-public record ReminderDto(int Id, string LoanId, string UserId);
+public record ReminderDto(
+    int Id,
+    string LoanId,
+    string UserId,
+    string ItemTitle,
+    DateTime DueDate
+);

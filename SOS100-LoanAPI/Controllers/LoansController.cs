@@ -134,10 +134,6 @@ public class LoansController : ControllerBase
                 detaljer = realError
             });
         }
-
-        // =========================================================
-        // NYTT STEG 3: Säg till Katalogen att ändra status till Utlånad
-        // =========================================================
         
         // Ändra statusen på kopian vi hämtade till 1 (eller vad Utlånad motsvarar i er enum)
         pryl.Status = 1; 

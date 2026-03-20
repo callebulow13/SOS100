@@ -1,37 +1,96 @@
 ﻿@{
-    ViewData["Title"] = "Hem";
+ViewData["Title"] = "Hem";
 }
-<link rel="stylesheet" href="~/css/home.css" asp-append-version="true"/>
 
-<div class="hero">
-    <div class="hero-tag">Kommunbiblioteket</div>
-    <h1 class="hero-title">Vad söker du<br><em>idag?</em></h1>
-    <p class="hero-subtitle">Utforska tusentals böcker, verktyg och resurser i vår samling.</p>
+<style>
+    /* Snygg hover-effekt för snabblänks-korten */
+    .dashboard-card {
+        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        text-decoration: none;
+    }
 
-    <div class="hero-search">
-        <input type="text" placeholder="Sök titel, författare, ämne…"/>
-        <button onclick="window.location.href='@Url.Action("Index", "Catalog")'">Sök</button>
+    .dashboard-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 .5rem 1rem rgba(0,0,0,.08) !important;
+    }
+
+    .icon-box {
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+    }
+</style>
+
+<div class="container-fluid mb-5">
+
+    <div class="mb-5 mt-2">
+        <h2 class="fw-bold mb-1 text-dark">Välkommen tillbaka! 👋</h2>
+        <p class="text-muted">Här är din översikt för Kommunbiblioteket idag.</p>
     </div>
 
-    <div class="hero-cards">
-        <a class="hero-card" asp-controller="Catalog" asp-action="Index">
-            <span class="hero-card-icon">📚</span>
-            <span class="hero-card-label">Katalogen</span>
-        </a>
-        <a class="hero-card" asp-controller="MyPages" asp-action="Index">
-            <span class="hero-card-icon">🔔</span>
-            <span class="hero-card-label">Mina sidor</span>
-        </a>
-        <a class="hero-card" asp-controller="Reports" asp-action="Index">
-            <span class="hero-card-icon">📊</span>
-            <span class="hero-card-label">Rapporter</span>
-        </a>
+    <div class="row g-4 mb-5">
+
+        <div class="col-sm-6 col-xl-3">
+            <a asp-controller="Catalog" asp-action="Index" class="card dashboard-card border-0 shadow-sm rounded-4 h-100 p-3">
+                <div class="card-body d-flex align-items-center">
+                    <div class="icon-box bg-primary-subtle text-primary me-3">
+                        <i class="bi bi-journal-text fs-3"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold mb-1 text-dark">Katalogen</h6>
+                        <span class="text-muted small">Utforska resurser</span>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <a asp-controller="MyPages" asp-action="Index" class="card dashboard-card border-0 shadow-sm rounded-4 h-100 p-3">
+                <div class="card-body d-flex align-items-center">
+                    <div class="icon-box bg-warning-subtle text-warning-emphasis me-3">
+                        <i class="bi bi-person-badge fs-3"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold mb-1 text-dark">Mina sidor</h6>
+                        <span class="text-muted small">Lån & reservationer</span>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <a asp-controller="Reports" asp-action="Index" class="card dashboard-card border-0 shadow-sm rounded-4 h-100 p-3">
+                <div class="card-body d-flex align-items-center">
+                    <div class="icon-box bg-success-subtle text-success me-3">
+                        <i class="bi bi-bar-chart-line fs-3"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold mb-1 text-dark">Rapporter</h6>
+                        <span class="text-muted small">Statistik & analys</span>
+                    </div>
+                </div>
+            </a>
+        </div>
+
         @if (User.Identity != null && User.Identity.IsAuthenticated && User.IsInRole("Admin"))
         {
-            <a class="hero-card" asp-controller="Admin" asp-action="Index">
-                <span class="hero-card-icon">⚙️</span>
-                <span class="hero-card-label">Admin</span>
+        <div class="col-sm-6 col-xl-3">
+            <a asp-controller="Admin" asp-action="Index" class="card dashboard-card border-0 shadow-sm rounded-4 h-100 p-3">
+                <div class="card-body d-flex align-items-center">
+                    <div class="icon-box bg-danger-subtle text-danger me-3">
+                        <i class="bi bi-shield-lock fs-3"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold mb-1 text-dark">Administration</h6>
+                        <span class="text-muted small">Hantera systemet</span>
+                    </div>
+                </div>
             </a>
+        </div>
         }
     </div>
+
 </div>

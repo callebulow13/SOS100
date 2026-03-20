@@ -77,12 +77,12 @@ app.UseAuthorization();
 app.MapControllers().RequireRateLimiting("fixed");
 // --- AUTOMATISK DATABAS-UPPDATERING ---
 
-using (var scope = app.Services.CreateScope())
+/*using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<SOS100_LoanAPI.Data.LoanDbContext>();
 
     // Kör migrations (uppdaterar schema och index på en befintlig DB)
     context.Database.Migrate();
-}
+}*/
 // --------------------------------------
 app.Run();

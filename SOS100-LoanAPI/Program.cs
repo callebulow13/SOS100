@@ -45,9 +45,18 @@ builder.Services.AddHttpClient("ReminderApi", client =>
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 builder.Services.AddDbContext<LoanDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("LoansDb")));
+    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 var app = builder.Build();
+
+//Database Migration at startup
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var dbContext = services.GetRequiredService<LoanDbContext>();
+    dbContext.Database.Migrate();
+}
+
 app.UseExceptionHandler();
 
 //app.UseSwagger();

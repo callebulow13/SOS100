@@ -7,13 +7,13 @@ public class ReminderServiceClient
     private readonly HttpClient _http;
     private readonly IConfiguration _config;
 
-    // Vi lägger till IConfiguration i konstruktorn för att kunna läsa appsettings
+    // lägger till IConfiguration i konstruktorn för att kunna läsa appsettings
     public ReminderServiceClient(HttpClient http, IConfiguration config)
     {
         _http = http;
         _config = config;
 
-        // Sätt BaseUrl (vi sätter default till localhost:5038 om den saknas i appsettings)
+        // Sätt BaseUrl ( sätter default till localhost:5038 om den saknas i appsettings)
         if (_http.BaseAddress == null)
         {
             var baseUrl = _config["ReminderApiBaseUrl"] ?? "http://localhost:5038";

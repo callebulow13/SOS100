@@ -53,9 +53,6 @@
 
     <div class="mp-header">
         <h2>Mina sidor</h2>
-        <div style="background: #ffcccc; padding: 10px; font-weight: bold; border: 2px solid red;">
-            TEST: Mitt inloggade ID (NameIdentifier) är just nu: @User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
-        </div>
         @if (Model != null)
         {
             <p>Välkommen tillbaka, @Model.FirstName @Model.LastName 👋</p>
@@ -108,7 +105,7 @@
                                 </span>
                             </td>
                             <td>
-                                <form asp-controller="TestProfile" asp-action="ReturnItem" method="post" style="margin:0">
+                                <form asp-controller="MyPages" asp-action="ReturnItem" method="post" style="margin:0">
                                     <input type="hidden" name="loanId" value="@loan.Id"/>
                                     <input type="hidden" name="userId" value="@User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value"/>
                                     <button type="submit" class="mp-return-btn">Återlämna</button>
@@ -139,7 +136,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var r in reminders)
+                @foreach (var r in reminders.Where(r => !r.IsSent))
                     {
                         var daysLeft = (r.DueDate - DateTime.Now).Days;
                         var isOverdue = r.DueDate < DateTime.Now;

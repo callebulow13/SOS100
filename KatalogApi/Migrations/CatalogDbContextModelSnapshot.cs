@@ -17,6 +17,36 @@ namespace KatalogApi.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.3");
 
+            modelBuilder.Entity("KatalogApi.Models.ErrorReport", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsResolved")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ItemId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("ReportDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ReporterName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ItemId");
+
+                    b.ToTable("ErrorReports");
+                });
+
             modelBuilder.Entity("KatalogApi.Models.Item", b =>
                 {
                     b.Property<int>("Id")
@@ -49,25 +79,20 @@ namespace KatalogApi.Migrations
                     b.ToTable("Items");
                 });
 
-            modelBuilder.Entity("KatalogApi.Models.LocationCoordinate", b =>
+            modelBuilder.Entity("KatalogApi.Models.ErrorReport", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                    b.HasOne("KatalogApi.Models.Item", "Item")
+                        .WithMany("ErrorReports")
+                        .HasForeignKey("ItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.Property<string>("LocationName")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
+                    b.Navigation("Item");
+                });
 
-                    b.Property<int>("X")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("Y")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("LocationCoordinates");
+            modelBuilder.Entity("KatalogApi.Models.Item", b =>
+                {
+                    b.Navigation("ErrorReports");
                 });
 #pragma warning restore 612, 618
         }

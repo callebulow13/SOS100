@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace KatalogApi.Models;
 
 public enum ItemType
@@ -25,4 +27,8 @@ public class Item
     public string Placement { get; set; } = string.Empty;
     public DateTime PurchaseDate { get; set; }
     
+    // 2. Använd JsonIgnore så dina kamrater inte får med denna i sina anrop
+    [JsonIgnore] 
+    public List<ErrorReport> ErrorReports { get; set; } = new List<ErrorReport>();
 }
+

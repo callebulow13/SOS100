@@ -6,10 +6,10 @@
     // Samma snygga färgkodning som vi har i Index-vyn
     string statusClass = Model.Status switch
     {
-        SOS100_MVC.Models.ItemStatus.Tillgänglig => "bg-success-subtle text-success border border-success",
-        SOS100_MVC.Models.ItemStatus.Utlånad => "bg-warning-subtle text-warning-emphasis border border-warning",
-        SOS100_MVC.Models.ItemStatus.Trasig => "bg-danger-subtle text-danger border border-danger",
-        _ => "bg-secondary-subtle text-secondary border border-secondary"
+        SOS100_MVC.Models.ItemStatus.Tillgänglig => "badge-green",
+        SOS100_MVC.Models.ItemStatus.Utlånad => "badge-yellow",
+        SOS100_MVC.Models.ItemStatus.Trasig => "badge-red",
+        _ => "badge-gray"
     };
 
     // Ikon baserat på typ
@@ -21,12 +21,7 @@
         _ => "bi-box-seam"
     };
 }
-<style>
-    /* Mjukare bakgrund på hela sidan för att låta vita boxar poppa */
-    body {
-        background-color: #f4f7f6;
-    }
-</style>
+
 
 <div class="container mt-5">
     @if (TempData["LoanSuccess"] != null)
@@ -58,11 +53,11 @@
                 <div class="card-body px-4 pb-4 pt-2">
                     <div class="d-flex align-items-center mb-4 text-muted">
                         <i class="bi @typeIcon fs-4 me-2"></i>
-                        <span class="fs-5 text-uppercase tracking-wide" style="letter-spacing: 1px;">@Model.Type</span>
+                        <span class="fs-5 text-uppercase tracking-wide">@Model.Type</span>
                     </div>
 
                     <h5 class="fw-bold mb-2">Beskrivning</h5>
-                    <p class="card-text text-secondary mb-4" style="line-height: 1.6;">
+                    <p class="card-text text-secondary mb-4 lh-relaxed">
                         @Model.Description
                     </p>
 

@@ -10,70 +10,7 @@ var activeLoans = ViewBag.ActiveLoans as List<LoanDto> ?? new List<LoanDto>();
 }
 
 <style>
-    body { background: #f8f9fa; }
-
-    /* Tabell-design från Katalogen */
-    .table-container {
-        background: #fff;
-        border-radius: 10px;
-        overflow: hidden;
-    }
-
-    .table thead th {
-        background-color: #e9ecef;
-        color: #495057;
-        border-bottom: 2px solid #dee2e6;
-        text-transform: uppercase;
-        font-size: 0.8rem;
-        letter-spacing: 0.5px;
-        padding: 15px;
-    }
-
-    .table tbody tr {
-        transition: background-color 0.2s;
-    }
-
-    .table tbody tr:hover {
-        background-color: rgba(0, 123, 255, 0.04) !important;
-    }
-    .table tbody tr:hover {
-        background-color: rgba(33, 37, 41, 0.03) !important; /* Diskret mörkgrå/svart toning */
-    }
-    .status-badge {
-        padding: 0.4em 0.8em;
-        border-radius: 50px;
-        font-weight: 500;
-        font-size: 0.85rem;
-    }
-
-
-
-    .k-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 30px;
-    }
-
-    /* Uppdatera rubrikerna till en krispigare svart */
-    .k-header-left h2,
-    .k-section-title {
-        color: #111827; /* En lite djupare, modernare svart/mörkgrå */
-    }
-
-    .k-header-left p {
-        color: #6c757d;
-        font-size: 15px;
-        margin: 0;
-    }
-
-    .k-header-actions {
-        display: flex;
-        align-items: center;
-        gap: 20px;
-    }
-
-    /* --- NOTIFIKATIONER / POPUP --- */
+    /* --- ENDAST NOTIFIKATIONER / POPUP KVAR HÄR --- */
     .k-notifications {
         position: relative;
         cursor: pointer;
@@ -86,7 +23,6 @@ var activeLoans = ViewBag.ActiveLoans as List<LoanDto> ?? new List<LoanDto>();
         background: white;
         border: 1px solid #dee2e6;
         transition: background 0.2s;
-        
     }
 
     .k-notifications:hover {
@@ -94,7 +30,7 @@ var activeLoans = ViewBag.ActiveLoans as List<LoanDto> ?? new List<LoanDto>();
     }
 
     .k-notifications svg {
-        color: #212529; /* Ändrat till mörkare nästan-svart */
+        color: #212529;
     }
 
     .k-notification-badge {
@@ -119,7 +55,7 @@ var activeLoans = ViewBag.ActiveLoans as List<LoanDto> ?? new List<LoanDto>();
         position: absolute;
         top: 50px;
         right: 0;
-        width: 450px; /* Ändrat från 320px till 600px */
+        width: 450px;
         background: white;
         border: 1px solid #e9ecef;
         border-radius: 12px;
@@ -135,7 +71,7 @@ var activeLoans = ViewBag.ActiveLoans as List<LoanDto> ?? new List<LoanDto>();
         padding: 16px;
         border-bottom: 1px solid #e9ecef;
         font-weight: 700;
-        font-size: 20px;
+        font-size: 16px;
         color: #212529;
         background: #f8f9fa;
         display: flex;
@@ -144,7 +80,7 @@ var activeLoans = ViewBag.ActiveLoans as List<LoanDto> ?? new List<LoanDto>();
     }
 
     .k-popup-body {
-        max-height: 350px; /* Ändrat från 350px till 500px för mer plats på höjden */
+        max-height: 500px;
         overflow-y: auto;
     }
 
@@ -159,198 +95,24 @@ var activeLoans = ViewBag.ActiveLoans as List<LoanDto> ?? new List<LoanDto>();
     .k-popup-item:last-child { border-bottom: none; }
     .k-popup-item:hover { background: #fdfdfe; }
 
-    .k-popup-item-title { font-size: 16px; font-weight: 600; color: #212529; }
-    .k-popup-item-date { font-size: 14px; color: #6c757d; }
-
-    /* --- PROFILKORT --- */
-    .k-card {
-        background: white;
-        border-radius: 12px;
-        padding: 30px;
-        border: 1px solid #e9ecef;
-        margin-bottom: 32px;
-    }
-
-    .k-profile-grid {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 24px;
-    }
-
-    @@media (max-width: 768px) {
-        .k-profile-grid { grid-template-columns: 1fr 1fr; }
-    }
-
-    .k-field label {
-        font-size: 11px;
-        letter-spacing: 1px;
-        text-transform: uppercase;
-        color: #6c757d;
-        display: block;
-        margin-bottom: 6px;
-        font-weight: 600;
-    }
-
-    .k-field span {
-        font-size: 16px;
-        color: #212529;
-        font-weight: 500;
-        word-break: break-word;
-    }
-
-    /* --- DASHBOARD GRID --- */
-    .k-dashboard-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 32px;
-        align-items: start;
-    }
-
-    @@media (max-width: 1024px) {
-        .k-dashboard-grid { grid-template-columns: 1fr; }
-    }
-
-    .k-section-title {
-        font-size: 20px;
-        font-weight: 700;
-        color: #212529;
-        margin-bottom: 16px;
-    }
-
-    /* --- TABELLER --- */
-    .k-table-container {
-        background: white;
-        border: 1px solid #e9ecef;
-        border-radius: 12px;
-        overflow-x: auto;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-    }
-
-    .k-table {
-        width: 100%;
-        border-collapse: collapse;
-        font-size: 14px;
-        min-width: 450px;
-    }
-
-    .k-table th {
-        text-align: left;
-        font-size: 11px;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        color: #6c757d;
-        padding: 16px;
-        border-bottom: 2px solid #e9ecef;
-        background-color: #f8f9fa;
-    }
-
-    .k-table td {
-        padding: 16px;
-        border-bottom: 1px solid #f1f3f5;
-        color: #212529;
-        vertical-align: middle;
-        font-weight: 500;
-        background-color: white;
-    }
-
-    .k-table tr:last-child td { border-bottom: none; }
-    .k-table tr:hover td { background-color: #fdfdfe; }
-
-    /* Badges */
-    .k-badge {
-        font-size: 12px;
-        padding: 4px 12px;
-        border-radius: 20px;
-        white-space: nowrap;
-        display: inline-block;
-        font-weight: 600;
-        border: 1px solid transparent;
-    }
-
-    .k-badge.green { background: #f0fdf4; color: #15803d; border-color: #bbf7d0; }
-    .k-badge.yellow { background: #fffbeb; color: #b45309; border-color: #fde68a; }
-    .k-badge.red { background: #fef2f2; color: #b91c1c; border-color: #fecaca; }
-    .k-badge.gray { background: #f8f9fa; color: #6c757d; border-color: #dee2e6; }
-
-    /* Knappar & Ikoner */
-    .btn-primary {
-        background: #0d6efd;
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 20px;
-        font-size: 14px;
-        font-weight: 600;
-        cursor: pointer;
-        text-decoration: none;
-        display: inline-block;
-    }
-
-    .btn-primary:hover { background: #0b5ed7; color: white; }
-
-    /* Nya cirkulära ikonknappar för tabellen */
-    .btn-icon {
-        background: white;
-        border: 1px solid #e9ecef;
-        border-radius: 50%;
-        width: 32px;
-        height: 32px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: all 0.2s;
-        padding: 0;
-        color: #6c757d;
-    }
-
-    .btn-icon.red {
-        border-color: #fecaca;
-        color: #dc2626;
-    }
-
-    .btn-icon.red:hover {
-        background: #fee2e2;
-    }
-
-    .btn-logout {
-        color: #6c757d;
-        font-size: 14px;
-        font-weight: 600;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        margin-top: 32px;
-    }
-
-    .btn-logout:hover { color: #212529; }
-
-    .k-empty {
-        color: #6c757d;
-        font-size: 14px;
-        padding: 24px;
-        background: white;
-        border: 1px solid #e9ecef;
-        border-radius: 12px;
-        text-align: center;
-    }
+    .k-popup-item-title { font-size: 15px; font-weight: 600; color: #212529; }
+    .k-popup-item-date { font-size: 13px; color: #6c757d; }
 </style>
 
-<div class="k-page">
+<div class="container-fluid mt-4 mb-5">
 
-    <div class="k-header">
-        <div class="k-header-left">
-            <h2>Mina sidor</h2>
+    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center mb-4 gap-3">
+        <div>
+            <h2 class="fw-bold mb-0 text-dark">Mina sidor</h2>
             @if (Model != null)
             {
-            <p>Välkommen tillbaka, @Model.FirstName @Model.LastName 👋</p>
+            <p class="text-muted small mt-1 mb-0">Välkommen tillbaka, @Model.FirstName @Model.LastName 👋</p>
             }
         </div>
-        <div class="k-header-actions">
 
-            <div class="k-notifications" id="notificationBtn">
+        <div class="d-flex flex-wrap align-items-center gap-3">
+
+            <div class="k-notifications shadow-sm" id="notificationBtn">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
                     <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
@@ -365,13 +127,13 @@ var activeLoans = ViewBag.ActiveLoans as List<LoanDto> ?? new List<LoanDto>();
                 <div class="k-popup" id="notificationPopup">
                     <div class="k-popup-header">
                         Påminnelser
-                        <span class="k-badge gray" style="font-size: 10px;">@activeReminders.Count st</span>
+                        <span class="status-badge badge-gray" style="font-size: 10px; padding: 2px 8px;">@activeReminders.Count st</span>
                     </div>
                     <div class="k-popup-body">
                         @if (!activeReminders.Any())
                         {
                         <div class="k-popup-item">
-                            <span class="k-popup-item-title" style="color:#6c757d; font-weight: 500;">Inga påminnelser just nu.</span>
+                            <span class="k-popup-item-title text-muted fw-medium">Inga påminnelser just nu.</span>
                         </div>
                         }
                         else
@@ -380,11 +142,12 @@ var activeLoans = ViewBag.ActiveLoans as List<LoanDto> ?? new List<LoanDto>();
                         {
                         var daysLeft = (r.DueDate - DateTime.Now).Days;
                         var isOverdue = r.DueDate < DateTime.Now;
+                        string popupBadgeClass = isOverdue ? "badge-red" : daysLeft <= 3 ? "badge-yellow" : "badge-green";
 
                         <div class="k-popup-item">
-                            <div style="display: flex; justify-content: space-between; align-items: start;">
+                            <div class="d-flex justify-content-between align-items-start">
                                 <span class="k-popup-item-title">@r.ItemTitle</span>
-                                <span class="k-badge @(isOverdue ? "red" : daysLeft <= 3 ? "yellow" : "green")" style="font-size: 10px; padding: 2px 8px;">
+                                <span class="status-badge @popupBadgeClass" style="font-size: 10px; padding: 2px 8px;">
                                             @(isOverdue ? $"{Math.Abs(daysLeft)} d sen" : $"{daysLeft} d kvar")
                                         </span>
                             </div>
@@ -398,9 +161,9 @@ var activeLoans = ViewBag.ActiveLoans as List<LoanDto> ?? new List<LoanDto>();
 
             @if (Model != null)
             {
-                <a asp-controller="MyPages" asp-action="EditProfile" class="btn btn-dark shadow-sm rounded-pill px-3 fw-medium">
-                    Ändra uppgifter
-                </a>
+            <a asp-controller="MyPages" asp-action="EditProfile" class="btn btn-dark shadow-sm rounded-pill px-3 fw-medium">
+                Ändra uppgifter
+            </a>
             }
 
             <a asp-controller="Account" asp-action="SignOutUser" class="btn btn-outline-secondary shadow-sm rounded-pill px-3 fw-medium d-inline-flex align-items-center">
@@ -411,27 +174,43 @@ var activeLoans = ViewBag.ActiveLoans as List<LoanDto> ?? new List<LoanDto>();
 
     @if (Model != null)
     {
-    <div class="k-card profile">
-        <div class="k-profile-grid">
-            <div class="k-field"><label>Användarnamn</label><span>@Model.Username</span></div>
-            <div class="k-field"><label>E-post</label><span>@Model.Email</span></div>
-            <div class="k-field"><label>Förnamn</label><span>@Model.FirstName</span></div>
-            <div class="k-field"><label>Efternamn</label><span>@Model.LastName</span></div>
+    <div class="card bg-white border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-body p-4">
+            <div class="row g-4">
+                <div class="col-6 col-md-3">
+                    <div class="text-muted small text-uppercase fw-bold mb-1 tracking-medium">Användarnamn</div>
+                    <div class="fw-medium text-dark fs-6 text-break">@Model.Username</div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="text-muted small text-uppercase fw-bold mb-1 tracking-medium">E-post</div>
+                    <div class="fw-medium text-dark fs-6 text-break">@Model.Email</div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="text-muted small text-uppercase fw-bold mb-1 tracking-medium">Förnamn</div>
+                    <div class="fw-medium text-dark fs-6 text-break">@Model.FirstName</div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="text-muted small text-uppercase fw-bold mb-1 tracking-medium">Efternamn</div>
+                    <div class="fw-medium text-dark fs-6 text-break">@Model.LastName</div>
+                </div>
+            </div>
         </div>
     </div>
     }
 
-    <div class="k-dashboard-grid">
+    <div class="row g-4">
 
-        <div class="k-table-section">
-            <h3 class="k-section-title">Aktiva lån</h3>
+        <div class="col-lg-6">
+            <h4 class="fw-bold mb-3 text-dark fs-5">Aktiva lån</h4>
             @if (!activeLoans.Any())
             {
-            <div class="k-empty">Inga aktiva lån just nu.</div>
+            <div class="bg-white border rounded-4 p-4 text-center text-muted small shadow-sm">
+                Inga aktiva lån just nu.
+            </div>
             }
             else
             {
-            <div class="table-container shadow-sm border-0 mb-4">
+            <div class="table-container shadow-sm border-0">
                 <table class="table mb-0 align-middle">
                     <thead>
                     <tr>
@@ -439,7 +218,7 @@ var activeLoans = ViewBag.ActiveLoans as List<LoanDto> ?? new List<LoanDto>();
                         <th>Lånat</th>
                         <th>Förfaller</th>
                         <th>Status</th>
-                        <th style="text-align: right;">ÅTGÄRDER</th>
+                        <th class="text-end">ÅTGÄRDER</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -447,19 +226,21 @@ var activeLoans = ViewBag.ActiveLoans as List<LoanDto> ?? new List<LoanDto>();
                     {
                     var daysLeft = (loan.DueAt - DateTimeOffset.Now).Days;
                     var isOverdue = loan.DueAt < DateTimeOffset.Now;
+                    string loanBadgeClass = isOverdue ? "badge-red" : daysLeft <= 3 ? "badge-yellow" : "badge-green";
+
                     <tr>
                         <td class="fw-bold text-dark">@loan.ItemId</td>
                         <td>@loan.LoanedAt.ToString("yy-MM-dd")</td>
                         <td>@loan.DueAt.ToString("yy-MM-dd")</td>
                         <td>
-                                        <span class="k-badge @(isOverdue ? "red" : daysLeft <= 3 ? "yellow" : "green")">
+                                        <span class="status-badge @loanBadgeClass">
                                             @(isOverdue ? $"{Math.Abs(daysLeft)} dagar sen" : $"{daysLeft} dagar kvar")
                                         </span>
                         </td>
-                        <td style="text-align: right;">
-                            <form asp-controller="MyPages" asp-action="ReturnItem" method="post" style="margin:0">
-                                <input type="hidden" name="loanId" value="@loan.Id"/>
-                                <input type="hidden" name="userId" value="@User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value"/>
+                        <td class="text-end">
+                            <form asp-controller="MyPages" asp-action="ReturnItem" method="post" class="m-0">
+                                <input type="hidden" name="loanId" value="@loan.Id" />
+                                <input type="hidden" name="userId" value="@User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value" />
                                 <button type="submit" class="btn btn-sm btn-outline-danger shadow-sm rounded-circle" title="Återlämna">
                                     <i class="bi bi-x-lg"></i>
                                 </button>
@@ -473,36 +254,40 @@ var activeLoans = ViewBag.ActiveLoans as List<LoanDto> ?? new List<LoanDto>();
             }
         </div>
 
-        <div class="k-table-section">
-            <h3 class="k-section-title">Bevakningar</h3>
+        <div class="col-lg-6">
+            <h4 class="fw-bold mb-3 text-dark fs-5">Bevakningar</h4>
             @if (!watches.Any())
             {
-            <div class="k-empty">Inga bevakningar just nu.</div>
+            <div class="bg-white border rounded-4 p-4 text-center text-muted small shadow-sm">
+                Inga bevakningar just nu.
+            </div>
             }
             else
             {
-            <div class="table-container shadow-sm border-0 mb-4">
+            <div class="table-container shadow-sm border-0">
                 <table class="table mb-0 align-middle">
                     <thead>
                     <tr>
                         <th>Objekt</th>
                         <th>Status</th>
-                        <th style="text-align: right;">ÅTGÄRDER</th>
+                        <th class="text-end">ÅTGÄRDER</th>
                     </tr>
                     </thead>
                     <tbody>
                     @foreach (var w in watches)
                     {
+                    string watchBadgeClass = w.IsActive ? "badge-green" : "badge-gray";
+
                     <tr>
                         <td class="fw-bold text-dark">@w.ItemTitle</td>
                         <td>
-                                    <span class="k-badge @(w.IsActive ? "green" : "gray")">
-                                        @(w.IsActive ? "Tillgänglig" : "Bevakas")
-                                    </span>
+                                        <span class="status-badge @watchBadgeClass">
+                                            @(w.IsActive ? "Tillgänglig" : "Bevakas")
+                                        </span>
                         </td>
-                        <td style="text-align: right;">
-                            <form asp-controller="MyPages" asp-action="StopWatch" method="post" style="margin:0">
-                                <input type="hidden" name="watchId" value="@w.Id"/>
+                        <td class="text-end">
+                            <form asp-controller="MyPages" asp-action="StopWatch" method="post" class="m-0">
+                                <input type="hidden" name="watchId" value="@w.Id" />
                                 <button type="submit" class="btn btn-sm btn-outline-danger shadow-sm rounded-circle" title="Sluta bevaka">
                                     <i class="bi bi-x-lg"></i>
                                 </button>
@@ -519,6 +304,7 @@ var activeLoans = ViewBag.ActiveLoans as List<LoanDto> ?? new List<LoanDto>();
     </div>
 </div>
 
+@section Scripts {
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         const btn = document.getElementById("notificationBtn");
@@ -540,3 +326,4 @@ var activeLoans = ViewBag.ActiveLoans as List<LoanDto> ?? new List<LoanDto>();
         }
     });
 </script>
+}

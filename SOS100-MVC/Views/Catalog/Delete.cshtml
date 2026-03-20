@@ -12,12 +12,7 @@
         _ => "bi-box-seam"
     };
 }
-<style>
-    /* Mjukare bakgrund på hela sidan för att låta vita boxar poppa */
-    body {
-        background-color: #f4f7f6;
-    }
-</style>
+
 
 <div class="container mt-5 mb-5">
     <div class="row justify-content-center">
@@ -28,7 +23,7 @@
                 <div class="card-body p-5 text-center">
                     
                     <div class="mb-4">
-                        <i class="bi bi-exclamation-circle text-danger" style="font-size: 4.5rem;"></i>
+                        <i class="bi bi-exclamation-circle text-danger icon-xl"></i>
                     </div>
                     
                     <h2 class="fw-bold mb-3">Är du helt säker?</h2>
@@ -39,7 +34,7 @@
                     <div class="bg-light p-4 rounded-4 text-start mb-4 shadow-sm border border-light">
                         <div class="d-flex align-items-center mb-3 text-muted">
                             <i class="bi @typeIcon fs-4 me-2"></i>
-                            <span class="fw-bold text-uppercase tracking-wide" style="letter-spacing: 1px;">@Model.Type</span>
+                            <span class="fw-bold text-uppercase tracking-wide">@Model.Type</span>
                         </div>
                         
                         <h4 class="fw-bold text-dark mb-2">@Model.Name</h4>
@@ -61,7 +56,7 @@
                         <a asp-action="Index" class="btn btn-outline-secondary rounded-pill px-4 fw-bold">
                             Avbryt
                         </a>
-                        
+                         
                         <form asp-action="Delete" asp-route-id="@Model.Id" method="post" class="m-0">
                             <button type="submit" class="btn btn-danger rounded-pill px-4 fw-bold shadow-sm">
                                 <i class="bi bi-trash3 me-2"></i> Ja, ta bort

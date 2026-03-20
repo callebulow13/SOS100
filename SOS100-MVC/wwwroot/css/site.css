@@ -82,11 +82,93 @@ body {
   vertical-align: middle;
 }
 
-/* 3. Globala Status-Badges */
+/* =========================================
+   STATUS BADGES (Exakt som originalbilden)
+   ========================================= */
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  display: inline-block;
+  border: 1px solid transparent;
+}
+
+/* De specifika färgerna */
+.badge-green { background-color: #f0fdf4; color: #15803d; border-color: #bbf7d0; }
+.badge-yellow { background-color: #fffbeb; color: #b45309; border-color: #fde68a; }
+.badge-red { background-color: #fef2f2; color: #b91c1c; border-color: #fecaca; }
+.badge-gray { background-color: #f8f9fa; color: #6c757d; border-color: #dee2e6; }
+/* =========================================
+   GLOBALA STILAR (Ersätter .cshtml <style>)
+   ========================================= */
+
+body {
+  background-color: #f4f7f6;
+}
+
+/* Tabell-design & Status */
+.table-container {
+  background: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.table thead th {
+  color: #495057;
+  border-bottom: 2px solid #dee2e6;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  padding: 15px;
+}
+
+.table tbody tr {
+  transition: background-color 0.2s;
+}
+
+.table tbody tr:hover {
+  background-color: rgba(0, 123, 255, 0.04) !important;
+}
+
 .status-badge {
   padding: 0.4em 0.8em;
   border-radius: 50px;
-  font-weight: 600;
+  font-weight: 500;
   font-size: 0.85rem;
 }
 
+/* Filterknappar (Pills) */
+.filter-btn {
+  background-color: #f8f9fa;
+  color: #495057;
+  border: 1px solid #dee2e6;
+  transition: all 0.2s ease-in-out;
+}
+
+.filter-btn:hover {
+  background-color: #e9ecef;
+  color: #212529;
+}
+
+.btn-check:checked + .filter-btn {
+  background-color: #495057 !important;
+  color: #ffffff !important;
+  border-color: #495057 !important;
+}
+
+/* =========================================
+   UTILITY KLASSER (Ersätter inline style="")
+   ========================================= */
+
+/* Typografi & Avstånd */
+.tracking-wide { letter-spacing: 1px; }
+.tracking-medium { letter-spacing: 0.5px; }
+.lh-relaxed { line-height: 1.6; }
+
+/* Ikoner */
+.icon-xl { font-size: 4.5rem; }
+
+/* Komponent-specifikt */
+.search-bar-mw { max-width: 300px; }
+.cursor-pointer { cursor: pointer; }

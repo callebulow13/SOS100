@@ -20,9 +20,25 @@ public class AdminController : Controller
         string apiBaseUrl = configuration.GetValue<string>("UserServiceBaseUrl");
         _httpClient.BaseAddress = new Uri(apiBaseUrl);
     }
-    public IActionResult Index()
+
+    public async Task<IActionResult> Index()
     {
-        return View();
+
+        List<UserDto> users = new List<UserDto>();
+
+        HttpResponseMessage response = await _httpClient.GetAsync($"/User");
+
+        if (response.IsSuccessStatusCode)
+        {
+            string data = await response.Content.ReadAsStringAsync();
+            users = JsonSerializer.Deserialize<List<UserDto>>(data,
+                new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                }) ?? new List<UserDto>();
+        }
+
+        return View(users);
     }
 
     public IActionResult CreateUser()
@@ -57,7 +73,7 @@ public class AdminController : Controller
             ModelState.AddModelError(string.Empty, "Kunde inte uppdatera användare");
             return View(user);
         }
-        return RedirectToAction("Users");
+        return RedirectToAction("Index");
     }
 
     public async Task<IActionResult> Users()
@@ -88,7 +104,7 @@ public class AdminController : Controller
 
         if (response.IsSuccessStatusCode)
         {
-            return RedirectToAction("Users");
+            return RedirectToAction("Index");
         }
         ModelState.AddModelError(string.Empty, "Something went wrong");
         return View(user);
@@ -104,7 +120,7 @@ public class AdminController : Controller
             ModelState.AddModelError(string.Empty, "Kunde inte radera användare");
             return RedirectToAction("Users");
         }
-        return RedirectToAction("Users");
+        return RedirectToAction("Index");
     }
     public async Task<IActionResult> SignOutUser()
     {

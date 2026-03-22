@@ -2,11 +2,13 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    color: #f8f7f4;
 }
 h1 {
-    font-size: 2em;
+    font-size: 3em;
     text-align: center;
-    color: white;
+    color: #1a1a1a;
+    font-family: 'Georgia', serif;
 }
 div {
     display: flex;
@@ -16,9 +18,10 @@ div {
     text-align: center;
     width: fit-content;
     height: fit-content;
-    background: blue;
-    border-radius: 20px;
+    background: #ffffff;
+    border-radius: 25px;
     padding: 50px;
+    border: 2px solid grey;
 }
 form {
     display: flex;
@@ -36,10 +39,33 @@ table {
     justify-content: center;
 }
 input {
-    font-size: 1.5em;
+    font-size: 2em;
     padding: 5px;
     border-radius: 5px;
-    border: none;
+    border: 1px solid grey;
+    background: #f8f7f4;
+    font-family: 'Georgia', serif;
+}
+input[type='submit']{
+    background: #6366f1;
+    font-family: 'Georgia', serif;
+    cursor: pointer;
+    color: white;
+}
+input[type='submit']:hover {
+    background: #8384f1;
+}
+.password-cell {
+    position: relative;
+}
+.toggle-password {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    font-size: 16px;
+    color: #6366f1;
 }
 td{
     display: flex;
@@ -53,5 +79,5 @@ tbody {
     justify-content: center;
     text-align: center;
     height: fit-content;
-    gap: 10px;
+    gap: 20px;
 }

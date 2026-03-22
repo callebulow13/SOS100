@@ -13,7 +13,10 @@
                 <td><input placeholder="Username" asp-for="Username"/></td>
             </tr>
             <tr>
-                <td><input type="password" placeholder="Password" asp-for="Password"/></td>
+                <td class="password-cell">
+                    <input type="password" placeholder="Password" asp-for="Password"/>
+                    <span id="togglePassword" class="toggle-password">👁️</span>
+                </td>
             </tr>
             <tr>
                 <td><input type="submit" value="Login"/></td>
@@ -32,6 +35,18 @@
             <button type="submit">Login as User</button>
         </form>
     }
-
-
 </div>
+<script>
+    const password = document.getElementById("Password");
+    const toggle = document.getElementById("togglePassword");
+
+    toggle.addEventListener("click", () => {
+        if (password.type === "password") {
+            password.type = "text";
+            toggle.textContent = "🙈";
+        } else {
+            password.type = "password";
+            toggle.textContent = "👁️";
+        }
+    });
+</script>

@@ -1,34 +1,57 @@
 @model EditProfileViewModel
+<link rel="stylesheet" href="~/css/myPages.css" asp-append-version="true"/>
+
 <h2>Ändra uppgifter</h2>
+<div class="block">
+    <form asp-action="EditProfile" method="post">
+        <div class="mb-3">
+            <label>Användarnamn</label>
+            <input asp-for="User.Username" class="form-control" />
+        </div>
+        <div class="mb-3">
+            <label>Förnamn</label>
+            <input asp-for="User.FirstName" class="form-control" />
+        </div>
+        <div class="mb-3">
+            <label>Efternamn</label>
+            <input asp-for="User.LastName" class="form-control" />
+        </div>
+        <div class="mb-3">
+            <label>Email</label>
+            <input asp-for="User.Email" class="form-control" />
+        </div>
+        <button type="submit" class="btn btn-primary">Spara</button>
+    </form>
 
-<form asp-action="EditProfile" method="post">
-    <div class="mb-3">
-        <label>Användarnamn</label>
-        <input asp-for="User.Username" class="form-control" />
-    </div>
-    <div class="mb-3">
-        <label>Förnamn</label>
-        <input asp-for="User.FirstName" class="form-control" />
-    </div>
-    <div class="mb-3">
-        <label>Efternamn</label>
-        <input asp-for="User.LastName" class="form-control" />
-    </div>
-    <div class="mb-3">
-        <label>Email</label>
-        <input asp-for="User.Email" class="form-control" />
-    </div>
-    <button type="submit" class="btn btn-primary">Spara</button>
-</form>
+    <form asp-action="EditPassword" method="post">
+        <div class="mb-3">
+            <label>Gammalt lösenord</label>
+            <input asp-for="PasswordDto.Password" class="form-control" type="password"/>
+            <span class="toggle-password">👁️</span>
+        </div>
+        <div class="mb-3">
+            <label>Nytt lösenord</label>
+            <input asp-for="PasswordDto.NewPassword" class="form-control" type="password" />
+            <span class="toggle-password">👁️</span>
+        </div>
+        <button type="submit" class="btn btn-primary">Spara</button>
+    </form>
+</div>
 
-<form asp-action="EditPassword" method="post">
-    <div class="mb-3">
-        <label>Gammalt lösenord</label>
-        <input asp-for="PasswordDto.Password" class="form-control" type="password"/>
-    </div>
-    <div class="mb-3">
-        <label>Nytt lösenord</label>
-        <input asp-for="PasswordDto.NewPassword" class="form-control" type="password" />
-    </div>
-    <button type="submit" class="btn btn-primary">Spara lösenord</button>
-</form>
+<script>
+    const toggles = document.querySelectorAll(".toggle-password");
+
+    toggles.forEach(toggle => {
+        toggle.addEventListener("click", () => {
+            const input = toggle.previousElementSibling;
+
+            if (input.type === "password") {
+                input.type = "text";
+                toggle.textContent = "🙈";
+            } else {
+                input.type = "password";
+                toggle.textContent = "👁️";
+            }
+        });
+    });
+</script>

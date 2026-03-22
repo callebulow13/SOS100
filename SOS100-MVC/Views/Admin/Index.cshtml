@@ -1,7 +1,55 @@
+@{
+   ViewData["Title"] = "Admin page";
+ }
+<link rel="stylesheet" href="~/css/admin.css" asp-append-version="true"/>
+
 <h1>Admin page</h1>
-<p>It is a secret to everybody.</p>
-<a asp-controller="Admin"
-   asp-action="Users"
-   class="btn btn-primary">Hantera användare</a>
 <a asp-action="SignOutUser">Log out</a>
+@model List<SOS100_MVC.Dtos.UserDto>
+
+<a asp-controller="Admin"
+   asp-action="CreateUser"
+   class="btn btn-primary">Skapa ny användare</a>
+
+<h2>Användare</h2>
+
+<table class="table table-striped">
+   <thead>
+   <tr>
+      <th>ID</th>
+      <th>Användarnamn</th>
+      <th>Email</th>
+      <th>Förnamn</th>
+      <th>Efternamn</th>
+      <th>Roll</th>
+      <th></th>
+   </tr>
+   </thead>
+   <tbody>
+   @foreach (var user in Model)
+   {
+      <tr>
+         <td>@user.UserID</td>
+         <td>@user.Username</td>
+         <td>@user.Email</td>
+         <td>@user.FirstName</td>
+         <td>@user.LastName</td>
+         <td>@user.Role</td>
+         <td>
+            <div class="buttons">
+               <a class="edit-btn" asp-controller="Admin" asp-action="EditUser"
+                  asp-route-id="@user.UserID">Ändra</a>
+
+               <form asp-action="DeleteUser"
+                     asp-route-id="@user.UserID"
+                     method="post"
+                     onsubmit="return confirm('Är du säker?');">
+                  <button class="delete-btn" type="submit">Ta bort</button>
+               </form>
+            </div>
+         </td>
+      </tr>
+   }
+   </tbody>
+</table>
 

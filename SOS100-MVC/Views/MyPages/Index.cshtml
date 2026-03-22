@@ -64,8 +64,8 @@
                                         <form asp-controller="MyPages" asp-action="ReturnItem" method="post" class="m-0">
                                             <input type="hidden" name="loanId" value="@loan.Id" />
                                             <input type="hidden" name="userId" value="@User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value" />
-                                            <button type="submit" class="btn btn-sm btn-outline-danger shadow-sm rounded-circle" title="Återlämna">
-                                                <i class="bi bi-x-lg"></i>
+                                            <button type="submit" class="btn btn-sm btn-outline-primary shadow-sm rounded-circle" title="Återlämna">
+                                                <i class="bi bi-arrow-return-left"></i>
                                             </button>
                                         </form>
                                     </td>
@@ -112,7 +112,7 @@
                                         <form asp-controller="MyPages" asp-action="StopWatch" method="post" class="m-0">
                                             <input type="hidden" name="watchId" value="@w.Id" />
                                             <button type="submit" class="btn btn-sm btn-outline-danger shadow-sm rounded-circle" title="Sluta bevaka">
-                                                <i class="bi bi-x-lg"></i>
+                                                <i class="bi bi-bell-slash"></i>
                                             </button>
                                         </form>
                                     </td>

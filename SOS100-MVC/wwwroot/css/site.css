@@ -8,16 +8,18 @@ html {
   }
 }
 
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
 html {
   position: relative;
   min-height: 100%;
 }
 
+body {
+  background-color: #f4f7f6;
+}
 
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
 
 .form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
   color: var(--bs-secondary-color);
@@ -27,113 +29,51 @@ html {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
   text-align: start;
 }
+
 /* =========================================
    GLOBAL TEMA: NORDISK MINIMALISM
    ========================================= */
 
-/* 1. Skriv över Bootstraps blåa färg (primary) till vår mörkgrå/svarta */
 :root {
   --bs-primary: #212529;
   --bs-primary-rgb: 33, 37, 41;
-  --bs-body-bg: #f8f9fa; /* Sätter den ljusgrå bakgrunden på alla sidor */
+  --bs-body-bg: #f8f9fa;
 }
 
-/* Skriver över knappar så de inte blir blåa vid hovring */
 .btn-primary {
   background-color: var(--bs-primary);
   border-color: var(--bs-primary);
 }
+
 .btn-primary:hover, .btn-primary:focus, .btn-primary:active {
   background-color: #111827 !important;
   border-color: #111827 !important;
 }
 
-/* 2. Globala tabell-stilar (Från Katalogen & Mina Sidor) */
+/* =========================================
+   TABELLER & SCROLL-FUNKTION
+   ========================================= */
+
 .table-container {
   background: #fff;
   border-radius: 10px;
   border: 1px solid #e9ecef;
 
-  /* Ändrat från 320px till 400px */
-  max-height: calc(100vh - 400px);
+  /* Perfekt kalibrerad för att slippa dubbelscroll! */
+  max-height: calc(100vh - 420px);
   overflow-y: auto;
   overflow-x: auto;
-
   box-shadow: 0 2px 4px rgba(0,0,0,0.02);
 }
 
 .table thead th {
-  background-color: #e9ecef;
   color: #495057;
-  border-bottom: 2px solid #e9ecef;
+  background-color: #f8f9fa;
+  border-bottom: 2px solid #dee2e6;
   text-transform: uppercase;
   font-size: 0.8rem;
   letter-spacing: 0.5px;
   padding: 15px;
-}
-
-.table tbody tr {
-  transition: background-color 0.2s;
-}
-
-.table tbody tr:hover {
-  background-color: rgba(33, 37, 41, 0.03) !important; /* Diskret mörkgrå toning vid hovring */
-}
-
-.table td {
-  padding: 16px;
-  vertical-align: middle;
-}
-
-/* =========================================
-   STATUS BADGES (Exakt som originalbilden)
-   ========================================= */
-.status-badge {
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
-  white-space: nowrap;
-  display: inline-block;
-  border: 1px solid transparent;
-}
-
-/* De specifika färgerna */
-.badge-green { background-color: #f0fdf4; color: #15803d; border-color: #bbf7d0; }
-.badge-yellow { background-color: #fffbeb; color: #b45309; border-color: #fde68a; }
-.badge-red { background-color: #fef2f2; color: #b91c1c; border-color: #fecaca; }
-.badge-gray { background-color: #f8f9fa; color: #6c757d; border-color: #dee2e6; }
-/* =========================================
-   GLOBALA STILAR (Ersätter .cshtml <style>)
-   ========================================= */
-
-body {
-  background-color: #f4f7f6;
-}
-
-/* Tabell-design & Status */
-.table-container {
-  background: #fff;
-  border-radius: 10px;
-  border: 1px solid #e9ecef;
-
-  /* Låser höjden och skapar intern scroll */
-  max-height: calc(100vh - 320px);
-  overflow-y: auto;
-  overflow-x: auto;
-
-  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-}
-
-.table thead th {
-  color: #495057;
-  background-color: rgb(237, 237, 237); /* Viktigt: Måste ha en solid bakgrundsfärg nu när den är sticky */
-  border-bottom: 2px solid #dee2e6;
-  text-transform: uppercase;
-  font-size: 0.8rem;
-  padding: 15px;
-
-  /* Klistrar fast rubrikraden i toppen när man scrollar inuti tabellen */
   position: sticky;
   top: 0;
   z-index: 10;
@@ -144,17 +84,37 @@ body {
 }
 
 .table tbody tr:hover {
-  background-color: rgba(0, 123, 255, 0.04) !important;
+  background-color: rgba(33, 37, 41, 0.03) !important;
 }
+
+.table td {
+  padding: 16px;
+  vertical-align: middle;
+}
+
+/* =========================================
+   STATUS BADGES
+   ========================================= */
 
 .status-badge {
-  padding: 0.4em 0.8em;
-  border-radius: 50px;
-  font-weight: 500;
-  font-size: 0.85rem;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  display: inline-block;
+  border: 1px solid transparent;
 }
 
-/* Filterknappar (Pills) */
+.badge-green { background-color: #f0fdf4; color: #15803d; border-color: #bbf7d0; }
+.badge-yellow { background-color: #fffbeb; color: #b45309; border-color: #fde68a; }
+.badge-red { background-color: #fef2f2; color: #b91c1c; border-color: #fecaca; }
+.badge-gray { background-color: #f8f9fa; color: #6c757d; border-color: #dee2e6; }
+
+/* =========================================
+   FILTER KNAPPAR
+   ========================================= */
+
 .filter-btn {
   background-color: #f8f9fa;
   color: #495057;
@@ -174,24 +134,20 @@ body {
 }
 
 /* =========================================
-   UTILITY KLASSER (Ersätter inline style="")
+   UTILITY KLASSER
    ========================================= */
 
-/* Typografi & Avstånd */
 .tracking-wide { letter-spacing: 1px; }
 .tracking-medium { letter-spacing: 0.5px; }
 .lh-relaxed { line-height: 1.6; }
-
-/* Ikoner */
 .icon-xl { font-size: 4.5rem; }
-
-/* Komponent-specifikt */
 .search-bar-mw { max-width: 300px; }
 .cursor-pointer { cursor: pointer; }
 
 /* =========================================
    TOPBAR & NOTIFIKATIONER (Popup)
    ========================================= */
+
 .k-notifications {
   position: relative;
   cursor: pointer;
@@ -228,14 +184,14 @@ body {
 .k-popup {
   display: none;
   position: absolute;
-  top: 50px;
-  right: 0;
+  top: calc(100% + 12px) !important; /* Lägger sig exakt lika långt ner som profilmenyn */
+  right: -5px; /* Kalibrerar positionen så den sitter snyggt under klockan */
   width: 350px;
   background: white;
   border: 1px solid #e9ecef;
   border-radius: 12px;
   box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-  z-index: 1050; /* Ser till att den hamnar överst */
+  z-index: 1050;
   cursor: default;
   overflow: hidden;
 }
@@ -271,3 +227,258 @@ body {
 .k-popup-item:hover { background: #fdfdfe; }
 .k-popup-item-title { font-size: 14px; font-weight: 600; color: #212529; }
 .k-popup-item-date { font-size: 12px; color: #6c757d; }
+
+/* =========================================
+   FORMULÄR & INPUT-FÄLT (Förbättrad synlighet)
+   ========================================= */
+
+/* Gör fälten tydligare mot den vita bakgrunden */
+.form-control.bg-light,
+.form-select.bg-light,
+textarea.form-control.bg-light {
+  background-color: #f1f3f5 !important; /* En aning mörkare och fylligare ljusgrå */
+  border: 1px solid #dee2e6 !important; /* Tunn, mjuk ram så gränserna syns */
+  color: #212529;
+}
+
+/* Snygg effekt när man klickar i fältet (fokus) */
+.form-control.bg-light:focus,
+.form-select.bg-light:focus,
+textarea.form-control.bg-light:focus {
+  background-color: #ffffff !important; /* Blir helt vitt när man skriver */
+  border-color: #adb5bd !important; /* Ramen blir lite mörkare */
+  box-shadow: 0 0 0 3px rgba(33, 37, 41, 0.08) !important; /* Mjuk mörkgrå glöd istället för blå */
+}
+
+/* Fixar så att platshållartexten (placeholder) syns bra */
+.form-control::placeholder {
+  color: #adb5bd !important;
+  opacity: 1;
+}
+
+/* =========================================
+   DARK MODE OVERRIDES
+   ========================================= */
+[data-bs-theme="dark"] body {
+  background-color: #121212;
+}
+
+/* Mörka kort, sidomenyer och topbars */
+[data-bs-theme="dark"] .sidebar,
+[data-bs-theme="dark"] .main-content nav,
+[data-bs-theme="dark"] .card,
+[data-bs-theme="dark"] .table-container,
+[data-bs-theme="dark"] .k-popup,
+[data-bs-theme="dark"] .bg-white {
+  background-color: #1e1e1e !important;
+  border-color: #2d2d2d !important;
+}
+/* Sidopanelen (Länkar & Hover) */
+[data-bs-theme="dark"] .sidebar .nav-link {
+  color: #e0e0e0 !important; /* Gör texten ljusgrå/vit */
+}
+
+[data-bs-theme="dark"] .sidebar .nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.05) !important; /* Diskret ljusare bakgrund vid hover */
+  color: #ffffff !important; /* Blir kritvit när man drar musen över */
+}
+/* Håll Admin-länken röd även i Dark Mode */
+[data-bs-theme="dark"] .sidebar .nav-link.text-danger {
+  color: #f87171 !important; /* En snygg, lite ljusare röd anpassad för mörk bakgrund */
+}
+
+[data-bs-theme="dark"] .sidebar .nav-link.text-danger:hover {
+  color: #fca5a5 !important; /* Blir något ljusare röd när du drar musen över */
+  background-color: rgba(248, 113, 113, 0.1) !important; /* Svagt röd bakgrund istället för grå */
+}
+
+/* Tabeller & Hover-effekter - FIXAD TEXTFÄRG */
+[data-bs-theme="dark"] .table {
+  --bs-table-color: #e0e0e0;
+  --bs-table-bg: transparent;
+  --bs-table-striped-color: #e0e0e0;
+  color: #e0e0e0 !important;
+}
+[data-bs-theme="dark"] .table thead th {
+  background-color: #1a1a1a !important;
+  border-color: #2d2d2d !important;
+  color: #a0a0a0 !important;
+}
+[data-bs-theme="dark"] .table tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+[data-bs-theme="dark"] .table td,
+[data-bs-theme="dark"] .border-top,
+[data-bs-theme="dark"] .border-bottom,
+[data-bs-theme="dark"] .border-end {
+  border-color: #2d2d2d !important;
+  color: #e0e0e0 !important; /* Tvingar fram ljus text i alla celler */
+}
+
+/* Formulär (Inputs & textareas) */
+[data-bs-theme="dark"] .form-control.bg-light,
+[data-bs-theme="dark"] .form-select.bg-light,
+[data-bs-theme="dark"] textarea.form-control.bg-light {
+  background-color: #2d2d2d !important;
+  border-color: #404040 !important;
+  color: #fff !important;
+}
+[data-bs-theme="dark"] .form-control.bg-light:focus,
+[data-bs-theme="dark"] .form-select.bg-light:focus {
+  background-color: #333 !important;
+  border-color: #6366f1 !important;
+}
+
+/* Klockan & Knappar */
+[data-bs-theme="dark"] .k-notifications {
+  background-color: #2d2d2d;
+  border-color: #404040;
+}
+[data-bs-theme="dark"] .k-notifications i {
+  color: #e0e0e0 !important;
+}
+[data-bs-theme="dark"] .k-notifications:hover {
+  background-color: #404040;
+}
+[data-bs-theme="dark"] .btn-light {
+  background-color: #2d2d2d;
+  border-color: #404040;
+  color: #e0e0e0;
+}
+[data-bs-theme="dark"] .btn-light:hover {
+  background-color: #404040;
+  color: #fff;
+}
+
+/* Text & Rubriker - FIXAD TEXTFÄRG */
+[data-bs-theme="dark"] .text-dark,
+[data-bs-theme="dark"] h1,
+[data-bs-theme="dark"] h2,
+[data-bs-theme="dark"] h3,
+[data-bs-theme="dark"] h4,
+[data-bs-theme="dark"] h5,
+[data-bs-theme="dark"] h6 {
+  color: #f8f9fa !important; /* Gör alla "text-dark" rubriker och celler ljusa */
+}
+[data-bs-theme="dark"] .text-muted {
+  color: #9ca3af !important;
+}
+/* Gör alla primary-ikoner och text ljusa i dark mode */
+[data-bs-theme="dark"] .text-primary {
+  color: #f8f9fa !important;
+}
+
+/* Mörkare varianter av dina Status Badges */
+[data-bs-theme="dark"] .badge-green { background-color: rgba(21, 128, 61, 0.2); color: #4ade80; border-color: rgba(74, 222, 128, 0.3); }
+[data-bs-theme="dark"] .badge-yellow { background-color: rgba(180, 83, 9, 0.2); color: #fbbf24; border-color: rgba(251, 191, 36, 0.3); }
+[data-bs-theme="dark"] .badge-red { background-color: rgba(185, 28, 28, 0.2); color: #f87171; border-color: rgba(248, 113, 113, 0.3); }
+[data-bs-theme="dark"] .badge-gray { background-color: rgba(108, 117, 125, 0.2); color: #9ca3af; border-color: rgba(156, 163, 175, 0.3); }
+/* 1. Profil-menyn (Inställningar / Logga ut) */
+[data-bs-theme="dark"] .dropdown-menu {
+  background-color: #1e1e1e !important;
+  border-color: #2d2d2d !important;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5) !important;
+}
+[data-bs-theme="dark"] .dropdown-item {
+  color: #e0e0e0 !important;
+}
+[data-bs-theme="dark"] .dropdown-item:hover {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  color: #ffffff !important;
+}
+[data-bs-theme="dark"] .dropdown-divider {
+  border-color: #2d2d2d !important;
+}
+[data-bs-theme="dark"] .dropdown-item.text-danger {
+  color: #f87171 !important;
+}
+[data-bs-theme="dark"] .dropdown-item.text-danger:hover {
+  background-color: rgba(248, 113, 113, 0.1) !important;
+}
+
+/* 2. Påminnelse-klockans inre delar */
+[data-bs-theme="dark"] .k-popup-header {
+  background-color: #1a1a1a !important;
+  border-color: #2d2d2d !important;
+  color: #f8f9fa !important;
+}
+[data-bs-theme="dark"] .k-popup-item {
+  border-color: #2d2d2d !important;
+}
+[data-bs-theme="dark"] .k-popup-item:hover {
+  background-color: rgba(255, 255, 255, 0.03) !important;
+}
+[data-bs-theme="dark"] .k-popup-item-title {
+  color: #e0e0e0 !important;
+}
+
+/* =========================================
+   SÖKFÄLT, FILTER & DETALJKORT I DARK MODE
+   ========================================= */
+
+/* 1. Fixar "Plats"-kortet i Detaljvyn (och alla andra bg-light boxar) */
+[data-bs-theme="dark"] .bg-light {
+  background-color: #2d2d2d !important;
+  color: #e0e0e0 !important;
+}
+
+/* 2. Tvingar alla sökfält och vanliga inmatningsfält att bli mörka */
+[data-bs-theme="dark"] .form-control,
+[data-bs-theme="dark"] .form-select {
+  background-color: #2d2d2d !important;
+  border-color: #404040 !important;
+  color: #ffffff !important;
+}
+[data-bs-theme="dark"] .form-control:focus,
+[data-bs-theme="dark"] .form-select:focus {
+  background-color: #333333 !important;
+  border-color: #6366f1 !important; /* Vår snygga accentfärg */
+}
+[data-bs-theme="dark"] .form-control::placeholder {
+  color: #888888 !important;
+}
+
+/* 3. Fixar Filterknapparna för kategorier i Katalogen */
+[data-bs-theme="dark"] .filter-btn {
+  background-color: #2d2d2d !important;
+  color: #a0a0a0 !important;
+  border-color: #404040 !important;
+}
+[data-bs-theme="dark"] .filter-btn:hover {
+  background-color: #404040 !important;
+  color: #ffffff !important;
+}
+
+/* Den aktiva/iklickade filterknappen får hög kontrast */
+[data-bs-theme="dark"] .btn-check:checked + .filter-btn {
+  background-color: #e0e0e0 !important;
+  color: #121212 !important; /* Mörk text mot ljus bakgrund så det syns tydligt vad som är valt */
+  border-color: #e0e0e0 !important;
+}
+
+/* =========================================
+   "ENDAST TILLGÄNGLIGA" - SWITCHEN
+   ========================================= */
+
+/* 1. Själva "spåret" när switchen är AV (Dark mode) */
+[data-bs-theme="dark"] .form-check-input {
+  background-color: #2d2d2d !important;
+  border-color: #555 !important;
+}
+
+/* 2. Switchen när den är PÅ (Grön accentfärg) */
+[data-bs-theme="dark"] .form-check-input:checked {
+  background-color: #4ade80 !important;
+  border-color: #4ade80 !important;
+}
+
+/* 3. Tar bort den fula blåa standard-skuggan när man klickar */
+[data-bs-theme="dark"] .form-check-input:focus {
+  box-shadow: 0 0 0 0.25rem rgba(74, 222, 128, 0.25) !important;
+  border-color: #4ade80 !important;
+}
+
+/* 4. Ser till att textetiketten syns bra bredvid switchen */
+[data-bs-theme="dark"] .form-check-label {
+  color: #e0e0e0 !important;
+}

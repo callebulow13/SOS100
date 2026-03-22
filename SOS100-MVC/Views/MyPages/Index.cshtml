@@ -3,12 +3,11 @@
 @using SOS100_MVC.Dtos
 
 @{
-ViewData["Title"] = "Mina sidor";
-var reminders = ViewBag.Reminders as List<Reminder> ?? new List<Reminder>();
-var watches = ViewBag.Watches as List<Watch> ?? new List<Watch>();
-var activeLoans = ViewBag.ActiveLoans as List<LoanDto> ?? new List<LoanDto>();
+    ViewData["Title"] = "Mina sidor";
+    var reminders = ViewBag.Reminders as List<Reminder> ?? new List<Reminder>();
+    var watches = ViewBag.Watches as List<Watch> ?? new List<Watch>();
+    var activeLoans = ViewBag.ActiveLoans as List<LoanDto> ?? new List<LoanDto>();
 }
-
 
 <div class="container-fluid">
 
@@ -17,113 +16,111 @@ var activeLoans = ViewBag.ActiveLoans as List<LoanDto> ?? new List<LoanDto>();
             <h2 class="fw-bold mb-0 text-dark">Mina sidor</h2>
             @if (Model != null)
             {
-            <p class="text-muted small mt-1 mb-0">@Model.FirstName @Model.LastName</p>
+                <p class="text-muted small mt-1 mb-0">@Model.FirstName @Model.LastName</p>
             }
         </div>
-
-
     </div>
     
     <div class="row g-4">
 
-        <div class="col-lg-6">
+        <div class="col-12">
             <h4 class="fw-bold mb-3 text-dark fs-5">Aktiva lån</h4>
             @if (!activeLoans.Any())
             {
-            <div class="bg-white border rounded-4 p-4 text-center text-muted small shadow-sm">
-                Inga aktiva lån just nu.
-            </div>
+                <div class="bg-white border rounded-4 p-4 text-center text-muted small shadow-sm">
+                    Inga aktiva lån just nu.
+                </div>
             }
             else
             {
-            <div class="table-container shadow-sm border-0">
-                <table class="table mb-0 align-middle">
-                    <thead>
-                    <tr>
-                        <th>Objekt</th>
-                        <th>Lånat</th>
-                        <th>Förfaller</th>
-                        <th>Status</th>
-                        <th class="text-end">ÅTGÄRDER</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    @foreach (var loan in activeLoans)
-                    {
-                    var daysLeft = (loan.DueAt - DateTimeOffset.Now).Days;
-                    var isOverdue = loan.DueAt < DateTimeOffset.Now;
-                    string loanBadgeClass = isOverdue ? "badge-red" : daysLeft <= 3 ? "badge-yellow" : "badge-green";
-
-                    <tr>
-                        <td class="fw-bold text-dark">@loan.ItemId</td>
-                        <td>@loan.LoanedAt.ToString("yy-MM-dd")</td>
-                        <td>@loan.DueAt.ToString("yy-MM-dd")</td>
-                        <td>
+                <div class="table-container shadow-sm border-0">
+                    <table class="table mb-0 align-middle">
+                        <thead>
+                            <tr>
+                                <th>Objekt</th>
+                                <th>Lånat</th>
+                                <th>Förfaller</th>
+                                <th>Status</th>
+                                <th class="text-end">ÅTGÄRDER</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var loan in activeLoans)
+                            {
+                                var daysLeft = (loan.DueAt - DateTimeOffset.Now).Days;
+                                var isOverdue = loan.DueAt < DateTimeOffset.Now;
+                                string loanBadgeClass = isOverdue ? "badge-red" : daysLeft <= 3 ? "badge-yellow" : "badge-green";
+                                
+                                <tr>
+                                    <td class="fw-bold text-dark">@loan.ItemId</td>
+                                    <td>@loan.LoanedAt.ToString("yy-MM-dd")</td>
+                                    <td>@loan.DueAt.ToString("yy-MM-dd")</td>
+                                    <td>
                                         <span class="status-badge @loanBadgeClass">
                                             @(isOverdue ? $"{Math.Abs(daysLeft)} dagar sen" : $"{daysLeft} dagar kvar")
                                         </span>
-                        </td>
-                        <td class="text-end">
-                            <form asp-controller="MyPages" asp-action="ReturnItem" method="post" class="m-0">
-                                <input type="hidden" name="loanId" value="@loan.Id" />
-                                <input type="hidden" name="userId" value="@User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value" />
-                                <button type="submit" class="btn btn-sm btn-outline-danger shadow-sm rounded-circle" title="Återlämna">
-                                    <i class="bi bi-x-lg"></i>
-                                </button>
-                            </form>
-                        </td>
-                    </tr>
-                    }
-                    </tbody>
-                </table>
-            </div>
+                                    </td>
+                                    <td class="text-end">
+                                        <form asp-controller="MyPages" asp-action="ReturnItem" method="post" class="m-0">
+                                            <input type="hidden" name="loanId" value="@loan.Id" />
+                                            <input type="hidden" name="userId" value="@User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value" />
+                                            <button type="submit" class="btn btn-sm btn-outline-danger shadow-sm rounded-circle" title="Återlämna">
+                                                <i class="bi bi-x-lg"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
             }
         </div>
 
-        <div class="col-lg-6">
+        <div class="col-12 mt-5">
             <h4 class="fw-bold mb-3 text-dark fs-5">Bevakningar</h4>
             @if (!watches.Any())
             {
-            <div class="bg-white border rounded-4 p-4 text-center text-muted small shadow-sm">
-                Inga bevakningar just nu.
-            </div>
+                <div class="bg-white border rounded-4 p-4 text-center text-muted small shadow-sm">
+                    Inga bevakningar just nu.
+                </div>
             }
             else
             {
-            <div class="table-container shadow-sm border-0">
-                <table class="table mb-0 align-middle">
-                    <thead>
-                    <tr>
-                        <th>Objekt</th>
-                        <th>Status</th>
-                        <th class="text-end">ÅTGÄRDER</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    @foreach (var w in watches)
-                    {
-                    string watchBadgeClass = w.IsActive ? "badge-green" : "badge-gray";
-
-                    <tr>
-                        <td class="fw-bold text-dark">@w.ItemTitle</td>
-                        <td>
+                <div class="table-container shadow-sm border-0">
+                    <table class="table mb-0 align-middle">
+                        <thead>
+                            <tr>
+                                <th>Objekt</th>
+                                <th>Status</th>
+                                <th class="text-end">ÅTGÄRDER</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var w in watches)
+                            {
+                                string watchBadgeClass = w.IsActive ? "badge-green" : "badge-gray";
+                                
+                                <tr>
+                                    <td class="fw-bold text-dark">@w.ItemTitle</td>
+                                    <td>
                                         <span class="status-badge @watchBadgeClass">
                                             @(w.IsActive ? "Tillgänglig" : "Bevakas")
                                         </span>
-                        </td>
-                        <td class="text-end">
-                            <form asp-controller="MyPages" asp-action="StopWatch" method="post" class="m-0">
-                                <input type="hidden" name="watchId" value="@w.Id" />
-                                <button type="submit" class="btn btn-sm btn-outline-danger shadow-sm rounded-circle" title="Sluta bevaka">
-                                    <i class="bi bi-x-lg"></i>
-                                </button>
-                            </form>
-                        </td>
-                    </tr>
-                    }
-                    </tbody>
-                </table>
-            </div>
+                                    </td>
+                                    <td class="text-end">
+                                        <form asp-controller="MyPages" asp-action="StopWatch" method="post" class="m-0">
+                                            <input type="hidden" name="watchId" value="@w.Id" />
+                                            <button type="submit" class="btn btn-sm btn-outline-danger shadow-sm rounded-circle" title="Sluta bevaka">
+                                                <i class="bi bi-x-lg"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
             }
         </div>
 

@@ -272,7 +272,7 @@ public class LoansController : ControllerBase
         if (itemId is not null)
             query = query.Where(l => l.ItemId == itemId.Value);
 
-// 1. Hämta datan från SQLite först (utan sortering)
+        // 1. Hämta datan från SQLite först (utan sortering)
         var result = await query.ToListAsync(ct);
 
         // 2. Sortera listan i minnet istället (C# klarar DateTimeOffset galant!)

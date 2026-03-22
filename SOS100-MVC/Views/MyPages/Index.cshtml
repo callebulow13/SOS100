@@ -79,7 +79,7 @@
             }
         </div>
 
-        <div class="col-12 mt-5">
+<div class="col-12 mt-5">
             <h4 class="fw-bold mb-3 text-dark fs-5 d-flex align-items-center">
                 <i class="bi bi-bell text-dark me-2 fs-4"></i> Bevakningar
             </h4>
@@ -119,6 +119,58 @@
                                                 <i class="bi bi-bell-slash"></i>
                                             </button>
                                         </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+
+        <div class="col-12 mt-5">
+            <h4 class="fw-bold mb-3 text-dark fs-5 d-flex align-items-center">
+                <i class="bi bi-alarm text-warning me-2 fs-4"></i> Mina påminnelser 
+                <span class="badge bg-danger rounded-pill ms-2 fs-6">@activeLoans.Count</span>
+            </h4>
+            
+            @if (!reminders.Any(r => !r.IsSent))
+            {
+                <div class="bg-white border rounded-4 p-4 text-center text-muted small shadow-sm">
+                    Inga påminnelser just nu.
+                </div>
+            }
+            else
+            {
+                <div class="table-container shadow-sm border-0">
+                    <table class="table mb-0 align-middle">
+                        <thead>
+                            <tr>
+                                <th>Objekt</th>
+                                <th>Förfaller</th>
+                                <th>Tid kvar</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var r in reminders.Where(r => !r.IsSent))
+                            {
+                                var daysLeft = (r.DueDate - DateTime.Now).Days;
+                                var isOverdue = r.DueDate < DateTime.Now;
+                                string statusBadge = isOverdue ? "badge-red" : daysLeft <= 3 ? "badge-yellow" : "badge-green";
+                                
+                                <tr>
+                                    <td class="fw-bold text-dark">@r.ItemTitle</td>
+                                    <td>@r.DueDate.ToString("yyyy-MM-dd")</td>
+                                    <td>
+                                        <span class="status-badge @statusBadge">
+                                            @(isOverdue ? $"{Math.Abs(daysLeft)} dagar sen" : $"{daysLeft} dagar kvar")
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="status-badge badge-yellow">
+                                            <i class="bi bi-hourglass-split me-1"></i> Väntar
+                                        </span>
                                     </td>
                                 </tr>
                             }

@@ -24,7 +24,9 @@
     <div class="row g-4">
 
         <div class="col-12">
-            <h4 class="fw-bold mb-3 text-dark fs-5">Aktiva lån</h4>
+            <h4 class="fw-bold mb-3 text-dark fs-5 d-flex align-items-center">
+                <i class="bi bi-clock-history text-primary me-2 fs-4"></i> Aktiva lån
+            </h4>
             @if (!activeLoans.Any())
             {
                 <div class="bg-white border rounded-4 p-4 text-center text-muted small shadow-sm">
@@ -78,7 +80,9 @@
         </div>
 
         <div class="col-12 mt-5">
-            <h4 class="fw-bold mb-3 text-dark fs-5">Bevakningar</h4>
+            <h4 class="fw-bold mb-3 text-dark fs-5 d-flex align-items-center">
+                <i class="bi bi-bell text-dark me-2 fs-4"></i> Bevakningar
+            </h4>
             @if (!watches.Any())
             {
                 <div class="bg-white border rounded-4 p-4 text-center text-muted small shadow-sm">

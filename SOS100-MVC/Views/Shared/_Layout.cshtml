@@ -1,61 +1,263 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="sv">
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>@ViewData["Title"] - SOS100_MVC</title>
+    <title>@ViewData["Title"] - Bibliotek Dashboard</title>
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css"/>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true"/>
-    <link rel="stylesheet" href="~/SOS100_MVC.styles.css" asp-append-version="true"/>
+
+    <style>
+        /* 1. Återställ marginaler och tvinga body att fylla skärmen */
+        html, body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background-color: #f4f7f6;
+            overflow-x: hidden; /* Förhindrar att sidan kan scrollas i sidled */
+        }
+
+        /* 2. Sidebar styling */
+        .sidebar {
+            width: 260px;
+            height: 100vh; /* Tvingar den till exakt fönstrets höjd */
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            overflow-y: auto;
+            background-color: #fff;
+        }
+
+        .sidebar .nav-link {
+            border-radius: 0.5rem;
+            margin-bottom: 0.2rem;
+            color: #495057;
+            transition: all 0.2s;
+        }
+
+        .sidebar .nav-link:hover {
+            background-color: #e9ecef;
+            color: #212529;
+            transform: translateX(4px);
+        }
+
+        /* 3. Huvudinnehållet */
+        .main-content {
+            min-height: 100vh;
+            min-width: 0;
+        }
+    </style>
+    <script>
+        const getPreferredTheme = () => {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                return savedTheme;
+            }
+            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+        
+        // Sätt temat på <html>-taggen
+        document.documentElement.setAttribute('data-bs-theme', getPreferredTheme());
+    </script>
 </head>
 <body>
-<header>
-    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-        <div class="container-fluid">
-            <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Bibliotek</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                    aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                <ul class="navbar-nav flex-grow-1">
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Catalog" asp-action="Index">Katalogen</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Reports" asp-action="Index">Rapporter</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="MyPages" asp-action="Index">Mina sidor</a>
-                    </li>
 
-                    @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
-                    {
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Admin" asp-action="Index">Admin</a>
-                        </li>
-                    }
-                </ul>
-            </div>
+<div class="d-flex min-vh-100">
+    <aside class="sidebar bg-white border-end shadow-sm d-none d-md-flex flex-column p-3">
+        <a asp-area="" asp-controller="Home" asp-action="Index" class="d-flex align-items-center mb-4 mt-2 text-dark text-decoration-none">
+            <i class="bi bi-archive text-primary fs-3 me-2"></i>
+            <span class="fs-4 fw-bold">Biblioteket</span>
+        </a>
+
+        <hr class="text-secondary opacity-25 mt-0">
+
+        <ul class="nav flex-column mb-auto fw-medium">
+            <li class="nav-item">
+                <a class="nav-link px-3 py-2" asp-area="" asp-controller="MyPages" asp-action="Index">
+                    <i class="bi bi-person-badge me-2"></i> Mina sidor
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link px-3 py-2" asp-area="" asp-controller="Catalog" asp-action="Index">
+                    <i class="bi bi-journal-text me-2"></i> Katalogen
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link px-3 py-2" asp-area="" asp-controller="Reports" asp-action="Index">
+                    <i class="bi bi-bar-chart-line me-2"></i> Rapporter
+                </a>
+            </li>
+
+
+            @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+            {
+                <li class="nav-item mt-3">
+                    <span class="text-muted small fw-bold text-uppercase px-3">Administration</span>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link px-3 py-2 text-danger" asp-area="" asp-controller="Admin" asp-action="Index">
+                        <i class="bi bi-shield-lock me-2"></i> Admin-panel
+                    </a>
+                </li>
+            }
+        </ul>
+
+        <div class="mt-auto border-top pt-3 text-center">
+            <small class="text-muted">&copy; 2026 SOS100</small>
         </div>
-    </nav>
-</header>
-<div class="container">
-    <main role="main" class="pb-3">
-        @RenderBody()
-    </main>
-</div>
+    </aside>
 
-<footer class="border-top footer text-muted">
-    <div class="container">
-        &copy; 2026 - SOS100_MVC - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-    </div>
-</footer>
-<script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <div class="flex-grow-1 d-flex flex-column main-content">
+
+        <nav class="bg-white border-bottom shadow-sm px-4 py-3 d-flex justify-content-between align-items-center sticky-top">
+
+            <div class="d-md-none">
+                <a class="text-dark text-decoration-none fw-bold fs-5 d-flex align-items-center" asp-area="" asp-controller="Home" asp-action="Index">
+                    <i class="bi bi-box-seam text-primary me-2"></i> Bibliotek
+                </a>
+            </div>
+
+            <div class="d-none d-md-block"></div>
+
+            <div class="d-flex align-items-center gap-3">
+                <button id="themeToggle" class="btn btn-light rounded-circle shadow-sm border d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;" type="button" aria-label="Växla ljust/mörkt läge">
+                    <i class="bi bi-moon-fill" id="themeIcon"></i>
+                </button>
+                @if (User.Identity.IsAuthenticated)
+                {
+                <div class="k-notifications shadow-sm" id="notificationBtn">
+                    <i class="bi bi-bell fs-5 text-dark"></i>
+
+                    @{
+                    var layoutReminders = ViewBag.Reminders as List<SOS100_MVC.Models.Reminder> ?? new List<SOS100_MVC.Models.Reminder>();
+                    var activeReminders = layoutReminders.Where(r => !r.IsSent).ToList();
+                    }
+
+                    @if (activeReminders.Any())
+                    {
+                    <span class="k-notification-badge">@activeReminders.Count</span>
+                    }
+
+                    <div class="k-popup text-start" id="notificationPopup">
+                        <div class="k-popup-header">
+                            Påminnelser
+                            <span class="status-badge badge-gray" style="font-size: 10px; padding: 2px 8px;">@activeReminders.Count st</span>
+                        </div>
+                        <div class="k-popup-body">
+                            @if (!activeReminders.Any())
+                            {
+                            <div class="k-popup-item">
+                                <span class="k-popup-item-title text-muted fw-medium">Inga påminnelser just nu.</span>
+                            </div>
+                            }
+                            else
+                            {
+                            @foreach (var r in activeReminders)
+                            {
+                            var daysLeft = (r.DueDate - DateTime.Now).Days;
+                            var isOverdue = r.DueDate < DateTime.Now;
+                            string popupBadgeClass = isOverdue ? "badge-red" : daysLeft <= 3 ? "badge-yellow" : "badge-green";
+
+                            <div class="k-popup-item">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <span class="k-popup-item-title">@r.ItemTitle</span>
+                                    <span class="status-badge @popupBadgeClass" style="font-size: 10px; padding: 2px 8px;">
+                                                    @(isOverdue ? $"{Math.Abs(daysLeft)} d sen" : $"{daysLeft} d kvar")
+                                                </span>
+                                </div>
+                                <span class="k-popup-item-date">Förfaller: @r.DueDate.ToString("yyyy-MM-dd")</span>
+                            </div>
+                            }
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dropdown">
+                    <button class="btn btn-light rounded-pill border shadow-sm fw-medium dropdown-toggle d-flex align-items-center" type="button" data-bs-toggle="dropdown" data-bs-offset="0,12">
+                        <i class="bi bi-person-circle fs-5 me-2"></i> @User.Identity.Name
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3">
+                        <li><a class="dropdown-item fw-medium py-2" asp-controller="MyPages" asp-action="EditProfile"><i class="bi bi-gear me-2"></i>Inställningar</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item fw-medium text-danger py-2" asp-controller="Account" asp-action="SignOutUser"><i class="bi bi-box-arrow-right me-2"></i>Logga ut</a></li>
+                    </ul>
+                </div>
+                }
+                else
+                {
+                <a class="btn btn-dark rounded-pill px-4 fw-bold shadow-sm" asp-controller="Account" asp-action="Index">Logga in</a>
+                }
+
+                <button class="btn btn-light border shadow-sm d-md-none ms-1" type="button" data-bs-toggle="collapse" data-bs-target="#mobileMenu">
+                    <i class="bi bi-list fs-5"></i>
+                </button>
+            </div>
+        </nav>
+
+        <div class="collapse bg-white border-bottom d-md-none shadow-sm" id="mobileMenu">
+            <ul class="nav flex-column p-3 fw-medium">
+                <li class="nav-item"><a class="nav-link text-dark py-2" asp-controller="Catalog" asp-action="Index"><i class="bi bi-journal-text me-2"></i>Katalogen</a></li>
+                <li class="nav-item"><a class="nav-link text-dark py-2" asp-controller="Reports" asp-action="Index"><i class="bi bi-bar-chart-line me-2"></i>Rapporter</a></li>
+                <li class="nav-item"><a class="nav-link text-dark py-2" asp-controller="MyPages" asp-action="Index"><i class="bi bi-person-badge me-2"></i>Mina sidor</a></li>
+            </ul>
+        </div>
+
+        <main role="main" class="p-4 p-md-5">
+            @RenderBody()
+        </main>
+
+    </div> </div> <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 <script src="~/js/site.js" asp-append-version="true"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // --- Dark mode logik ---
+        const themeToggleBtn = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+
+        function updateIcon(theme) {
+            if (theme === 'dark') {
+                themeIcon.classList.remove('bi-moon-fill');
+                themeIcon.classList.add('bi-sun-fill', 'text-warning');
+            } else {
+                themeIcon.classList.remove('bi-sun-fill', 'text-warning');
+                themeIcon.classList.add('bi-moon-fill');
+            }
+        }
+
+        // Uppdatera ikonen vid start
+        updateIcon(document.documentElement.getAttribute('data-bs-theme'));
+
+        if (themeToggleBtn) {
+            themeToggleBtn.addEventListener('click', () => {
+                const currentTheme = document.documentElement.getAttribute('data-bs-theme');
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+                document.documentElement.setAttribute('data-bs-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                updateIcon(newTheme);
+            });
+        }
+        const btn = document.getElementById("notificationBtn");
+        const popup = document.getElementById("notificationPopup");
+
+        if (btn && popup) {
+            btn.addEventListener("click", function (e) {
+                popup.classList.toggle("show");
+                e.stopPropagation();
+            });
+            popup.addEventListener("click", function (e) {
+                e.stopPropagation();
+            });
+            document.addEventListener("click", function () {
+                popup.classList.remove("show");
+            });
+        }
+    });
+</script>
 @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

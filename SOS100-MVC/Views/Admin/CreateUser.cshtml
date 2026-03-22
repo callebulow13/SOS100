@@ -1,31 +1,70 @@
 @model SOS100_MVC.Models.User
 
-<h2>Skapa användare</h2>
+@{
+    ViewData["Title"] = "Skapa användare";
+}
 
-<form asp-action="CreateUser" method="post">
-    <div>
-        <label>Användarnamn</label>
-        <input asp-for="Username"/>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-7">
+            
+            <div class="card shadow border-0 rounded-4">
+                <div class="card-header bg-white border-bottom-0 pt-4 pb-2 px-4">
+                    <h3 class="mb-0 fw-bold d-flex align-items-center">
+                        <i class="bi bi-person-plus text-primary me-2"></i> Registrera ny användare
+                    </h3>
+                </div>
+                
+                <div class="card-body p-4">
+                    <form asp-action="CreateUser" method="post">
+                        
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label asp-for="FirstName" class="form-label fw-bold text-secondary small text-uppercase">Förnamn</label>
+                                <input asp-for="FirstName" class="form-control bg-light border-0 px-3 py-2 rounded-3" required />
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="LastName" class="form-label fw-bold text-secondary small text-uppercase">Efternamn</label>
+                                <input asp-for="LastName" class="form-control bg-light border-0 px-3 py-2 rounded-3" required />
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label asp-for="Username" class="form-label fw-bold text-secondary small text-uppercase">Användarnamn</label>
+                                <input asp-for="Username" class="form-control bg-light border-0 px-3 py-2 rounded-3" required />
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="Password" class="form-label fw-bold text-secondary small text-uppercase">Lösenord</label>
+                                <input asp-for="Password" type="password" class="form-control bg-light border-0 px-3 py-2 rounded-3" required />
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Email" class="form-label fw-bold text-secondary small text-uppercase">E-postadress</label>
+                            <input asp-for="Email" type="email" class="form-control bg-light border-0 px-3 py-2 rounded-3" required />
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Role" class="form-label fw-bold text-secondary small text-uppercase">Behörighet (Roll)</label>
+                            <select asp-for="Role" class="form-select bg-light border-0 px-3 py-2 rounded-3">
+                                <option value="User">Standardanvändare (User)</option>
+                                <option value="Admin">Administratör (Admin)</option>
+                            </select>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mt-2 pt-3 border-top">
+                            <a asp-action="Users" class="btn btn-outline-secondary rounded-pill px-4">
+                                <i class="bi bi-x-circle me-1"></i> Avbryt
+                            </a>
+                            <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm">
+                                <i class="bi bi-check2-circle me-1"></i> Skapa användare
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+        </div>
     </div>
-    <div>
-        <label>Lösenord</label>
-        <input asp-for="Password" type="password"/>
-    </div><div>
-        <label>Förnamn</label>
-        <input asp-for="FirstName"/>
-    </div><div>
-        <label>Efternamn</label>
-        <input asp-for="LastName"/>
-    </div><div>
-        <label>Email</label>
-        <input asp-for="Email"/>
-    </div>
-    <div>
-        <label>Roll</label>
-        <select asp-for="Role">
-            <option value="Admin">Admin</option>
-            <option value="User">User</option>
-        </select>
-    </div>
-    <button type="submit" class="btn btn-primary">Skapa</button>
-</form>
+</div>

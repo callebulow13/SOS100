@@ -38,6 +38,12 @@ public class Program
                 builder.Configuration["ReminderApiKey"]!);
         });
         
+        builder.Services.AddHttpClient<SOS100_MVC.Services.ReportApiService>(client =>
+        {
+            client.BaseAddress = new Uri(
+                builder.Configuration["ReportApiBaseUrl"]!);
+        });
+        
         var app = builder.Build();
 
         if (!app.Environment.IsDevelopment())

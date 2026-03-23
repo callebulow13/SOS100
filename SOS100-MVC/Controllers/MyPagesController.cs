@@ -202,7 +202,7 @@ public class MyPagesController : Controller
     public async Task<IActionResult> ReturnItem(Guid loanId, int userId)
     {
         var client = _httpClientFactory.CreateClient();
-        var loanBaseUrl = _configuration["LoanServiceBaseUrl"] ?? "http://localhost:5125";
+        var loanBaseUrl = _configuration["LoanApiBaseUrl"] ?? "http://localhost:5125";
 
         // ── Steg 1: Återlämna lånet ──
         var response = await client.PostAsync(

@@ -112,7 +112,7 @@ public class LoansController : ControllerBase
         {
             await tx.RollbackAsync(ct);
 
-            // Detta är vårt "förväntade" fel: någon försöker skapa ett aktivt lån
+            // Detta är "förväntade" fel: någon försöker skapa ett aktivt lån
             // fast item redan har ett aktivt lån. DB-indexet stoppar det.
             return Conflict(new
             {
@@ -138,15 +138,15 @@ public class LoansController : ControllerBase
             });
         }
         
-        // Ändra statusen på kopian vi hämtade till 1 (eller vad Utlånad motsvarar i er enum)
+        // Ändrar statusen på kopian vi hämtade till 1 (eller vad Utlånad motsvarar i er enum)
         pryl.Status = 1; 
 
-        // Skicka tillbaka den med en PUT-request till din uppdateringsmetod
+        // Skickar tillbaka den med en PUT-request till din uppdateringsmetod
         var updateResponse = await catalogClient.PutAsJsonAsync($"/api/items/{pryl.Id}", pryl, ct);
 
         if (!updateResponse.IsSuccessStatusCode)
         {
-            // Läs det exakta felmeddelandet från ditt KatalogApi
+            // Läser det exakta felmeddelandet från KatalogApi
             var errorText = await updateResponse.Content.ReadAsStringAsync();
             
             // Logga det tydligt i kompisens terminal
@@ -155,7 +155,7 @@ public class LoansController : ControllerBase
             Console.WriteLine($"Felmeddelande: {errorText}");
             Console.WriteLine($"--------------------------------\n");
             
-            // Tills vi har löst felet, avbryter vi lånet om katalogen inte kan uppdateras!
+            // Tills felet är löst, avbryts lånet om katalogen inte kan uppdateras!
             return StatusCode(500, $"Lånet kunde inte slutföras eftersom Katalog-API vägrade uppdatera. Orsak: {errorText}");
         }
         // =========================================================
@@ -275,10 +275,10 @@ public class LoansController : ControllerBase
         if (itemId is not null)
             query = query.Where(l => l.ItemId == itemId.Value);
 
-        // 1. Hämta datan från SQLite först (utan sortering)
+        // 1. Hämtar datan från SQLite först (utan sortering)
         var result = await query.ToListAsync(ct);
 
-        // 2. Sortera listan i minnet istället (C# klarar DateTimeOffset galant!)
+        // 2. Sorterar listan i minnet istället (C# klarar DateTimeOffset galant!)
         var sortedResult = result
             .OrderByDescending(l => l.LoanedAt)
             .ToList();
@@ -351,7 +351,7 @@ public class LoansController : ControllerBase
     {
         return Problem("Databasfel vid återlämning.", statusCode: 500);
     }
-// Ta bort påminnelse från ReminderApi när lånet återlämnas
+// Tar bort påminnelse från ReminderApi när lånet återlämnas
     // =========================================================
     try
     {
@@ -397,7 +397,6 @@ public class LoansController : ControllerBase
 
     return Ok(response);
 }
-    // --- HÄR KLISTRAR NI IN DEN NYA METODEN ISTÄLLET ---
     [HttpGet("test-hamta-pryl/{id}")]
     public async Task<IActionResult> TestFetch(int id)
     {

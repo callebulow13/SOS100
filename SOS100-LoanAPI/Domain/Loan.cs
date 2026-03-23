@@ -30,7 +30,5 @@ public class Loan
         ? LoanStatus.Active 
         : LoanStatus.Returned;
     
-
-    // [Timestamp]
-    // public byte[] RowVersion { get; set; } = default!;
+    
 }

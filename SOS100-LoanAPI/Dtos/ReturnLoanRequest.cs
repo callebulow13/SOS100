@@ -2,5 +2,5 @@
 
 public class ReturnLoanRequest
 {
-    // tom just nu, men bra att ha om ni senare vill skicka in t.ex. note/condition
+    // tom just nu, men bra att ha om senare exempelvis note/condition ska skicka in 
 }

@@ -1,0 +1,56 @@
+using System.Net.Http.Json;
+using SOS100_MVC.Models.Reports;
+
+namespace SOS100_MVC.Services;
+
+public class ReportApiService
+{
+    private readonly HttpClient _httpClient;
+
+    public ReportApiService(HttpClient httpClient)
+    {
+        _httpClient = httpClient;
+    }
+
+    public async Task<List<MostLoanedItemViewModel>> GetMostLoanedItemsAsync(int? limit)
+    {
+        var url = "api/reports/most-loaned-items";
+
+        if (limit.HasValue)
+        {
+            url += $"?limit={limit.Value}";
+        }
+
+        var result = await _httpClient.GetFromJsonAsync<List<MostLoanedItemViewModel>>(url);
+        return result ?? new List<MostLoanedItemViewModel>();
+    }
+
+    public async Task<int?> GetOverdueLoansCountAsync()
+    {
+        var result = await _httpClient.GetFromJsonAsync<OverdueLoansResponse>(
+            "/api/reports/overdue-loans");
+
+        return result?.OverdueLoanCount;
+    }
+
+    public async Task<List<ItemLoanHistoryViewModel>> GetItemLoanHistoryAsync(int itemId)
+    {
+        var result = await _httpClient.GetFromJsonAsync<List<ItemLoanHistoryViewModel>>(
+            $"/api/reports/items/{itemId}/loan-history");
+
+        return result ?? new List<ItemLoanHistoryViewModel>();
+    }
+
+    public async Task<List<UserLoanHistoryViewModel>> GetUserLoanHistoryAsync(int userId)
+    {
+        var result = await _httpClient.GetFromJsonAsync<List<UserLoanHistoryViewModel>>(
+            $"/api/reports/users/{userId}/loan-history");
+
+        return result ?? new List<UserLoanHistoryViewModel>();
+    }
+
+    private class OverdueLoansResponse
+    {
+        public int OverdueLoanCount { get; set; }
+    }
+}

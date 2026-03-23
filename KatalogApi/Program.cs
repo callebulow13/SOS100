@@ -37,15 +37,49 @@ app.UseAuthorization();
 
 app.Use(async (context, next) =>
 {
-    // =========================================================================
+    
+    // Hoppar över API-nyckelkontroll i Development (lokal körning)
+    
+    if (app.Environment.IsDevelopment())
+    {
+        await next(context); // skickar vidare requesten
+        return; // avslutar middleware här
+    }
+
+    // Tillåter Swagger / OpenAPI utan API-nyckel
+    var path = context.Request.Path;
+    if (path.StartsWithSegments("/scalar") || path.StartsWithSegments("/openapi"))
+    {
+        await next(context);
+        return;
+    }
+    
+    // Hämtar API-nyckel från konfiguration (appsettings / Azure)
+    var configuredApiKey = app.Configuration.GetValue<string>("ApiKey");
+    
+    // Hämtar API-nyckel från request header (X-Api-Key)
+    var providedApiKey = context.Request.Headers["X-Api-Key"].FirstOrDefault();
+    
+    // Validerar API-nyckel (matchning krävs)
+    if (string.IsNullOrEmpty(configuredApiKey) || providedApiKey != configuredApiKey)
+    {
+        context.Response.StatusCode = 401; // Unauthorized
+        await context.Response.WriteAsync("Ogiltig eller saknad API-nyckel.");
+        return;
+    }
+    
+    // Släpper igenom request om nyckeln är korrekt
+    await next(context);
+});
+
+app.Use(async (context, next) =>
+{
     // NYTT: Om vi kör lokalt (Development), hoppa över alla säkerhetskontroller!
-    // =========================================================================
     if (app.Environment.IsDevelopment())
     {
         await next(context); // Gå vidare direkt till controllern
         return; // Avbryt här så vi inte gör några fler API-kollar
     }
-    // =========================================================================
 
     // --- NYTT: Släpp förbi webbläsaren till Scalar och OpenAPI utan nyckel ---
     var path = context.Request.Path;
@@ -54,7 +88,6 @@ app.Use(async (context, next) =>
         await next(context); // Låt anropet gå vidare
         return; // Avbryt här så vi inte kollar nyckeln nedanför!
     }
-    // -------------------------------------------------------------------------
 
     // Litet bonustips: Använd app.Configuration istället för builder.Configuration här!
     var configuredApiKey = app.Configuration.GetValue<string>("KatalogApiKey");

@@ -16,7 +16,7 @@ public class ReminderServiceClient
         // Sätt BaseUrl ( sätter default till localhost:5038 om den saknas i appsettings)
         if (_http.BaseAddress == null)
         {
-            var baseUrl = _config["ReminderApiBaseUrl"] ?? "http://localhost:5038";
+            var baseUrl = _config["ReminderServiceBaseUrl"] ?? "http://localhost:5038";
             _http.BaseAddress = new Uri(baseUrl);
         }
 

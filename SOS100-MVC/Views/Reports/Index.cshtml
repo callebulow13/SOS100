@@ -1,2 +1,302 @@
+@model SOS100_MVC.Models.Reports.ReportsPageViewModel
+
+@{
+    ViewData["Title"] = "Rapporter";
+}
+
 <h1>Rapporter</h1>
-<p>Statistik o.s.v.</p>
+
+<form asp-action="Index" method="post" id="reportForm">
+    <div class="mb-3">
+        <label asp-for="SelectedReport" class="form-label">Välj rapport</label>
+        <select asp-for="SelectedReport" class="form-select">
+            <option value="">-- Välj rapport --</option>
+            <option value="most-loaned">Mest utlånade objekt</option>
+            <option value="overdue">Antal försenade lån</option>
+            <option value="item-history">Utlåningshistorik per objekt</option>
+            <option value="user-history">Utlåningshistorik per användare</option>
+        </select>
+    </div>
+
+    <div id="reportDescription" class="mb-3 text-muted">
+        Välj en rapport för att se vilka parametrar som behövs.
+    </div>
+
+    <div id="itemIdGroup" class="mb-3 d-none">
+        <label asp-for="ItemId" class="form-label">Objekt-ID</label>
+        <input asp-for="ItemId" class="form-control" />
+        <span asp-validation-for="ItemId" class="text-danger"></span>
+    </div>
+
+    <div id="userIdGroup" class="mb-3 d-none">
+        <label asp-for="UserId" class="form-label">Användar-ID</label>
+        <input asp-for="UserId" class="form-control" />
+        <span asp-validation-for="UserId" class="text-danger"></span>
+    </div>
+
+    <div class="d-flex align-items-end gap-3 flex-wrap">
+        <div id="mostLoanedLimitGroup" class="d-none">
+            <label class="form-label d-block">Antal resultat</label>
+
+            <div class="d-flex gap-2 flex-wrap">
+                <input type="radio" class="btn-check" name="mostLoanedLimitOption" id="limit20" value="20" autocomplete="off" checked>
+                <label class="btn btn-outline-primary" for="limit20">20</label>
+
+                <input type="radio" class="btn-check" name="mostLoanedLimitOption" id="limit40" value="40" autocomplete="off">
+                <label class="btn btn-outline-primary" for="limit40">40</label>
+
+                <input type="radio" class="btn-check" name="mostLoanedLimitOption" id="limit80" value="80" autocomplete="off">
+                <label class="btn btn-outline-primary" for="limit80">80</label>
+
+                <input type="radio" class="btn-check" name="mostLoanedLimitOption" id="limitAll" value="all" autocomplete="off">
+                <label class="btn btn-outline-primary" for="limitAll">Alla</label>
+            </div>
+
+            <input type="hidden" asp-for="MostLoanedLimit" id="MostLoanedLimit" />
+        </div>
+
+        <div>
+            <button type="submit" id="submitButton" class="btn btn-primary" disabled>
+                Välj först en rapport
+            </button>
+        </div>
+    </div>
+</form>
+
+<hr />
+
+@if (Model.SelectedReport == "most-loaned")
+{
+    <h2>Mest utlånade objekt</h2>
+
+    @if (Model.MostLoanedItems.Any())
+    {
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Objekt-ID</th>
+                    <th>Objekt</th>
+                    <th>Antal lån</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.MostLoanedItems)
+                {
+                    <tr>
+                        <td>@item.ItemId</td>
+                        <td>@item.ItemTitle</td>
+                        <td>@item.LoanCount</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p>Ingen data att visa.</p>
+    }
+}
+
+@if (Model.SelectedReport == "overdue")
+{
+    <h2>Antal försenade lån</h2>
+
+    @if (Model.OverdueLoanCount.HasValue)
+    {
+        <div class="alert alert-warning">
+            Försenade lån: <strong>@Model.OverdueLoanCount</strong>
+        </div>
+    }
+    else
+    {
+        <p>Kunde inte hämta rapporten.</p>
+    }
+}
+
+@if (Model.SelectedReport == "item-history")
+{
+    <h2>Utlåningshistorik per objekt</h2>
+
+    @if (Model.ItemLoanHistory.Any())
+    {
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Lån-ID</th>
+                    <th>Användare</th>
+                    <th>Utlånad</th>
+                    <th>Förfallodatum</th>
+                    <th>Återlämnad</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var loan in Model.ItemLoanHistory)
+                {
+                    <tr>
+                        <td>@loan.LoanId</td>
+                        <td>@loan.UserName</td>
+                        <td>@loan.LoanDate.ToString("yyyy-MM-dd")</td>
+                        <td>@loan.DueDate.ToString("yyyy-MM-dd")</td>
+                        <td>@(loan.ReturnedDate?.ToString("yyyy-MM-dd") ?? "Inte återlämnad")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p>Ingen historik hittades.</p>
+    }
+}
+
+@if (Model.SelectedReport == "user-history")
+{
+    <h2>Utlåningshistorik per användare</h2>
+
+    @if (Model.UserLoanHistory.Any())
+    {
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Lån-ID</th>
+                    <th>Objekt</th>
+                    <th>Utlånad</th>
+                    <th>Förfallodatum</th>
+                    <th>Återlämnad</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var loan in Model.UserLoanHistory)
+                {
+                    <tr>
+                        <td>@loan.LoanId</td>
+                        <td>@loan.ItemTitle</td>
+                        <td>@loan.LoanDate.ToString("yyyy-MM-dd")</td>
+                        <td>@loan.DueDate.ToString("yyyy-MM-dd")</td>
+                        <td>@(loan.ReturnedDate?.ToString("yyyy-MM-dd") ?? "Inte återlämnad")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p>Ingen historik hittades.</p>
+    }
+}
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const reportSelect = document.getElementById("SelectedReport");
+            const itemIdGroup = document.getElementById("itemIdGroup");
+            const userIdGroup = document.getElementById("userIdGroup");
+            const mostLoanedLimitGroup = document.getElementById("mostLoanedLimitGroup");
+
+            const itemIdInput = document.getElementById("ItemId");
+            const userIdInput = document.getElementById("UserId");
+            const mostLoanedLimitInput = document.getElementById("MostLoanedLimit");
+
+            const submitButton = document.getElementById("submitButton");
+            const reportDescription = document.getElementById("reportDescription");
+
+            const limitOptions = document.querySelectorAll("input[name='mostLoanedLimitOption']");
+
+            function hideAllFields() {
+                itemIdGroup.classList.add("d-none");
+                userIdGroup.classList.add("d-none");
+                mostLoanedLimitGroup.classList.add("d-none");
+
+                itemIdInput.required = false;
+                userIdInput.required = false;
+            }
+
+            function syncMostLoanedLimit() {
+                const selected = document.querySelector("input[name='mostLoanedLimitOption']:checked");
+
+                if (!selected) {
+                    mostLoanedLimitInput.value = "20";
+                    return;
+                }
+
+                if (selected.value === "all") {
+                    mostLoanedLimitInput.value = "";
+                } else {
+                    mostLoanedLimitInput.value = selected.value;
+                }
+            }
+
+            function setSelectedLimitFromModel() {
+                const currentValue = mostLoanedLimitInput.value;
+
+                if (currentValue === "") {
+                    const allOption = document.getElementById("limitAll");
+                    if (allOption) allOption.checked = true;
+                    return;
+                }
+
+                const option = document.querySelector(`input[name='mostLoanedLimitOption'][value='${currentValue}']`);
+                if (option) {
+                    option.checked = true;
+                } else {
+                    const defaultOption = document.getElementById("limit20");
+                    if (defaultOption) defaultOption.checked = true;
+                    mostLoanedLimitInput.value = "20";
+                }
+            }
+
+            function updateForm() {
+                const selectedReport = reportSelect.value;
+
+                hideAllFields();
+
+                switch (selectedReport) {
+                    case "most-loaned":
+                        reportDescription.textContent = "Välj hur många av de mest utlånade objekten du vill visa, eller Alla för hela listan.";
+                        mostLoanedLimitGroup.classList.remove("d-none");
+                        submitButton.disabled = false;
+                        submitButton.textContent = "Visa rapport";
+                        syncMostLoanedLimit();
+                        break;
+
+                    case "overdue":
+                        reportDescription.textContent = "Visar antal lån som är försenade just nu.";
+                        submitButton.disabled = false;
+                        submitButton.textContent = "Visa rapport";
+                        break;
+
+                    case "item-history":
+                        reportDescription.textContent = "Ange ett objekt-ID för att visa utlåningshistorik för ett specifikt objekt.";
+                        itemIdGroup.classList.remove("d-none");
+                        itemIdInput.required = true;
+                        submitButton.disabled = false;
+                        submitButton.textContent = "Visa objekthistorik";
+                        break;
+
+                    case "user-history":
+                        reportDescription.textContent = "Ange ett användar-ID för att visa utlåningshistorik för en specifik användare.";
+                        userIdGroup.classList.remove("d-none");
+                        userIdInput.required = true;
+                        submitButton.disabled = false;
+                        submitButton.textContent = "Visa användarhistorik";
+                        break;
+
+                    default:
+                        reportDescription.textContent = "Välj en rapport för att se vilka parametrar som behövs.";
+                        submitButton.disabled = true;
+                        submitButton.textContent = "Välj först en rapport";
+                        break;
+                }
+            }
+
+            limitOptions.forEach(option => {
+                option.addEventListener("change", syncMostLoanedLimit);
+            });
+
+            reportSelect.addEventListener("change", updateForm);
+
+            setSelectedLimitFromModel();
+            updateForm();
+        });
+    </script>
+}

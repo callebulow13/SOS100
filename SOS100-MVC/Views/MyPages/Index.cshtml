@@ -54,7 +54,11 @@
                                 string loanBadgeClass = isOverdue ? "badge-red" : daysLeft <= 3 ? "badge-yellow" : "badge-green";
                                 
                                 <tr>
-                                    <td class="fw-bold text-dark">@loan.ItemName</td>
+                                    <td class="fw-bold">
+                                        <a asp-controller="Catalog" asp-action="Details" asp-route-id="@loan.ItemId" class="text-dark text-decoration-none" title="Visa detaljer">
+                                            @loan.ItemName
+                                        </a>
+                                    </td>
                                     <td>@loan.LoanedAt.ToString("yy-MM-dd")</td>
                                     <td>@loan.DueAt.ToString("yy-MM-dd")</td>
                                     <td>
@@ -106,7 +110,11 @@
                                 string watchBadgeClass = w.IsActive ? "badge-green" : "badge-gray";
                                 
                                 <tr>
-                                    <td class="fw-bold text-dark">@w.ItemTitle</td>
+                                    <td class="fw-bold">
+                                        <a asp-controller="Catalog" asp-action="Details" asp-route-id="@w.ItemId" class="text-dark text-decoration-none" title="Visa detaljer">
+                                            @w.ItemTitle
+                                        </a>
+                                    </td>
                                     <td>
                                         <span class="status-badge @watchBadgeClass">
                                             @(w.IsActive ? "Tillgänglig" : "Bevakas")
@@ -160,7 +168,11 @@
                                 string statusBadge = isOverdue ? "badge-red" : daysLeft <= 3 ? "badge-yellow" : "badge-green";
                                 
                                 <tr>
-                                    <td class="fw-bold text-dark">@r.ItemTitle</td>
+                                    <td class="fw-bold">
+                                        <a asp-controller="Catalog" asp-action="Details" asp-route-id="@r.ItemId" class="text-dark text-decoration-none" title="Visa detaljer">
+                                            @r.ItemTitle
+                                        </a>
+                                    </td>
                                     <td>@r.DueDate.ToString("yyyy-MM-dd")</td>
                                     <td>
                                         <span class="status-badge @statusBadge">

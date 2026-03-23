@@ -6,10 +6,10 @@
     // Samma snygga färgkodning som vi har i Index-vyn
     string statusClass = Model.Status switch
     {
-        SOS100_MVC.Models.ItemStatus.Tillgänglig => "bg-success-subtle text-success border border-success",
-        SOS100_MVC.Models.ItemStatus.Utlånad => "bg-warning-subtle text-warning-emphasis border border-warning",
-        SOS100_MVC.Models.ItemStatus.Trasig => "bg-danger-subtle text-danger border border-danger",
-        _ => "bg-secondary-subtle text-secondary border border-secondary"
+        SOS100_MVC.Models.ItemStatus.Tillgänglig => "badge-green",
+        SOS100_MVC.Models.ItemStatus.Utlånad => "badge-yellow",
+        SOS100_MVC.Models.ItemStatus.Trasig => "badge-red",
+        _ => "badge-gray"
     };
 
     // Ikon baserat på typ
@@ -21,20 +21,23 @@
         _ => "bi-box-seam"
     };
 }
-<style>
-    /* Mjukare bakgrund på hela sidan för att låta vita boxar poppa */
-    body {
-        background-color: #f4f7f6;
-    }
-</style>
 
-<div class="container mt-5">
+
+<div class="container">
     @if (TempData["LoanSuccess"] != null)
     {
         <div class="alert alert-success">
             @TempData["LoanSuccess"]
         </div>
     }
+    
+    @if (TempData["ReportSuccess"] != null)
+    {
+        <div class="alert alert-warning">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i> @TempData["ReportSuccess"]
+        </div>
+    }
+
     <div class="row justify-content-center">
         <div class="col-md-8 col-lg-7">
 
@@ -50,21 +53,19 @@
                 <div class="card-body px-4 pb-4 pt-2">
                     <div class="d-flex align-items-center mb-4 text-muted">
                         <i class="bi @typeIcon fs-4 me-2"></i>
-                        <span class="fs-5 text-uppercase tracking-wide" style="letter-spacing: 1px;">@Model.Type</span>
+                        <span class="fs-5 text-uppercase tracking-wide">@Model.Type</span>
                     </div>
 
                     <h5 class="fw-bold mb-2">Beskrivning</h5>
-                    <p class="card-text text-secondary mb-4" style="line-height: 1.6;">
+                    <p class="card-text text-secondary mb-4 lh-relaxed">
                         @Model.Description
                     </p>
 
                     <div class="bg-light p-4 rounded-3 mb-2">
                         <div class="row g-3">
                             <div class="col-sm-6">
-                                <div class="col-sm-6">
-                                    <div class="text-muted small text-uppercase fw-bold mb-1">Plats / Förvaring</div>
-                                    <div class="fs-6"><i class="bi bi-geo-alt text-primary me-2"></i><span class="fs-6">@Model.Placement</span></div>
-                                </div>
+                                <div class="text-muted small text-uppercase fw-bold mb-1">Plats / Förvaring</div>
+                                <div class="fs-6"><i class="bi bi-geo-alt text-primary me-2"></i><span class="fs-6">@Model.Placement</span></div>
                             </div>
                             <div class="col-sm-6">
                                 <div class="text-muted small text-uppercase fw-bold mb-1">Inköpsdatum</div>
@@ -78,22 +79,62 @@
                     </div>
                 </div>
 
-                <div class="card-footer bg-white border-top-0 pb-4 px-4 d-flex justify-content-between align-items-center">
+                <div class="card-footer bg-white border-top-0 pb-4 px-4 d-flex justify-content-between align-items-center flex-wrap gap-2">
 
                     <a asp-action="Index" class="btn btn-outline-secondary px-4 rounded-pill">
-                        <i class="bi bi-arrow-left me-2"></i> Tillbaka till katalogen
+                        <i class="bi bi-arrow-left me-2"></i> Tillbaka
                     </a>
 
-                    @if (Model.Status == SOS100_MVC.Models.ItemStatus.Tillgänglig)
-                    {
-                        <a asp-controller="Loan" asp-action="Create" asp-route-itemId="@Model.Id" class="btn btn-success px-4 rounded-pill shadow-sm fw-bold">
-                            <i class="bi bi-bookmark-check me-2"></i> Låna detta objekt
-                        </a>
-                    }
+                    <div class="d-flex gap-2">
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <button type="button" class="btn btn-outline-danger px-4 rounded-pill fw-bold" data-bs-toggle="modal" data-bs-target="#errorModal">
+                                <i class="bi bi-exclamation-octagon me-1"></i> Felanmäl
+                            </button>
+                        }
+
+                        @if (Model.Status == SOS100_MVC.Models.ItemStatus.Tillgänglig)
+                        {
+                            <a asp-controller="Loan" asp-action="Create" asp-route-itemId="@Model.Id" class="btn btn-success px-4 rounded-pill shadow-sm fw-bold">
+                                <i class="bi bi-bookmark-check me-2"></i> Låna objekt
+                            </a>
+                        }
+                    </div>
                 </div>
 
             </div>
 
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-controller="Catalog" asp-action="ReportError" method="post">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="errorModalLabel"><i class="bi bi-exclamation-octagon me-2"></i> Felanmäl @Model.Name</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Stäng"></button>
+                </div>
+                <div class="modal-body">
+                    
+                    <input type="hidden" name="ItemId" value="@Model.Id" />
+                    
+                    <div class="mb-3">
+                        <label for="ReporterName" class="form-label fw-bold">Ditt namn</label>
+                        <input type="text" class="form-control" id="ReporterName" name="ReporterName" required placeholder="Förnamn Efternamn">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="Description" class="form-label fw-bold">Beskriv problemet</label>
+                        <textarea class="form-control" id="Description" name="Description" rows="4" required placeholder="T.ex. Skärmen startar inte..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Avbryt</button>
+                    <button type="submit" class="btn btn-danger"><i class="bi bi-send me-1"></i> Skicka felanmälan</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

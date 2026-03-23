@@ -1,37 +1,176 @@
 ﻿@{
     ViewData["Title"] = "Hem";
+    
+    // Obs: För att "Nyinkommet" ska fungera på riktigt behöver vi skicka med data från HomeControllern senare. 
+    // Just nu ligger det platshållare (mock-data) där för att visa hur snyggt det kommer bli!
 }
-<link rel="stylesheet" href="~/css/home.css" asp-append-version="true"/>
 
-<div class="hero">
-    <div class="hero-tag">Kommunbiblioteket</div>
-    <h1 class="hero-title">Vad söker du<br><em>idag?</em></h1>
-    <p class="hero-subtitle">Utforska tusentals böcker, verktyg och resurser i vår samling.</p>
+<style>
+    /* Snygg hover-effekt för snabblänks-korten */
+    .dashboard-card {
+        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        text-decoration: none;
+    }
 
-    <div class="hero-search">
-        <input type="text" placeholder="Sök titel, författare, ämne…"/>
-        <button onclick="window.location.href='@Url.Action("Index", "Catalog")'">Sök</button>
+    .dashboard-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 .5rem 1rem rgba(0,0,0,.08) !important;
+    }
+
+    .icon-box {
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+    }
+
+    /* Sökfältet på startsidan */
+    .hero-search-wrapper {
+        max-width: 600px;
+    }
+    
+    .hero-search-input {
+        border-radius: 50px 0 0 50px !important;
+        padding-left: 1.5rem;
+    }
+    
+    .hero-search-btn {
+        border-radius: 0 50px 50px 0 !important;
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+    }
+</style>
+
+<div class="container-fluid mb-5">
+
+    <div class="card shadow-sm border-0 rounded-4 mb-5 bg-white position-relative overflow-hidden mt-2">
+        <div class="position-absolute top-50 translate-middle-y end-0 pe-5 opacity-10 d-none d-md-block" style="z-index: 0;">
+        </div>
+        
+        <div class="card-body p-4 p-md-5 position-relative z-1">
+            <h2 class="fw-bold mb-2 text-dark">Välkommen till biblioteket!</h2>
+            <p class="text-muted mb-4 fs-5">Vad letar du efter idag?</p>
+            
+            <div class="hero-search-wrapper">
+                <form asp-controller="Catalog" asp-action="Index" method="get" class="d-flex shadow-sm rounded-pill">
+                    <input type="text" name="searchString" class="form-control form-control-lg bg-light border-0 hero-search-input" placeholder="Sök efter böcker, elektronik, rapporter..." aria-label="Sök i katalogen">
+                    <button class="btn btn-primary fw-bold hero-search-btn" type="submit">
+                        <i class="bi bi-search me-1"></i> Sök
+                    </button>
+                </form>
+            </div>
+        </div>
     </div>
 
-    <div class="hero-cards">
-        <a class="hero-card" asp-controller="Catalog" asp-action="Index">
-            <span class="hero-card-icon">📚</span>
-            <span class="hero-card-label">Katalogen</span>
-        </a>
-        <a class="hero-card" asp-controller="MyPages" asp-action="Index">
-            <span class="hero-card-icon">🔔</span>
-            <span class="hero-card-label">Mina sidor</span>
-        </a>
-        <a class="hero-card" asp-controller="Reports" asp-action="Index">
-            <span class="hero-card-icon">📊</span>
-            <span class="hero-card-label">Rapporter</span>
-        </a>
+    <h5 class="fw-bold mb-3 text-dark">Snabbval</h5>
+    <div class="row g-4 mb-5">
+
+        <div class="col-sm-6 col-xl-3">
+            <a asp-controller="Catalog" asp-action="Index" class="card dashboard-card border-0 shadow-sm rounded-4 h-100 p-3 bg-white">
+                <div class="card-body d-flex align-items-center">
+                    <div class="icon-box bg-primary bg-opacity-10 text-primary me-3">
+                        <i class="bi bi-journal-text fs-3"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold mb-1 text-dark">Katalogen</h6>
+                        <span class="text-muted small">Utforska resurser</span>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+             <a asp-controller="MyPages" asp-action="Index" class="card dashboard-card border-0 shadow-sm rounded-4 h-100 p-3 bg-white">
+                <div class="card-body d-flex align-items-center">
+                    <div class="icon-box bg-warning bg-opacity-10 text-warning me-3">
+                        <i class="bi bi-person-badge fs-3"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold mb-1 text-dark">Mina sidor</h6>
+                        <span class="text-muted small">Lån & reservationer</span>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <a asp-controller="Reports" asp-action="Index" class="card dashboard-card border-0 shadow-sm rounded-4 h-100 p-3 bg-white">
+                <div class="card-body d-flex align-items-center">
+                    <div class="icon-box bg-success bg-opacity-10 text-success me-3">
+                        <i class="bi bi-bar-chart-line fs-3"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold mb-1 text-dark">Rapporter</h6>
+                        <span class="text-muted small">Statistik & analys</span>
+                    </div>
+                </div>
+            </a>
+        </div>
+
         @if (User.Identity != null && User.Identity.IsAuthenticated && User.IsInRole("Admin"))
         {
-            <a class="hero-card" asp-controller="Admin" asp-action="Index">
-                <span class="hero-card-icon">⚙️</span>
-                <span class="hero-card-label">Admin</span>
+        <div class="col-sm-6 col-xl-3">
+            <a asp-controller="Admin" asp-action="Index" class="card dashboard-card border-0 shadow-sm rounded-4 h-100 p-3 bg-white">
+                <div class="card-body d-flex align-items-center">
+                    <div class="icon-box bg-danger bg-opacity-10 text-danger me-3">
+                        <i class="bi bi-shield-lock fs-3"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold mb-1 text-dark">Administration</h6>
+                        <span class="text-muted small">Hantera systemet</span>
+                    </div>
+                </div>
             </a>
+        </div>
         }
     </div>
+
+    <div class="d-flex justify-content-between align-items-end mb-3 mt-4">
+        <h5 class="fw-bold mb-0 text-dark">Nyinkommet i katalogen</h5>
+        <a asp-controller="Catalog" asp-action="Index" class="text-decoration-none small fw-bold text-primary">Visa alla <i class="bi bi-arrow-right"></i></a>
+    </div>
+    
+    <div class="row g-4">
+        <div class="col-md-6 col-xl-4">
+            <a asp-controller="Catalog" asp-action="Details" asp-route-id="1" class="card dashboard-card border-0 shadow-sm rounded-4 h-100 bg-white">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <span class="status-badge badge-green">Tillgänglig</span>
+                        <i class="bi bi-book text-muted fs-5"></i>
+                    </div>
+                    <h6 class="fw-bold text-dark mb-1 fs-5">Clean Code: A Handbook</h6>
+                    <p class="text-muted small mb-0"><i class="bi bi-clock me-1"></i> Tillagd igår</p>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-6 col-xl-4">
+            <a asp-controller="Catalog" asp-action="Details" asp-route-id="2" class="card dashboard-card border-0 shadow-sm rounded-4 h-100 bg-white">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <span class="status-badge badge-green">Tillgänglig</span>
+                        <i class="bi bi-laptop text-muted fs-5"></i>
+                    </div>
+                    <h6 class="fw-bold text-dark mb-1 fs-5">Bärbar Projektor (Epson)</h6>
+                    <p class="text-muted small mb-0"><i class="bi bi-clock me-1"></i> Tillagd 2 dagar sedan</p>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-6 col-xl-4 d-none d-xl-block">
+            <a asp-controller="Catalog" asp-action="Details" asp-route-id="3" class="card dashboard-card border-0 shadow-sm rounded-4 h-100 bg-white">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <span class="status-badge badge-yellow">Utlånad</span>
+                        <i class="bi bi-file-earmark-text text-muted fs-5"></i>
+                    </div>
+                    <h6 class="fw-bold text-dark mb-1 fs-5">Årsrapport 2025</h6>
+                    <p class="text-muted small mb-0"><i class="bi bi-clock me-1"></i> Tillagd förra veckan</p>
+                </div>
+            </a>
+        </div>
+    </div>
+
 </div>

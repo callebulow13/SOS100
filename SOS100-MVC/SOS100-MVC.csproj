@@ -10,6 +10,7 @@
 
     <ItemGroup>
       <_ContentIncludedByDefault Remove="Views\Test\Index.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\TestProfile\Index.cshtml" />
     </ItemGroup>
 
 </Project>

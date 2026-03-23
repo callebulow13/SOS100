@@ -35,12 +35,28 @@ builder.Services.AddHttpClient("KatalogClient", client =>
     client.BaseAddress = new Uri(baseUrl!);
     client.DefaultRequestHeaders.Add("X-Api-Key", apiKey!);
 });
+builder.Services.AddHttpClient("ReminderApi", client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["ReminderApiBaseUrl"]!);
+
+    client.DefaultRequestHeaders.Add("X-Api-Key",
+        builder.Configuration["ReminderApiApiKey"]!);
+});
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 builder.Services.AddDbContext<LoanDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("LoansDb")));
+    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 var app = builder.Build();
+
+//Database Migration at startup
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var dbContext = services.GetRequiredService<LoanDbContext>();
+    dbContext.Database.Migrate();
+}
+
 app.UseExceptionHandler();
 
 //app.UseSwagger();
@@ -61,12 +77,12 @@ app.UseAuthorization();
 app.MapControllers().RequireRateLimiting("fixed");
 // --- AUTOMATISK DATABAS-UPPDATERING ---
 
-using (var scope = app.Services.CreateScope())
+/*using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<SOS100_LoanAPI.Data.LoanDbContext>();
 
     // Kör migrations (uppdaterar schema och index på en befintlig DB)
     context.Database.Migrate();
-}
+}*/
 // --------------------------------------
 app.Run();

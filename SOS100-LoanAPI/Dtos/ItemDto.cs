@@ -5,7 +5,7 @@ public class ItemDto
     public int Id { get; set; }
     public string Name { get; set; }
     
-    // De saknade fälten måste vara med för att inte raderas vid PUT!
+    // De saknade fälten för att inte raderas vid PUT!
     public int Type { get; set; } 
     public string Description { get; set; }
     public int Status { get; set; }

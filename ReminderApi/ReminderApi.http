@@ -7,8 +7,8 @@ Content-Type: application/json
 X-Api-Key: {{apiKey}}
 
 {
-  "userId": 1,
-  "loanId": 1,
+  "userId": "1",
+  "loanId": "1",
   "itemId": 1,
   "itemTitle": "Testbok",
   "dueDate": "2025-12-01T00:00:00Z",

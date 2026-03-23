@@ -5,7 +5,7 @@ using ReminderApi.Models;
 using ReminderApi.Filters;
 
 namespace ReminderApi.Controllers;
-
+// 
 [ApiController]
 [Route("api/[controller]")]
 [ServiceFilter(typeof(ApiKeyFilter))]
@@ -21,13 +21,13 @@ public class RemindersController : ControllerBase
     // GET /api/reminders
     [HttpGet]
     public async Task<IActionResult> GetAll(
-        [FromQuery] int? userId,
+        [FromQuery] string? userId,
         [FromQuery] bool? overdue)
     {
         var query = _db.Reminders.Include(r => r.Watch).AsQueryable();
 
-        if (userId.HasValue)
-            query = query.Where(r => r.UserId == userId.Value);
+        if (!string.IsNullOrEmpty(userId))
+            query = query.Where(r => r.UserId == userId);
 
         if (overdue == true)
             query = query.Where(r => r.DueDate < DateTime.UtcNow && !r.IsSent);
@@ -57,6 +57,7 @@ public class RemindersController : ControllerBase
         await _db.SaveChangesAsync();
         return CreatedAtAction(nameof(GetOne), new { id = reminder.Id }, reminder);
     }
+    
 
     // PUT /api/reminders/5
     [HttpPut("{id}")]

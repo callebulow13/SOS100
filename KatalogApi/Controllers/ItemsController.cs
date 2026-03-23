@@ -23,15 +23,16 @@ public class ItemsController : ControllerBase
     {
         // Hämta alla prylar direkt från databasen!
         var items = await _context.Items.ToListAsync();
-        
+
         return Ok(items);
     }
+
     // Lägga till objekt
     [HttpPost]
     public async Task<IActionResult> CreateItem([FromBody] Item newItem)
     {
         // Sätt Id till 0. Databasen kommer automatiskt att räkna ut och ge prylen nästa lediga nummer (t.ex. 4).
-        newItem.Id = 0; 
+        newItem.Id = 0;
 
         // Säg till databas-bron att vi vill lägga till en ny pryl
         _context.Items.Add(newItem);
@@ -43,7 +44,7 @@ public class ItemsController : ControllerBase
         // (nu med sitt nya, riktiga databas-ID) till den som skapade den.
         return Created($"/api/items/{newItem.Id}", newItem);
     }
-    
+
     // Denna [HttpGet] lyssnar efter ett specifikt ID i webbadressen, t.ex. /api/items/3
     [HttpGet("{id}")]
     public async Task<IActionResult> GetItemById(int id)
@@ -63,6 +64,7 @@ public class ItemsController : ControllerBase
         // Ok() ger HTTP 200 och förvandlar automatiskt C#-objektet till JSON-kod.
         return Ok(item);
     }
+
     // Uppdatera en befintlig pryl (PUT)
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateItem(int id, [FromBody] Item updatedItem)
@@ -75,7 +77,7 @@ public class ItemsController : ControllerBase
 
         // 2. Leta upp den befintliga prylen i databasen
         var item = await _context.Items.FindAsync(id);
-        
+
         if (item == null)
         {
             return NotFound($"Kunde inte hitta någon pryl med ID {id} att uppdatera.");
@@ -95,13 +97,14 @@ public class ItemsController : ControllerBase
         // 5. Returnera 204 No Content (Standard för lyckade PUT-anrop där vi inte behöver skicka tillbaka data)
         return NoContent();
     }
+
     // Ta bort en pryl (DELETE)
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteItem(int id)
     {
         // 1. Leta upp prylen i databasen
         var item = await _context.Items.FindAsync(id);
-        
+
         if (item == null)
         {
             return NotFound($"Kunde inte hitta någon pryl med ID {id} att ta bort.");
@@ -109,14 +112,14 @@ public class ItemsController : ControllerBase
 
         // 2. Säg till databas-bron att vi vill radera prylen
         _context.Items.Remove(item);
-        
+
         // 3. Spara ändringarna till SQLite-filen
         await _context.SaveChangesAsync();
 
         // 4. Returnera 204 No Content
         return NoContent();
     }
-    
+
     // POST: api/items/seed
     [HttpPost("seed")]
     public async Task<IActionResult> SeedDatabase()
@@ -130,140 +133,284 @@ public class ItemsController : ControllerBase
         // 2. Skapa en lista med test-prylar som matchar exakt de enums och properties ni har
         var dummyItems = new List<Item>
         {
-            new Item 
-            { 
-                Name = "C# för nybörjare", 
-                Type = ItemType.Bok, 
+            new Item
+            {
+                Name = "C# för nybörjare",
+                Type = ItemType.Bok,
                 Status = ItemStatus.Tillgänglig,
                 Description = "Grundläggande bok om C# och .NET",
                 Placement = "Bokhylla A1",
                 PurchaseDate = DateTime.Now.AddDays(-120)
             },
-            new Item 
-            { 
-                Name = "Bärbar Projektor", 
-                Type = ItemType.Elektronik, 
+            new Item
+            {
+                Name = "Bärbar Projektor",
+                Type = ItemType.Elektronik,
                 Status = ItemStatus.Tillgänglig,
                 Description = "Epson 1080p för presentationer utanför huset",
                 Placement = "IT-skåpet",
                 PurchaseDate = DateTime.Now.AddDays(-300)
             },
-            new Item 
-            { 
-                Name = "Kvartalsrapport Q1", 
-                Type = ItemType.Rapport, 
+            new Item
+            {
+                Name = "Kvartalsrapport Q1",
+                Type = ItemType.Rapport,
                 Status = ItemStatus.Tillgänglig,
                 Description = "Ekonomisk rapport för första kvartalet",
                 Placement = "Arkiv 2",
                 PurchaseDate = DateTime.Now.AddDays(-15)
             },
-            new Item 
-            { 
-                Name = "Whiteboard-pennor (10-pack)", 
-                Type = ItemType.Annat, 
+            new Item
+            {
+                Name = "Whiteboard-pennor (10-pack)",
+                Type = ItemType.Annat,
                 Status = ItemStatus.Tillgänglig,
                 Description = "Flerfärgade pennor för konferensrummet",
                 Placement = "Förråd B",
                 PurchaseDate = DateTime.Now.AddDays(-5)
             },
-            new Item 
-            { 
-                Name = "Systemkamera Sony", 
-                Type = ItemType.Elektronik, 
+            new Item
+            {
+                Name = "Systemkamera Sony",
+                Type = ItemType.Elektronik,
                 Status = ItemStatus.Trasig, // Vi lägger in en trasig för att se hur din MVC-design hanterar det!
                 Description = "Används av marknadsavdelningen. Objektivet är skadat.",
                 Placement = "IT-supporten",
                 PurchaseDate = DateTime.Now.AddDays(-600)
             },
-            new Item 
-            { 
-                Name = "Surfplatta iPad Pro", 
-                Type = ItemType.Elektronik, 
+            new Item
+            {
+                Name = "Surfplatta iPad Pro",
+                Type = ItemType.Elektronik,
                 Status = ItemStatus.Tillgänglig,
                 Description = "iPad Pro 12.9 tum med Apple Pencil, perfekt för skisser",
                 Placement = "IT-skåpet",
                 PurchaseDate = DateTime.Now.AddDays(-45)
             },
-            new Item 
-            { 
-                Name = "Clean Code (Bok)", 
-                Type = ItemType.Bok, 
+            new Item
+            {
+                Name = "Clean Code (Bok)",
+                Type = ItemType.Bok,
                 Status = ItemStatus.Utlånad, // Testar filter för utlånade objekt
                 Description = "Klassisk bok om mjukvaruarkitektur av Robert C. Martin",
                 Placement = "Bokhylla C3",
                 PurchaseDate = DateTime.Now.AddDays(-800)
             },
-            new Item 
-            { 
-                Name = "Årsredovisning 2025", 
-                Type = ItemType.Rapport, 
+            new Item
+            {
+                Name = "Årsredovisning 2025",
+                Type = ItemType.Rapport,
                 Status = ItemStatus.Tillgänglig,
                 Description = "Fysisk kopia av förra årets ekonomiska sammanställning",
                 Placement = "Arkiv 1",
                 PurchaseDate = DateTime.Now.AddDays(-60)
             },
-            new Item 
-            { 
-                Name = "Ergonomisk kontorsstol", 
-                Type = ItemType.Annat, 
+            new Item
+            {
+                Name = "Ergonomisk kontorsstol",
+                Type = ItemType.Annat,
                 Status = ItemStatus.Tillgänglig,
                 Description = "Extra stol för gästarbetsplatser (Herman Miller)",
                 Placement = "Konferensrum Oden",
                 PurchaseDate = DateTime.Now.AddDays(-150)
             },
-            new Item 
-            { 
-                Name = "Konferensmikrofon Jabra", 
-                Type = ItemType.Elektronik, 
-                Status = ItemStatus.Saknas, // Testar röd status för saknade objekt
+            new Item
+            {
+                Name = "Konferensmikrofon Jabra",
+                Type = ItemType.Elektronik,
+                Status = ItemStatus.Tillgänglig,
                 Description = "Trådlös puck-mikrofon för hybridmöten",
                 Placement = "Okänd",
                 PurchaseDate = DateTime.Now.AddDays(-300)
             },
-            new Item 
-            { 
-                Name = "Design Patterns (GoF)", 
-                Type = ItemType.Bok, 
+            new Item
+            {
+                Name = "Design Patterns (GoF)",
+                Type = ItemType.Bok,
                 Status = ItemStatus.Tillgänglig,
                 Description = "Elements of Reusable Object-Oriented Software",
                 Placement = "Bokhylla A2",
                 PurchaseDate = DateTime.Now.AddDays(-1200)
             },
-            new Item 
-            { 
-                Name = "Första hjälpen-väska", 
-                Type = ItemType.Annat, 
-                Status = ItemStatus.Tillgänglig,
+            new Item
+            {
+                Name = "Första hjälpen-väska",
+                Type = ItemType.Annat,
+                Status = ItemStatus.Saknas,
                 Description = "Mobil sjukvårdsväska för event och utflykter",
                 Placement = "Receptionen",
                 PurchaseDate = DateTime.Now.AddDays(-20)
             },
-            new Item 
-            { 
-                Name = "Bärbar extraskärm 15\"", 
-                Type = ItemType.Elektronik, 
+            new Item
+            {
+                Name = "Bärbar extraskärm 15",
+                Type = ItemType.Elektronik,
                 Status = ItemStatus.Tillgänglig,
                 Description = "ASUS ZenScreen, ansluts via USB-C",
                 Placement = "IT-skåpet",
                 PurchaseDate = DateTime.Now.AddDays(-90)
             },
-            new Item 
-            { 
-                Name = "Säkerhetsrevision Q4", 
-                Type = ItemType.Rapport, 
+            new Item
+            {
+                Name = "Säkerhetsrevision Q4",
+                Type = ItemType.Rapport,
                 Status = ItemStatus.Tillgänglig,
                 Description = "Sammanställning av penetrationstester och IT-säkerhet",
                 Placement = "Arkiv 3 (Låst)",
                 PurchaseDate = DateTime.Now.AddDays(-10)
             },
-            new Item 
-            { 
-                Name = "Pro ASP.NET Core 8", 
-                Type = ItemType.Bok, 
+            new Item
+            {
+                Name = "Pro ASP.NET Core 8",
+                Type = ItemType.Bok,
                 Status = ItemStatus.Tillgänglig,
                 Description = "Djupdykning i MVC och webbutveckling med C#",
                 Placement = "Bokhylla A1",
                 PurchaseDate = DateTime.Now.AddDays(-5)
+            },
+            new Item
+            {
+                Name = "Bärbar Projektor",
+                Type = ItemType.Elektronik,
+                Status = ItemStatus.Tillgänglig,
+                Description = "Epson 1080p för presentationer utanför huset",
+                Placement = "IT-skåpet",
+                PurchaseDate = DateTime.Now.AddDays(-300)
+            },
+            new Item
+            {
+                Name = "Trådlöst Myggsystem",
+                Type = ItemType.Elektronik,
+                Status = ItemStatus.Tillgänglig,
+                Description = "Sennheiser trådlöst mikrofonsystem för föreläsningar och digitala möten",
+                Placement = "Mediarummet Hylla B",
+                PurchaseDate = DateTime.Now.AddDays(-120)
+            },
+            new Item
+            {
+                Name = "Surfplatta iPad Pro 11",
+                Type = ItemType.Elektronik,
+                Status = ItemStatus.Trasig,
+                Description = "Apple iPad Pro med Apple Pencil för grafiskt arbete eller inventering",
+                Placement = "IT-skåpet",
+                PurchaseDate = DateTime.Now.AddDays(-450)
+            },
+            new Item
+            {
+                Name = "Konferenstelefon (Spider)",
+                Type = ItemType.Elektronik,
+                Status = ItemStatus.Tillgänglig,
+                Description = "Jabra Speak för kristallklart ljud i mindre sammanträdesrum",
+                Placement = "Receptionens förråd",
+                PurchaseDate = DateTime.Now.AddDays(-730)
+            },
+            new Item
+            {
+                Name = "Powerbank 20.000 mAh",
+                Type = ItemType.Elektronik,
+                Status = ItemStatus.Tillgänglig,
+                Description = "Kraftfull nödladdare för mobiler och plattor vid heldagskonferenser",
+                Placement = "IT-skåpet",
+                PurchaseDate = DateTime.Now.AddDays(-60)
+            },
+            new Item
+            {
+                Name = "Bärbar Bildskärm 15\"",
+                Type = ItemType.Elektronik,
+                Status = ItemStatus.Tillgänglig,
+                Description = "USB-C driven extraskärm för tillfälliga arbetsplatser",
+                Placement = "IT-skåpet",
+                PurchaseDate = DateTime.Now.AddDays(-200)
+            },
+            new Item
+            {
+                Name = "Webbkamera 4K",
+                Type = ItemType.Elektronik,
+                Status = ItemStatus.Tillgänglig,
+                Description = "Logitech Brio för högkvalitativa videokonferenser och streaming",
+                Placement = "Mediarummet Hylla A",
+                PurchaseDate = DateTime.Now.AddDays(-310)
+            },
+            new Item
+            {
+                Name = "Brusreducerande Hörlurar",
+                Type = ItemType.Elektronik,
+                Status = ItemStatus.Tillgänglig,
+                Description = "Sony WH-1000XM4 för koncentrerat arbete i öppna kontorslandskap",
+                Placement = "IT-skåpet",
+                PurchaseDate = DateTime.Now.AddDays(-180)
+            },
+            new Item
+            {
+                Name = "Digital systemkamera",
+                Type = ItemType.Elektronik,
+                Status = ItemStatus.Tillgänglig,
+                Description = "Canon EOS med standardobjektiv för dokumentation och pressbilder",
+                Placement = "Kommunikationsavdelningens skåp",
+                PurchaseDate = DateTime.Now.AddDays(-500)
+            },
+            new Item
+            {
+                Name = "Diktafon Pro",
+                Type = ItemType.Elektronik,
+                Status = ItemStatus.Trasig,
+                Description = "Olympus digital diktafon för inspelning av intervjuer och protokoll",
+                Placement = "Kansliets arkiv",
+                PurchaseDate = DateTime.Now.AddDays(-800)
+            },
+            new Item
+            {
+                Name = "Portabel Högtalare",
+                Type = ItemType.Elektronik,
+                Status = ItemStatus.Tillgänglig,
+                Description = "Bose SoundLink för bakgrundsmusik eller mindre presentationer",
+                Placement = "Receptionens förråd",
+                PurchaseDate = DateTime.Now.AddDays(-40)
+            },
+            new Item
+            {
+                Name = "Lasermätare",
+                Type = ItemType.Elektronik,
+                Status = ItemStatus.Trasig,
+                Description = "Bosch Professional för exakt mätning av lokaler och ytor",
+                Placement = "Tekniska kontorets hylla",
+                PurchaseDate = DateTime.Now.AddDays(-1100)
+            },
+            new Item
+            {
+                Name = "VR-Headset",
+                Type = ItemType.Elektronik,
+                Status = ItemStatus.Tillgänglig,
+                Description = "Oculus Quest 2 för visualisering av stadsbyggnadsprojekt",
+                Placement = "Innovationslabbet",
+                PurchaseDate = DateTime.Now.AddDays(-250)
+            },
+            new Item
+            {
+                Name = "Adapterkit (All-in-one)",
+                Type = ItemType.Elektronik,
+                Status = ItemStatus.Tillgänglig,
+                Description = "Väska med adaptrar för HDMI, VGA, DisplayPort och USB-C",
+                Placement = "IT-skåpet",
+                PurchaseDate = DateTime.Now.AddDays(-15)
+            },
+            new Item
+            {
+                Name = "Dokumentkamera",
+                Type = ItemType.Elektronik,
+                Status = ItemStatus.Tillgänglig,
+                Description = "För att visa fysiska dokument eller objekt på storbild",
+                Placement = "Utbildningsenhetens förråd",
+                PurchaseDate = DateTime.Now.AddDays(-600)
+            },
+            new Item
+            {
+                Name = "Lamineringsmaskin A3",
+                Type = ItemType.Elektronik,
+                Status = ItemStatus.Trasig,
+                Description = "För skyltning och skydd av informationsmaterial",
+                Placement = "Kopieringsrummet",
+                PurchaseDate = DateTime.Now.AddDays(-950)
             }
         };
 
@@ -280,10 +427,10 @@ public class ItemsController : ControllerBase
     {
         // 1. Hämta alla existerande rader i tabellen
         var allItems = await _context.Items.ToListAsync();
-        
+
         // 2. Säg till Entity Framework att ta bort hela listan
         _context.Items.RemoveRange(allItems);
-        
+
         // 3. Spara ändringarna i SQLite-filen
         await _context.SaveChangesAsync();
 

@@ -2,6 +2,7 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SOS100_MVC.Models;
+using System.Security.Claims;
 
 namespace SOS100_MVC.Controllers;
 
@@ -13,23 +14,23 @@ public class CatalogController : Controller
     public CatalogController(IConfiguration configuration)
     {
         _httpClient = new HttpClient();
-        
+
         // Hämta URL från appsettings
         string apiBaseUrl = configuration.GetValue<string>("KatalogApiBaseUrl");
         if (string.IsNullOrWhiteSpace(apiBaseUrl))
         {
-            throw new ArgumentNullException("KatalogApiBaseUrl", "Hittar ingen webbadress till API:et i inställningarna.");
+            throw new ArgumentNullException("KatalogApiBaseUrl",
+                "Hittar ingen webbadress till API:et i inställningarna.");
         }
-        
-        _httpClient.BaseAddress = new Uri(apiBaseUrl); 
-        
+
+        _httpClient.BaseAddress = new Uri(apiBaseUrl);
+
         // Hämta API-nyckeln från appsettings
         string apiKey = configuration.GetValue<string>("KatalogApiKey");
         _httpClient.DefaultRequestHeaders.Add("X-Api-Key", apiKey);
     }
 
 
-    
     [HttpGet]
     public async Task<IActionResult> Details(int id)
     {
@@ -41,9 +42,9 @@ public class CatalogController : Controller
         {
             // 2. Läs svaret och packa upp JSON-datan
             string data = await response.Content.ReadAsStringAsync();
-            var item = JsonSerializer.Deserialize<Item>(data, new JsonSerializerOptions 
-            { 
-                PropertyNameCaseInsensitive = true 
+            var item = JsonSerializer.Deserialize<Item>(data, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
             });
 
             // 3. Om prylen inte finns (trots att API:et svarade OK)
@@ -65,6 +66,69 @@ public class CatalogController : Controller
         // Om något annat går fel (t.ex. 500 Internal Server Error)
         return View("Error");
     }
+
+    [Authorize(Roles = "Admin")]
+    [HttpPost]
+    public async Task<IActionResult> ReportError(int ItemId, string ReporterName, string Description)
+    {
+        try
+        {
+            // 1. Skapa objektet för felanmälan som matchar databasens förväntningar
+            var errorReport = new
+            {
+                ItemId = ItemId,
+                ReporterName = ReporterName,
+                Description = Description,
+                ReportDate = DateTime.UtcNow,
+                IsResolved = false
+            };
+
+            // 2. Skicka felanmälan via ett POST-anrop
+            HttpResponseMessage reportResponse = await _httpClient.PostAsJsonAsync("/api/errorreports", errorReport);
+
+            if (reportResponse.IsSuccessStatusCode)
+            {
+                // 3. EXTRA SÄKERHET: Hämta prylen från API:et och uppdatera status till Trasig
+                // (Detta gör att din röda badge aktiveras direkt när sidan laddas om!)
+                HttpResponseMessage itemResponse = await _httpClient.GetAsync($"/api/items/{ItemId}");
+
+                if (itemResponse.IsSuccessStatusCode)
+                {
+                    string data = await itemResponse.Content.ReadAsStringAsync();
+                    var item = JsonSerializer.Deserialize<Item>(data, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+
+                    if (item != null && item.Status != ItemStatus.Trasig)
+                    {
+                        // Ändra status till Trasig (vilket är 3 i din ItemStatus enum)
+                        item.Status = ItemStatus.Trasig;
+
+                        // Skicka PUT-anrop för att spara uppdateringen i databasen
+                        await _httpClient.PutAsJsonAsync($"/api/items/{ItemId}", item);
+                    }
+                }
+
+                // 4. Skicka tillbaka användaren till detaljvyn med ett fint meddelande
+                TempData["ReportSuccess"] = "Tack för hjälpen! Din felanmälan har skickats till service teamet.";
+                return RedirectToAction(nameof(Details), new { id = ItemId });
+            }
+            else
+            {
+                // Om API:et av någon anledning returnerar t.ex. 400 Bad Request
+                TempData["ErrorMessage"] = "Kunde inte skicka felanmälan till servern.";
+                return RedirectToAction(nameof(Details), new { id = ItemId });
+            }
+        }
+        catch (Exception)
+        {
+            // Hanterar om API:et ligger nere eller inte kan nås
+            TempData["ErrorMessage"] = "Ett oväntat nätverksfel uppstod vid felanmälan.";
+            return RedirectToAction(nameof(Details), new { id = ItemId });
+        }
+    }
+
     // 1. Visar det tomma formuläret på skärmen
     [Authorize(Roles = "Admin")]
     [HttpGet]
@@ -89,7 +153,7 @@ public class CatalogController : Controller
         newItem.Status = ItemStatus.Tillgänglig;
 
         // Om pryl-ID sätts automatiskt av databasen är det bra att rensa det
-        newItem.Id = 0; 
+        newItem.Id = 0;
 
         // Gör ett POST-anrop till ditt KatalogApi med den nya prylen
         HttpResponseMessage response = await _httpClient.PostAsJsonAsync("/api/items", newItem);
@@ -104,7 +168,7 @@ public class CatalogController : Controller
         ModelState.AddModelError("", "Kunde inte spara objektet i API:et. Kontrollera uppgifterna.");
         return View(newItem);
     }
-    
+
     // 1. Visar formuläret för att redigera en befintlig pryl
     [Authorize(Roles = "Admin")] // Bara administratörer får redigera
     [HttpGet]
@@ -116,15 +180,15 @@ public class CatalogController : Controller
         if (response.IsSuccessStatusCode)
         {
             string data = await response.Content.ReadAsStringAsync();
-            var item = JsonSerializer.Deserialize<Item>(data, new JsonSerializerOptions 
-            { 
-                PropertyNameCaseInsensitive = true 
+            var item = JsonSerializer.Deserialize<Item>(data, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
             });
 
             if (item != null)
             {
                 // Skicka den befintliga datan till HTML-vyn så formuläret är förifyllt
-                return View(item); 
+                return View(item);
             }
         }
 
@@ -149,13 +213,14 @@ public class CatalogController : Controller
         if (response.IsSuccessStatusCode)
         {
             // Om API:et svarar 204 No Content (eller 200 OK), skicka tillbaka användaren till katalogen
-            return RedirectToAction("Index"); 
+            return RedirectToAction("Index");
         }
 
         // Om något gick fel
         ModelState.AddModelError("", "Kunde inte uppdatera objektet i API:et.");
         return View(updatedItem);
     }
+
     // 1. Visar bekräftelsesidan: "Är du säker på att du vill ta bort..."
     [Authorize(Roles = "Admin")]
     [HttpGet]
@@ -167,9 +232,9 @@ public class CatalogController : Controller
         if (response.IsSuccessStatusCode)
         {
             string data = await response.Content.ReadAsStringAsync();
-            var item = JsonSerializer.Deserialize<Item>(data, new JsonSerializerOptions 
-            { 
-                PropertyNameCaseInsensitive = true 
+            var item = JsonSerializer.Deserialize<Item>(data, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
             });
 
             if (item != null)
@@ -198,6 +263,7 @@ public class CatalogController : Controller
         // Om något gick fel
         return View("Error"); // Man kan skapa en specifik felsida här om man vill
     }
+
     public async Task<IActionResult> Index()
     {
         List<Item> items = new List<Item>();
@@ -208,14 +274,15 @@ public class CatalogController : Controller
         if (response.IsSuccessStatusCode)
         {
             string data = await response.Content.ReadAsStringAsync();
-            items = JsonSerializer.Deserialize<List<Item>>(data, new JsonSerializerOptions 
-            { 
-                PropertyNameCaseInsensitive = true 
+            items = JsonSerializer.Deserialize<List<Item>>(data, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
             });
         }
-        
+
         return View(items);
     }
+
     // POST: /Catalog/SeedCatalog
     [Authorize(Roles = "Admin")]
     [HttpPost]
@@ -223,7 +290,7 @@ public class CatalogController : Controller
     {
         // Eftersom _httpClient redan är uppsatt i din konstruktor gör vi bara ett snabbt anrop
         HttpResponseMessage response = await _httpClient.PostAsync("/api/items/seed", null);
-        
+
         if (response.IsSuccessStatusCode)
             TempData["SuccessMessage"] = "Katalogen fylldes på med testdata!";
         else
@@ -244,6 +311,65 @@ public class CatalogController : Controller
             TempData["SuccessMessage"] = "Katalogen är nu helt tom!";
         else
             TempData["ErrorMessage"] = "Kunde inte rensa katalogen. Har API:et clear-metoden?";
+
+        return RedirectToAction("Index");
+    }
+
+    [Authorize]
+    [HttpPost]
+    public async Task<IActionResult> AddWatch(int itemId, string itemTitle,
+        [FromServices] IHttpClientFactory httpClientFactory, [FromServices] IConfiguration configuration)
+    {
+        // 1. Plocka ut ID på den inloggade användaren
+        var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (!int.TryParse(userIdString, out int userId))
+        {
+            TempData["ErrorMessage"] = "Kunde inte identifiera ditt användarkonto.";
+            return RedirectToAction("Index");
+        }
+
+        // 2. Skapa objektet som kompisens API förväntar sig (baserat på Watch.cs)
+        var newWatch = new
+        {
+            UserId = userId,
+            ItemId = itemId,
+            ItemTitle = itemTitle,
+            IsActive = true
+        };
+
+        // 3. Skicka anropet till ReminderApi
+        try
+        {
+            var client = httpClientFactory.CreateClient();
+
+// Vi kollar efter BÅDA namnen för säkerhets skull!
+            var baseUrl = configuration["ReminderApiBaseUrl"] ??
+                          configuration["ReminderServiceBaseUrl"] ?? "http://localhost:5038";
+
+// Vi kollar efter API-nyckeln (och lägger in samma default som i din ReminderServiceClient)
+            var apiKey = configuration["ReminderApiKey"] ?? "reminder-hemlig-123";
+
+            client.DefaultRequestHeaders.Add("X-Api-Key", apiKey);
+
+            var response = await client.PostAsJsonAsync($"{baseUrl}/api/watches", newWatch);
+
+            if (response.IsSuccessStatusCode)
+            {
+                TempData["SuccessMessage"] = $"Du bevakar nu {itemTitle}!";
+            }
+            else
+            {
+                // Läs av det faktiska svaret från kompisens API
+                var errorDetails = await response.Content.ReadAsStringAsync();
+
+                // Visa HTTP-statuskoden och API:ets eget felmeddelande på skärmen
+                TempData["ErrorMessage"] = $"API-fel ({response.StatusCode}): {errorDetails}";
+            }
+        }
+        catch
+        {
+            TempData["ErrorMessage"] = "Kunde inte nå bevakningstjänsten just nu.";
+        }
 
         return RedirectToAction("Index");
     }

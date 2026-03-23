@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using UserService.Data;
@@ -22,9 +23,19 @@ public class UserController : ControllerBase
     {
         var user = await _dbContext.Users
             .FirstOrDefaultAsync(u =>
-                u.Username == login.Username &&
-                u.Password == login.Password);
+                u.Username == login.Username);
         if (user == null)
+            return Unauthorized();
+        
+        var passwordHasher = new PasswordHasher<User>();
+        
+        var result = passwordHasher.VerifyHashedPassword(
+            user, 
+            user.Password,
+            login.Password
+            );
+        
+        if (result == PasswordVerificationResult.Failed)
             return Unauthorized();
         
         return Ok(new
@@ -34,6 +45,7 @@ public class UserController : ControllerBase
             user.Role
         });
     }
+    
     [HttpGet]
     public User[] GetUsers()
     {
@@ -53,10 +65,15 @@ public class UserController : ControllerBase
     }
     
     [HttpPost]
-    public void AddUser(User user)
+    public async Task<IActionResult>AddUser(User user)
     {
+        var passwordHasher = new PasswordHasher<User>();
+        user.Password = passwordHasher.HashPassword(user, user.Password);
+        
         _dbContext.Users.Add(user);
-        _dbContext.SaveChanges();
+        await _dbContext.SaveChangesAsync();
+
+        return Ok();
     }
     
     [HttpPut("{id}")]
@@ -105,16 +122,25 @@ public class UserController : ControllerBase
             {
                 return NotFound();
             }
-            
-            if (user.Password == passwordDto.Password)
+            var passwordHasher = new PasswordHasher<User>();
+        
+            var result = passwordHasher.VerifyHashedPassword(
+                user, 
+                user.Password,
+                passwordDto.Password
+            );
+            Console.WriteLine($"INPUT: '{passwordDto.Password}'");
+            Console.WriteLine($"HASH: '{user.Password}'");
+            if (result == PasswordVerificationResult.Success)
             {
-                user.Password = passwordDto.NewPassword;
+                user.Password = passwordHasher.HashPassword(user, passwordDto.NewPassword);
+                _dbContext.SaveChanges();
+                
             }
             else
             {
                 return BadRequest("Fel nuvarande lösenord");
             }
-            _dbContext.SaveChanges();
         }
         catch
         {

@@ -122,7 +122,11 @@
             };
 
             <tr data-status="@item.Status" data-type="@item.Type">
-                <td class="fw-bold text-dark">@item.Name</td>
+                <td class="fw-bold">
+                    <a asp-action="Details" asp-route-id="@item.Id" class="text-dark text-decoration-none" title="Visa detaljer">
+                        @item.Name
+                    </a>
+                </td>
                 <td>
                     <i class="bi @typeIcon fs-5 me-2 text-muted"></i>
                     @item.Type

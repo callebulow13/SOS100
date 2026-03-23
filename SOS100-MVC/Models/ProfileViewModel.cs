@@ -17,4 +17,5 @@ public class LoanDto
     public DateTimeOffset DueAt { get; set; }
     public DateTimeOffset? ReturnedAt { get; set; }
     public int Status { get; set; }
+    public string ItemName { get; set; } = string.Empty;
 }

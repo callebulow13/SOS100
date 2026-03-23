@@ -34,6 +34,11 @@ namespace SOS100_LoanAPI.Migrations
                     b.Property<int>("ItemId")
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("ItemName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTimeOffset>("LoanedAt")
                         .HasColumnType("TEXT");
 
@@ -64,6 +69,11 @@ namespace SOS100_LoanAPI.Migrations
 
                     b.Property<int>("ItemId")
                         .HasColumnType("INTEGER");
+
+                    b.Property<string>("ItemName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("LateReturns")
                         .HasColumnType("INTEGER");

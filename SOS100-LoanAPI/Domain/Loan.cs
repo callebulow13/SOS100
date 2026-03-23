@@ -13,6 +13,10 @@ public class Loan
     [Required]
     [MaxLength(200)]
     public string BorrowerId { get; set; } = default!;
+    
+    [Required]
+    [MaxLength(200)]
+    public string ItemName { get; set; } = default!;
 
     public DateTimeOffset LoanedAt { get; set; } = DateTimeOffset.UtcNow;
 

@@ -54,7 +54,7 @@
                                 string loanBadgeClass = isOverdue ? "badge-red" : daysLeft <= 3 ? "badge-yellow" : "badge-green";
                                 
                                 <tr>
-                                    <td class="fw-bold text-dark">@loan.ItemId</td>
+                                    <td class="fw-bold text-dark">@loan.ItemName</td>
                                     <td>@loan.LoanedAt.ToString("yy-MM-dd")</td>
                                     <td>@loan.DueAt.ToString("yy-MM-dd")</td>
                                     <td>

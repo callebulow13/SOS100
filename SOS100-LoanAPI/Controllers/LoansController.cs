@@ -73,6 +73,7 @@ public class LoansController : ControllerBase
             BorrowerId = req.BorrowerId,
             LoanedAt = DateTimeOffset.UtcNow,
             DueAt = DateTimeOffset.UtcNow.AddDays(req.LoanDays),
+            ItemName = pryl.Name,
         };
 
         _db.Loans.Add(loan);
@@ -89,6 +90,7 @@ public class LoansController : ControllerBase
             {
                 BorrowerId = req.BorrowerId,
                 ItemId = req.ItemId,
+                ItemName = pryl.Name,
                 TotalLoans = 1,
                 LateReturns = 0
             };
@@ -98,6 +100,7 @@ public class LoansController : ControllerBase
         else
         {
             stat.TotalLoans += 1;
+            stat.ItemName = pryl.Name;
         }
 
         try

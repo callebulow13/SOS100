@@ -38,26 +38,11 @@ public class Program
                 builder.Configuration["ReminderApiKey"]!);
         });
         
-        builder.Services.AddHttpClient("KatalogClient", client =>
-            {
-                client.BaseAddress = new Uri(
-                    builder.Configuration["KatalogApiBaseUrl"]!);
-                client.DefaultRequestHeaders.Add("X-Api-Key",
-                    builder.Configuration["KatalogApiKey"]!);
-            })
-            .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
-            {
-                ServerCertificateCustomValidationCallback =
-                    HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
-            });
-
-        builder.Services.AddHttpClient("ReminderApi", client =>
+        builder.Services.AddHttpClient<SOS100_MVC.Services.ReportApiService>(client =>
         {
-            client.BaseAddress = new Uri(
-                builder.Configuration["ReminderServiceBaseUrl"]!);
-            client.DefaultRequestHeaders.Add("X-Api-Key",
-                builder.Configuration["ReminderApiKey"]!);
+            client.BaseAddress = new Uri(builder.Configuration["ReportApiBaseUrl"]!);
         });
+        
         var app = builder.Build();
 
         if (!app.Environment.IsDevelopment())

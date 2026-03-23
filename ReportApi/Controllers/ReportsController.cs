@@ -1,0 +1,45 @@
+using Microsoft.AspNetCore.Mvc;
+using ReportApi.DTOs.Reports;
+using ReportApi.Services.Interfaces;
+
+namespace ReportApi.Controllers;
+
+[ApiController]
+[Route("api/[controller]")]
+public class ReportsController : ControllerBase
+{
+    private readonly IReportService _reportService;
+
+    public ReportsController(IReportService reportService)
+    {
+        _reportService = reportService;
+    }
+
+    [HttpGet("most-loaned-items")]
+    public async Task<ActionResult<List<MostLoanedItemReportDto>>> GetMostLoanedItems([FromQuery] int? limit)
+    {
+        var result = await _reportService.GetMostLoanedItemsAsync(limit);
+        return Ok(result);
+    }
+
+    [HttpGet("overdue-loans")]
+    public async Task<IActionResult> GetOverdueLoans()
+    {
+        var result = await _reportService.GetOverdueLoansAsync();
+        return Ok(result);
+    }
+
+    [HttpGet("items/{itemId}/loan-history")]
+    public async Task<IActionResult> GetItemLoanHistory(int itemId)
+    {
+        var result = await _reportService.GetItemLoanHistoryAsync(itemId);
+        return Ok(result);
+    }
+
+    [HttpGet("users/{userId}/loan-history")]
+    public async Task<IActionResult> GetUserLoanHistory(int userId)
+    {
+        var result = await _reportService.GetUserLoanHistoryAsync(userId);
+        return Ok(result);
+    }
+}

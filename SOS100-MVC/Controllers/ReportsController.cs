@@ -24,7 +24,7 @@ public class ReportsController : Controller
     {
         switch (model.SelectedReport)
         {
-            case "most-loaned-items":
+            case "most-loaned":
                 model.MostLoanedItems = await _reportApiService
                     .GetMostLoanedItemsAsync(model.MostLoanedLimit);
                 break;

@@ -34,13 +34,13 @@ public class ReportService : IReportService
             {
                 ItemId = item.Id,
                 ItemTitle = item.Name,
-                LoanCount = loanCounts.ContainsKey(item.Id) ? loanCounts[item.Id] : 0
+                LoanCount = loanCounts.TryGetValue(item.Id, out var count) ? count : 0
             })
             .OrderByDescending(x => x.LoanCount)
             .ThenBy(x => x.ItemTitle)
             .ToList();
 
-        if (limit.HasValue)
+        if (limit.HasValue && limit.Value > 0)
         {
             report = report.Take(limit.Value).ToList();
         }

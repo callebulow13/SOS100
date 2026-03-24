@@ -23,6 +23,50 @@ html {
 body {
     background-color: var(--bs-body-bg);
 }
+/* =========================================
+   2. APP-LAYOUT (Fixerad Sidebar & Topbar)
+   ========================================= */
+
+.sidebar {
+    height: 100vh;
+    flex-shrink: 0;
+    overflow-y: auto;
+    width: 260px;
+    background-color: #fff;
+}
+.sidebar .nav-link {
+    border-radius: 0.5rem;
+    margin-bottom: 0.2rem;
+    color: #495057;
+    transition: all 0.2s;
+}
+
+.sidebar .nav-link:hover {
+    background-color: #e9ecef;
+    color: #212529;
+    transform: translateX(4px);
+}
+/* Döljer fula standard-scrollbars i menyn */
+.sidebar::-webkit-scrollbar {
+    width: 0px;
+    background: transparent;
+}
+
+/* Låt hela högersidan vara en vanlig ruta som sköter scrollandet */
+.main-content {
+    flex-grow: 1;
+    height: 100vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+/* Gör Topbaren "klibbig" så den stannar i toppen när vi scrollar ner i innehållet */
+.main-content nav {
+    position: sticky;
+    top: 0;
+    z-index: 1030;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
 
 /* =========================================
    2. TYPOGRAFI & UTILITY KLASSER

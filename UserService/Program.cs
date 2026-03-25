@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 using UserService.Data;
+using UserService.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -44,5 +45,91 @@ app.UseCors("AllowReact");
 app.UseAuthorization();
 
 app.MapControllers();
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<UserServiceDbContext>();
+
+    db.Database.EnsureCreated();
+
+    if (!db.Users.Any())
+    {
+        db.Users.AddRange(
+
+            // 🔑 ADMIN
+            new User
+            {
+                Username = "admin",
+                Password = "admin",
+                Email = "admin@test.se",
+                FirstName = "Admin",
+                LastName = "User",
+                Role = "Admin"
+            },
+
+            // 👤 STANDARD USER
+            new User
+            {
+                Username = "user",
+                Password = "user",
+                Email = "user@test.se",
+                FirstName = "Regular",
+                LastName = "User",
+                Role = "User"
+            },
+
+            // 🎯 DU
+            new User
+            {
+                Username = "calle",
+                Password = "123",
+                Email = "calle@test.se",
+                FirstName = "Calle",
+                LastName = "Bülow",
+                Role = "User"
+            },
+
+            // 🎡 fler users till hjulet
+            new User
+            {
+                Username = "emma",
+                Password = "123",
+                Email = "emma@test.se",
+                FirstName = "Emma",
+                LastName = "Johansson",
+                Role = "User"
+            },
+            new User
+            {
+                Username = "oskar",
+                Password = "123",
+                Email = "oskar@test.se",
+                FirstName = "Oskar",
+                LastName = "Lindberg",
+                Role = "User"
+            },
+            new User
+            {
+                Username = "maria",
+                Password = "123",
+                Email = "maria@test.se",
+                FirstName = "Maria",
+                LastName = "Svensson",
+                Role = "User"
+            },
+            new User
+            {
+                Username = "erik",
+                Password = "123",
+                Email = "erik@test.se",
+                FirstName = "Erik",
+                LastName = "Karlsson",
+                Role = "User"
+            }
+        );
+
+        db.SaveChanges();
+    }
+}
 
 app.Run();

@@ -53,7 +53,7 @@ public class ReportService : IReportService
         var loans = await _loanDataProvider.GetAllLoansAsync();
 
         var overdueCount = loans.Count(l =>
-            l.ReturnedAt == null && 
+            l.ReturnedAt == null &&
             l.DueAt < DateTimeOffset.UtcNow);
 
         return new OverdueLoansReportDto
@@ -86,7 +86,24 @@ public class ReportService : IReportService
             })
             .ToList();
     }
-    
+
+    public async Task<List<ItemLoanHistoryRowDto>> GetItemLoanHistoryByNameAsync(string itemName)
+    {
+        if (string.IsNullOrWhiteSpace(itemName))
+            return new List<ItemLoanHistoryRowDto>();
+
+        var items = await _itemDataProvider.GetAllItemsAsync();
+
+        var matchingItem = items.FirstOrDefault(i =>
+            !string.IsNullOrWhiteSpace(i.Name) &&
+            i.Name.Contains(itemName, StringComparison.OrdinalIgnoreCase));
+
+        if (matchingItem == null)
+            return new List<ItemLoanHistoryRowDto>();
+
+        return await GetItemLoanHistoryAsync(matchingItem.Id);
+    }
+
     public async Task<List<UserLoanHistoryRowDto>> GetUserLoanHistoryAsync(int userId)
     {
         var loans = await _loanDataProvider.GetAllLoansAsync();
@@ -106,6 +123,52 @@ public class ReportService : IReportService
                     LoanDate = l.LoanedAt,
                     DueDate = l.DueAt,
                     ReturnedDate = l.ReturnedAt
+                };
+            })
+            .ToList();
+    }
+
+    public async Task<List<UserLoanHistoryRowDto>> GetUserLoanHistoryByNameAsync(string userName)
+    {
+        if (string.IsNullOrWhiteSpace(userName))
+            return new List<UserLoanHistoryRowDto>();
+
+        var users = await _userDataProvider.GetAllUsersAsync();
+
+        var matchingUser = users.FirstOrDefault(u =>
+            (!string.IsNullOrWhiteSpace(u.FullName) &&
+             u.FullName.Contains(userName, StringComparison.OrdinalIgnoreCase)) ||
+            (!string.IsNullOrWhiteSpace(u.Username) &&
+             u.Username.Contains(userName, StringComparison.OrdinalIgnoreCase)));
+
+        if (matchingUser == null)
+            return new List<UserLoanHistoryRowDto>();
+
+        return await GetUserLoanHistoryAsync(matchingUser.UserID);
+    }
+    
+    public async Task<List<CurrentLoanedItemRowDto>> GetCurrentLoanedItemsAsync()
+    {
+        var loans = await _loanDataProvider.GetAllLoansAsync();
+        var items = await _itemDataProvider.GetAllItemsAsync();
+        var users = await _userDataProvider.GetAllUsersAsync();
+
+        return loans
+            .Where(l => l.ReturnedAt == null)
+            .OrderByDescending(l => l.LoanedAt)
+            .Select(l =>
+            {
+                var item = items.FirstOrDefault(i => i.Id == l.ItemId);
+
+                var user = users.FirstOrDefault(u => u.UserID.ToString() == l.BorrowerId)
+                           ?? users.FirstOrDefault(u => u.Username == l.BorrowerId);
+
+                return new CurrentLoanedItemRowDto
+                {
+                    ItemId = l.ItemId,
+                    ItemName = item?.Name ?? "Okänt objekt",
+                    UserName = user?.FullName ?? user?.Username ?? "Okänd användare",
+                    LoanDate = l.LoanedAt
                 };
             })
             .ToList();

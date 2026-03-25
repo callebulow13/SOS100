@@ -41,12 +41,36 @@ public class ReportApiService
         return result ?? new List<ItemLoanHistoryViewModel>();
     }
 
+    public async Task<List<ItemLoanHistoryViewModel>> GetItemLoanHistoryByNameAsync(string itemName)
+    {
+        var result = await _httpClient.GetFromJsonAsync<List<ItemLoanHistoryViewModel>>(
+            $"/api/reports/items/loan-history/by-name?itemName={Uri.EscapeDataString(itemName)}");
+
+        return result ?? new List<ItemLoanHistoryViewModel>();
+    }
+
     public async Task<List<UserLoanHistoryViewModel>> GetUserLoanHistoryAsync(int userId)
     {
         var result = await _httpClient.GetFromJsonAsync<List<UserLoanHistoryViewModel>>(
             $"/api/reports/users/{userId}/loan-history");
 
         return result ?? new List<UserLoanHistoryViewModel>();
+    }
+
+    public async Task<List<UserLoanHistoryViewModel>> GetUserLoanHistoryByNameAsync(string userName)
+    {
+        var result = await _httpClient.GetFromJsonAsync<List<UserLoanHistoryViewModel>>(
+            $"/api/reports/users/loan-history/by-name?userName={Uri.EscapeDataString(userName)}");
+
+        return result ?? new List<UserLoanHistoryViewModel>();
+    }
+    
+    public async Task<List<CurrentLoanedItemViewModel>> GetCurrentLoanedItemsAsync()
+    {
+        var result = await _httpClient.GetFromJsonAsync<List<CurrentLoanedItemViewModel>>(
+            "/api/reports/current-loaned-items");
+
+        return result ?? new List<CurrentLoanedItemViewModel>();
     }
 
     private class OverdueLoansResponse

@@ -34,19 +34,68 @@ public class ReportsController : Controller
                 break;
 
             case "item-history":
-                if (model.ItemId.HasValue)
+            {
+                bool hasItemId = model.ItemId.HasValue;
+                bool hasItemName = !string.IsNullOrWhiteSpace(model.ItemName);
+
+                if (!hasItemId && !hasItemName)
+                {
+                    ModelState.AddModelError("", "Fyll i antingen objekt-ID eller objektnamn.");
+                    return View(model);
+                }
+
+                if (hasItemId && hasItemName)
+                {
+                    ModelState.AddModelError("", "Fyll i antingen objekt-ID eller objektnamn, inte båda.");
+                    return View(model);
+                }
+
+                if (hasItemId)
                 {
                     model.ItemLoanHistory = await _reportApiService
                         .GetItemLoanHistoryAsync(model.ItemId.Value);
                 }
+                else
+                {
+                    model.ItemLoanHistory = await _reportApiService
+                        .GetItemLoanHistoryByNameAsync(model.ItemName!.Trim());
+                }
+
                 break;
+            }
 
             case "user-history":
-                if (model.UserId.HasValue)
+            {
+                bool hasUserId = model.UserId.HasValue;
+                bool hasUserName = !string.IsNullOrWhiteSpace(model.UserName);
+
+                if (!hasUserId && !hasUserName)
+                {
+                    ModelState.AddModelError("", "Fyll i antingen användar-ID eller användarnamn.");
+                    return View(model);
+                }
+
+                if (hasUserId && hasUserName)
+                {
+                    ModelState.AddModelError("", "Fyll i antingen användar-ID eller användarnamn, inte båda.");
+                    return View(model);
+                }
+
+                if (hasUserId)
                 {
                     model.UserLoanHistory = await _reportApiService
                         .GetUserLoanHistoryAsync(model.UserId.Value);
                 }
+                else
+                {
+                    model.UserLoanHistory = await _reportApiService
+                        .GetUserLoanHistoryByNameAsync(model.UserName!.Trim());
+                }
+
+                break;
+            }
+            case "current-loaned":
+                model.CurrentLoanedItems = await _reportApiService.GetCurrentLoanedItemsAsync();
                 break;
         }
 

@@ -36,10 +36,37 @@ public class ReportsController : ControllerBase
         return Ok(result);
     }
 
+    [HttpGet("items/loan-history/by-name")]
+    public async Task<IActionResult> GetItemLoanHistoryByName([FromQuery] string itemName)
+    {
+        if (string.IsNullOrWhiteSpace(itemName))
+            return BadRequest("Objektnamn måste anges.");
+
+        var result = await _reportService.GetItemLoanHistoryByNameAsync(itemName);
+        return Ok(result);
+    }
+
     [HttpGet("users/{userId}/loan-history")]
     public async Task<IActionResult> GetUserLoanHistory(int userId)
     {
         var result = await _reportService.GetUserLoanHistoryAsync(userId);
+        return Ok(result);
+    }
+
+    [HttpGet("users/loan-history/by-name")]
+    public async Task<IActionResult> GetUserLoanHistoryByName([FromQuery] string userName)
+    {
+        if (string.IsNullOrWhiteSpace(userName))
+            return BadRequest("Användarnamn måste anges.");
+
+        var result = await _reportService.GetUserLoanHistoryByNameAsync(userName);
+        return Ok(result);
+    }
+    
+    [HttpGet("current-loaned-items")]
+    public async Task<IActionResult> GetCurrentLoanedItems()
+    {
+        var result = await _reportService.GetCurrentLoanedItemsAsync();
         return Ok(result);
     }
 }

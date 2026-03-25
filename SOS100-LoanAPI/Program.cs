@@ -22,6 +22,16 @@ builder.Services.AddRateLimiter(options =>
 });
 
 builder.Services.AddProblemDetails();
+// Tillåter React-appen att anropa LoanAPI lokalt
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowReact", policy =>
+    {
+        policy.WithOrigins("http://localhost:5173")
+            .AllowAnyMethod()
+            .AllowAnyHeader();
+    });
+});
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -75,14 +85,8 @@ app.UseRateLimiter();
 app.UseAuthorization();
 
 app.MapControllers().RequireRateLimiting("fixed");
-// --- AUTOMATISK DATABAS-UPPDATERING ---
 
-/*using (var scope = app.Services.CreateScope())
-{
-    var context = scope.ServiceProvider.GetRequiredService<SOS100_LoanAPI.Data.LoanDbContext>();
+//Aktiverar CORS
+app.UseCors("AllowReact");
 
-    // Kör migrations (uppdaterar schema och index på en befintlig DB)
-    context.Database.Migrate();
-}*/
-// --------------------------------------
 app.Run();

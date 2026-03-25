@@ -286,6 +286,17 @@ public class LoansController : ControllerBase
         return Ok(sortedResult);
     }
     
+    // Endpoint för ReactProjekt
+    [HttpGet("stats")]
+    public async Task<IActionResult> GetStats(CancellationToken ct)
+    {
+        var stats = await _db.LoanUserItemStats
+            .OrderByDescending(s => s.TotalLoans)
+            .ToListAsync(ct);
+
+        return Ok(stats);
+    }
+    
     private async Task<IActionResult> CompleteReturnAsync(Loan loan, CancellationToken ct)
 {
     if (loan.ReturnedAt is not null)

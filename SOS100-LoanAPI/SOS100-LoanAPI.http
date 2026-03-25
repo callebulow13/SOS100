@@ -18,3 +18,7 @@ Content-Type: application/json
   "borrowerId": "Anna Andersson",
   "loanDays": 14
 }
+
+### Hämta statistik från LoanUserItemStats
+GET {{SOS100_LoanAPI_HostAddress}}/api/loans/stats
+Accept: application/json

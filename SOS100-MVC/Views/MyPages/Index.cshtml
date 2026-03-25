@@ -20,7 +20,12 @@
             }
         </div>
     </div>
-    
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success shadow-sm rounded-3 mb-4 fw-medium">
+            <i class="bi bi-check-circle me-2"></i> @TempData["SuccessMessage"]
+        </div>
+    }
     <div class="row g-4">
 
         <div class="col-12">

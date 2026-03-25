@@ -21,17 +21,17 @@
 
             <div class="card shadow-sm border-0 rounded-4">
                 <div class="card-body p-4 p-md-5">
-                    
+
                     <form asp-route-returnurl="@ViewBag.ReturnUrl" method="post">
-                        
+
                         <div class="mb-4">
                             <label asp-for="Username" class="form-label fw-bold text-secondary small text-uppercase tracking-medium">Användarnamn</label>
-                            <input asp-for="Username" class="form-control bg-light border-0 px-3 py-2 rounded-3" placeholder="Ange användarnamn..." required />
+                            <input asp-for="Username" class="form-control bg-light border-0 px-3 py-2 rounded-3" placeholder="Ange användarnamn..." required/>
                         </div>
 
                         <div class="mb-4">
                             <label asp-for="Password" class="form-label fw-bold text-secondary small text-uppercase tracking-medium">Lösenord</label>
-                            <input asp-for="Password" type="password" class="form-control bg-light border-0 px-3 py-2 rounded-3" placeholder="••••••••" required />
+                            <input asp-for="Password" type="password" class="form-control bg-light border-0 px-3 py-2 rounded-3" placeholder="••••••••" required/>
                         </div>
 
                         <button type="submit" class="btn btn-dark w-100 rounded-pill py-2 fw-bold shadow-sm mt-2">

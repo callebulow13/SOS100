@@ -113,13 +113,19 @@ public class MyPagesController : Controller
     {
         try
         {
-            var reminderClient = _httpClientFactory.CreateClient("ReminderApi");
-            await reminderClient.DeleteAsync($"/api/watches/{watchId}");
+            // Vi använder din tjänst som redan har API-nyckeln konfigurerad!
+            await _reminderService.DeleteWatchAsync(watchId);
+        
+            // Vi sparar ett meddelande om att det lyckades
+            TempData["SuccessMessage"] = "Bevakningen har avslutats.";
         }
-        catch
+        catch (Exception ex)
         {
-            // ReminderApi nere
+            // Fånga felet och spara det så att vi faktiskt kan se vad som gick fel
+            TempData["ErrorMessage"] = $"Kunde inte avsluta bevakningen: {ex.Message}";
+            Console.WriteLine($"⚠️ Fel vid StopWatch: {ex.Message}");
         }
+    
         return RedirectToAction("Index");
     }
     

@@ -61,6 +61,17 @@ public class ReminderServiceClient
         return await response.Content.ReadFromJsonAsync<List<Watch>>()
                ?? new List<Watch>();
     }
+    
+    public async Task DeleteWatchAsync(int watchId)
+    {
+        var response = await _http.DeleteAsync($"/api/watches/{watchId}");
+    
+        if (!response.IsSuccessStatusCode)
+        {
+            var error = await response.Content.ReadAsStringAsync();
+            throw new Exception($"Kunde inte ta bort bevakningen. API svarade med status {(int)response.StatusCode}: {error}");
+        }
+    }
 }
 
 public class OverdueCountResult

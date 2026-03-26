@@ -11,6 +11,7 @@
     </div>
 
     <div class="row g-4">
+        
         <div class="col-md-6 col-lg-4">
             <div class="card shadow-sm border-0 rounded-4 h-100">
                 <div class="card-body p-4 d-flex flex-column">
@@ -30,5 +31,23 @@
             </div>
         </div>
         
-    </div>
-</div>
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow-sm border-0 rounded-4 h-100">
+                <div class="card-body p-4 d-flex flex-column">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="bg-primary bg-opacity-10 p-3 rounded-circle me-3">
+                            <i class="bi bi-box-seam text-primary fs-4"></i>
+                        </div>
+                        <h4 class="fw-bold mb-0">Alla lån</h4>
+                    </div>
+                    <p class="text-secondary small mb-4 flex-grow-1">
+                        Få en överblick över alla lån i systemet. Redigera lånedatum eller tvinga en retur.
+                    </p>
+                    <a asp-controller="Admin" asp-action="Loans" class="btn btn-dark rounded-pill fw-bold w-100 shadow-sm">
+                        <i class="bi bi-card-list me-2"></i> Hantera lån
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div> </div>

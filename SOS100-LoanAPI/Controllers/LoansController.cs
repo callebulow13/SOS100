@@ -411,6 +411,56 @@ public class LoansController : ControllerBase
 
         return Ok($"Hämtade {pryl.Name} som har status {pryl.Status}!");
     }
+    // PUT: api/loans/{loanId}/due-date
+    // Låter en admin ändra förfallodatumet på ett lån
+    [HttpPut("{loanId:guid}/due-date")]
+    public async Task<IActionResult> UpdateLoanDueDate(Guid loanId, [FromBody] DateTime newDueDate, CancellationToken ct)
+    {
+        var loan = await _db.Loans.FindAsync(new object[] { loanId }, ct);
+        
+        if (loan == null)
+            return NotFound(new { message = "Lånet hittades inte." });
+
+        // Uppdatera till det nya datumet
+        loan.DueAt = new DateTimeOffset(newDueDate, TimeSpan.Zero);
+        
+        await _db.SaveChangesAsync(ct);
+        
+        return Ok(loan);
+    }
+
+    // DELETE: api/loans/{loanId}
+    // Raderar ett lån helt från databasen
+    [HttpDelete("{loanId:guid}")]
+    public async Task<IActionResult> DeleteLoan(Guid loanId, CancellationToken ct)
+    {
+        var loan = await _db.Loans.FindAsync(new object[] { loanId }, ct);
+        
+        if (loan == null)
+            return NotFound(new { message = "Lånet hittades inte." });
+
+        // VIKTIGT: Om lånet fortfarande är aktivt, måste vi släppa prylen fri i katalogen!
+        if (loan.ReturnedAt == null)
+        {
+            var catalogClient = _httpClientFactory.CreateClient("KatalogClient");
+            var itemResponse = await catalogClient.GetAsync($"/api/items/{loan.ItemId}", ct);
+            
+            if (itemResponse.IsSuccessStatusCode)
+            {
+                var pryl = await itemResponse.Content.ReadFromJsonAsync<ItemDto>(cancellationToken: ct);
+                if (pryl != null)
+                {
+                    pryl.Status = 0; // 0 = Tillgänglig
+                    await catalogClient.PutAsJsonAsync($"/api/items/{pryl.Id}", pryl, ct);
+                }
+            }
+        }
+
+        _db.Loans.Remove(loan);
+        await _db.SaveChangesAsync(ct);
+        
+        return NoContent();
+    }
 } // Här slutar hela LoansController-klassen!
 public record ReminderDto(
     int Id,

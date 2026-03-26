@@ -111,4 +111,138 @@ public class AdminController : Controller
         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
         return RedirectToAction("Index", "Home");
     }
+// GET: /Admin/Loans
+    [HttpGet]
+    public async Task<IActionResult> Loans([FromServices] IConfiguration configuration)
+    {
+        var loans = new List<LoanDto>();
+        try
+        {
+            using var client = new HttpClient();
+            var baseUrl = configuration["LoanApiBaseUrl"]; 
+            
+            if (string.IsNullOrEmpty(baseUrl))
+                throw new Exception("LoanApiBaseUrl saknas i appsettings.json.");
+
+            client.BaseAddress = new Uri(baseUrl);
+            
+            // Hämta ALLA lån från LoanAPI
+            var response = await client.GetAsync("/api/loans"); 
+            
+            if (response.IsSuccessStatusCode)
+            {
+                var json = await response.Content.ReadAsStringAsync();
+                loans = JsonSerializer.Deserialize<List<LoanDto>>(json, new JsonSerializerOptions 
+                { 
+                    PropertyNameCaseInsensitive = true 
+                }) ?? new List<LoanDto>();
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Kunde inte hämta lånen från API:et.";
+            }
+        }
+        catch (Exception ex)
+        {
+            TempData["ErrorMessage"] = $"Ett fel uppstod: {ex.Message}";
+        }
+
+        // Skickar listan till vyn Views/Admin/Loans.cshtml
+        return View(loans);
+    }
+
+    // POST: /Admin/DeleteLoan
+    [HttpPost]
+    public async Task<IActionResult> DeleteLoan(Guid id, [FromServices] IConfiguration configuration)
+    {
+        try
+        {
+            using var client = new HttpClient();
+            var baseUrl = configuration["LoanApiBaseUrl"]; 
+            client.BaseAddress = new Uri(baseUrl);
+            
+            // Gör ett DELETE-anrop till LoanAPI
+            var response = await client.DeleteAsync($"/api/loans/{id}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                TempData["SuccessMessage"] = "Lånet raderades permanent och prylen är nu tillgänglig (om lånet var aktivt).";
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Kunde inte radera lånet i API:et.";
+            }
+        }
+        catch (Exception ex)
+        {
+            TempData["ErrorMessage"] = $"Ett nätverksfel uppstod: {ex.Message}";
+        }
+
+        return RedirectToAction("Loans");
+    }
+    // GET: /Admin/EditLoan/{id}
+    [HttpGet]
+    public async Task<IActionResult> EditLoan(Guid id, [FromServices] IConfiguration configuration)
+    {
+        try
+        {
+            using var client = new HttpClient();
+            var baseUrl = configuration["LoanApiBaseUrl"]; 
+            client.BaseAddress = new Uri(baseUrl);
+            
+            // Hämta det specifika lånet från LoanAPI
+            var response = await client.GetAsync($"/api/loans/{id}"); 
+            
+            if (response.IsSuccessStatusCode)
+            {
+                var loan = await response.Content.ReadFromJsonAsync<LoanDto>(new JsonSerializerOptions 
+                { 
+                    PropertyNameCaseInsensitive = true 
+                });
+                
+                if (loan != null)
+                {
+                    return View(loan);
+                }
+            }
+            TempData["ErrorMessage"] = "Kunde inte hämta lånet för redigering.";
+        }
+        catch (Exception ex)
+        {
+            TempData["ErrorMessage"] = $"Ett nätverksfel uppstod: {ex.Message}";
+        }
+
+        return RedirectToAction("Loans");
+    }
+
+    // POST: /Admin/EditLoan
+    [HttpPost]
+    public async Task<IActionResult> EditLoan(Guid id, DateTime dueAt, [FromServices] IConfiguration configuration)
+    {
+        try
+        {
+            using var client = new HttpClient();
+            var baseUrl = configuration["LoanApiBaseUrl"]; 
+            client.BaseAddress = new Uri(baseUrl);
+            
+            // Vi skickar bara in det nya datumet till den slutpunkt vi skapade i LoanAPI:et
+            var content = JsonContent.Create(dueAt);
+            var response = await client.PutAsync($"/api/loans/{id}/due-date", content);
+
+            if (response.IsSuccessStatusCode)
+            {
+                TempData["SuccessMessage"] = "Lånets förfallodatum har uppdaterats!";
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Kunde inte uppdatera lånet i API:et.";
+            }
+        }
+        catch (Exception ex)
+        {
+            TempData["ErrorMessage"] = $"Ett nätverksfel uppstod: {ex.Message}";
+        }
+
+        return RedirectToAction("Loans");
+    }
 }

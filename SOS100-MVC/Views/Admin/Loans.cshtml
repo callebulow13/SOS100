@@ -1,0 +1,102 @@
+@model IEnumerable<SOS100_MVC.Dtos.LoanDto>
+
+@{
+    ViewData["Title"] = "Hantera alla lån";
+}
+
+<div class="container-fluid">
+    
+    <div class="d-flex align-items-center mb-4">
+        <a asp-action="Index" class="btn btn-light border-0 shadow-sm rounded-circle p-2 me-3" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+            <i class="bi bi-arrow-left fs-5"></i>
+        </a>
+        <div>
+            <h2 class="fw-bold mb-0 text-dark">Alla lån</h2>
+            <p class="text-muted small mt-1 mb-0">Systemets totala lånehistorik.</p>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success shadow-sm rounded-3 mb-4 fw-medium">
+            <i class="bi bi-check-circle me-2"></i> @TempData["SuccessMessage"]
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger rounded-4 shadow-sm">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i> @TempData["ErrorMessage"]
+        </div>
+    }
+
+    <div class="table-container shadow-sm border-0">
+        <table class="table table-hover align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>Låne-ID</th>
+                    <th>Artikel</th>
+                    <th>Användare</th>
+                    <th>Utlånat</th>
+                    <th>Förfaller</th>
+                    <th>Status</th>
+                    <th class="text-end">Åtgärder</th>
+                </tr>
+            </thead>
+           <tbody id="tableBody">
+                @if (Model != null && Model.Any())
+                {
+                    // Ändrat till LoanedAt
+                    foreach (var loan in Model.OrderByDescending(l => l.LoanedAt)) 
+                    {
+                        // Ändrat till ReturnedAt och DueAt
+                        var isOverdue = loan.ReturnedAt == null && loan.DueAt < DateTime.Now; 
+                        var isReturned = loan.ReturnedAt != null;
+                        
+                        string statusBadge = isReturned ? "badge-gray" : (isOverdue ? "badge-red" : "badge-green");
+                        string statusText = isReturned ? "Returnerad" : (isOverdue ? "Försenad" : "Aktiv");
+
+                        <tr>
+                            <td class="text-muted small">#@loan.Id</td>
+                            <td class="fw-bold">
+                                <a asp-controller="Catalog" asp-action="Details" asp-route-id="@loan.ItemId" class="text-dark text-decoration-none">
+                                    @loan.ItemName
+                                </a>
+                            </td>
+                            <td>@loan.BorrowerId</td>
+                            <td class="small">@loan.LoanedAt.ToString("yyyy-MM-dd")</td>
+                            <td class="small @(isOverdue ? "text-danger fw-bold" : "")">
+                                @loan.DueAt.ToString("yyyy-MM-dd")
+                            </td>
+                            <td>
+                                <span class="status-badge @statusBadge">
+                                    @statusText
+                                </span>
+                            </td>
+                            
+                            <td class="text-end">
+                                <a asp-controller="Admin" asp-action="EditLoan" asp-route-id="@loan.Id" class="btn btn-sm btn-light rounded-pill px-3 me-1" title="Redigera">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <form asp-controller="Admin" asp-action="DeleteLoan" asp-route-id="@loan.Id" method="post" class="d-inline" onsubmit="return confirm('Är du säker på att du vill ta bort detta lån helt? Om det är aktivt blir prylen tillgänglig igen.');">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3" title="Ta bort">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="7" class="text-center py-5 text-muted">
+                            <i class="bi bi-inbox fs-1 d-block mb-3 opacity-50"></i>
+                            Hittade inga lån i databasen.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

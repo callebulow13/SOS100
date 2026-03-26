@@ -10,7 +10,7 @@ public class LoanController : Controller
     private readonly HttpClient _catalogClient;
     private readonly HttpClient _loanClient;
 
-    public LoanController(IConfiguration configuration)
+    public LoanController(IConfiguration configuration, IHttpClientFactory httpClientFactory)
     {
         // ---------- Katalog API ----------
         _catalogClient = new HttpClient();
@@ -26,13 +26,7 @@ public class LoanController : Controller
             _catalogClient.DefaultRequestHeaders.Add("X-Api-Key", katalogApiKey);
 
         // ---------- Loan API ----------
-        _loanClient = new HttpClient();
-
-        string loanBaseUrl = configuration.GetValue<string>("LoanApiBaseUrl");
-        if (string.IsNullOrWhiteSpace(loanBaseUrl))
-            throw new ArgumentNullException("LoanApiBaseUrl", "Hittar ingen webbadress till Loan-API i appsettings.");
-
-        _loanClient.BaseAddress = new Uri(loanBaseUrl);
+        _loanClient = httpClientFactory.CreateClient("LoanApi");
     }
 
     // GET: /Loan/Create?itemId=123

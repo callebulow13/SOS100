@@ -30,6 +30,15 @@ public class Program
         
         builder.Services.AddHttpClient();
         
+        builder.Services.AddHttpClient("LoanApi", client =>
+        {
+            client.BaseAddress = new Uri(
+                builder.Configuration["LoanApiBaseUrl"]!);
+
+            client.DefaultRequestHeaders.Add("X-Api-Key",
+                builder.Configuration["LoanApiKey"]!);
+        });
+        
         builder.Services.AddHttpClient<SOS100_MVC.Services.ReminderServiceClient>(client =>
         {
             client.BaseAddress = new Uri(

@@ -73,6 +73,32 @@ app.UseHttpsRedirection();
 app.UseRateLimiter();
 
 app.UseAuthorization();
+app.Use(async (context, next) =>
+{
+    // Hoppar över API-nyckelkontroll i Development (lokal körning)
+    if (app.Environment.IsDevelopment())
+    {
+        await next(context);
+        return;
+    }
+
+    // Hämtar API-nyckel från konfiguration (appsettings / Azure)
+    var configuredApiKey = app.Configuration.GetValue<string>("LoanApiKey");
+
+    // Hämtar API-nyckel från request header (X-Api-Key)
+    var providedApiKey = context.Request.Headers["X-Api-Key"].FirstOrDefault();
+
+    // Validerar API-nyckel
+    if (string.IsNullOrEmpty(configuredApiKey) || providedApiKey != configuredApiKey)
+    {
+        context.Response.StatusCode = 401;
+        await context.Response.WriteAsync("Ogiltig eller saknad API-nyckel.");
+        return;
+    }
+
+    // Släpper igenom request om nyckeln är korrekt
+    await next(context);
+});
 
 app.MapControllers().RequireRateLimiting("fixed");
 // --- AUTOMATISK DATABAS-UPPDATERING ---

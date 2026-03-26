@@ -20,6 +20,8 @@ builder.Services.AddHttpClient<ILoanDataProvider, LoanDataProvider>(client =>
 builder.Services.AddHttpClient<IItemDataProvider, ItemDataProvider>(client =>
 {
     client.BaseAddress = new Uri(builder.Configuration["ExternalApis:KatalogApiBaseUrl"]!);
+    client.DefaultRequestHeaders.Add("X-Api-Key",
+        builder.Configuration["ExternalApis:KatalogApiKey"]!);
 });
 
 builder.Services.AddHttpClient<IUserDataProvider, UserDataProvider>(client =>

@@ -25,42 +25,33 @@ builder.Services.AddOpenApi();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-    app.MapScalarApiReference();
-}
+app.MapOpenApi();
+app.MapScalarApiReference();
 
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
+app.UseAuthorization();
+
 app.Use(async (context, next) =>
 {
-    
-    // Hoppar över API-nyckelkontroll i Development (lokal körning)
-    
-    if (app.Environment.IsDevelopment())
-    {
-        await next(context); // skickar vidare requesten
-        return; // avslutar middleware här
-    }
-
-    // Tillåter Swagger / OpenAPI utan API-nyckel
     var path = context.Request.Path;
+    
+    // 1. Släpp alltid igenom besökare till dokumentationen (Scalar/OpenAPI) utan nyckel
     if (path.StartsWithSegments("/scalar") || path.StartsWithSegments("/openapi"))
     {
         await next(context);
         return;
     }
+
+    // 2. Hämta API-nyckeln från Azure/appsettings (Vi använder namnet KatalogApiKey)
+    var configuredApiKey = app.Configuration.GetValue<string>("KatalogApiKey");
     
-    // Hämtar API-nyckel från konfiguration (appsettings / Azure)
-    var configuredApiKey = app.Configuration.GetValue<string>("ApiKey");
-    
-    // Hämtar API-nyckel från request header (X-Api-Key)
+    // 3. Hämta API-nyckeln som besökaren/läraren skickar in i sin request
     var providedApiKey = context.Request.Headers["X-Api-Key"].FirstOrDefault();
     
-    // Validerar API-nyckel (matchning krävs)
+    // 4. Validera nyckeln
     if (string.IsNullOrEmpty(configuredApiKey) || providedApiKey != configuredApiKey)
     {
         context.Response.StatusCode = 401; // Unauthorized
@@ -68,40 +59,8 @@ app.Use(async (context, next) =>
         return;
     }
     
-    // Släpper igenom request om nyckeln är korrekt
+    // 5. Är nyckeln rätt? Släpp in dem i API:et!
     await next(context);
-});
-
-app.Use(async (context, next) =>
-{
-    // NYTT: Om vi kör lokalt (Development), hoppa över alla säkerhetskontroller!
-    if (app.Environment.IsDevelopment())
-    {
-        await next(context); // Gå vidare direkt till controllern
-        return; // Avbryt här så vi inte gör några fler API-kollar
-    }
-
-    // --- NYTT: Släpp förbi webbläsaren till Scalar och OpenAPI utan nyckel ---
-    var path = context.Request.Path;
-    if (path.StartsWithSegments("/scalar") || path.StartsWithSegments("/openapi"))
-    {
-        await next(context); // Låt anropet gå vidare
-        return; // Avbryt här så vi inte kollar nyckeln nedanför!
-    }
-
-    // Litet bonustips: Använd app.Configuration istället för builder.Configuration här!
-    var configuredApiKey = app.Configuration.GetValue<string>("KatalogApiKey");
-    var extractedApiKey = context.Request.Headers["X-Api-Key"].FirstOrDefault();
-
-    if (extractedApiKey != configuredApiKey)
-    {
-        context.Response.StatusCode = 401; 
-        await context.Response.WriteAsync("Ogiltig eller saknad API-nyckel.");
-        return; 
-    }
-    
-    // Fixen är här nere:
-    await next(context); 
 });
 
 app.UseCors("AllowReactApp");

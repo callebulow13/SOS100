@@ -69,4 +69,57 @@ public class ReportsController : ControllerBase
         var result = await _reportService.GetCurrentLoanedItemsAsync();
         return Ok(result);
     }
+    
+    [HttpPost("saved-reports")]
+    public async Task<IActionResult> CreateSavedReport([FromBody] CreateSavedReportDto dto)
+    {
+        if (string.IsNullOrWhiteSpace(dto.Name))
+            return BadRequest("Rapportnamn måste anges.");
+
+        var result = await _reportService.CreateSavedReportAsync(dto);
+        return CreatedAtAction(nameof(GetSavedReportById), new { id = result.Id }, result);
+    }
+
+    [HttpGet("saved-reports")]
+    public async Task<IActionResult> GetSavedReports()
+    {
+        var result = await _reportService.GetSavedReportsAsync();
+        return Ok(result);
+    }
+
+    [HttpGet("saved-reports/{id}")]
+    public async Task<IActionResult> GetSavedReportById(int id)
+    {
+        var result = await _reportService.GetSavedReportByIdAsync(id);
+
+        if (result == null)
+            return NotFound();
+
+        return Ok(result);
+    }
+
+    [HttpPut("saved-reports/{id}")]
+    public async Task<IActionResult> UpdateSavedReport(int id, [FromBody] UpdateSavedReportDto dto)
+    {
+        if (string.IsNullOrWhiteSpace(dto.Name))
+            return BadRequest("Rapportnamn måste anges.");
+
+        var updated = await _reportService.UpdateSavedReportAsync(id, dto);
+
+        if (!updated)
+            return NotFound();
+
+        return NoContent();
+    }
+
+    [HttpDelete("saved-reports/{id}")]
+    public async Task<IActionResult> DeleteSavedReport(int id)
+    {
+        var deleted = await _reportService.DeleteSavedReportAsync(id);
+
+        if (!deleted)
+            return NotFound();
+
+        return NoContent();
+    }
 }

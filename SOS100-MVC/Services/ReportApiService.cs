@@ -72,6 +72,38 @@ public class ReportApiService
 
         return result ?? new List<CurrentLoanedItemViewModel>();
     }
+    
+    public async Task<List<SavedReportViewModel>> GetSavedReportsAsync()
+    {
+        var result = await _httpClient.GetFromJsonAsync<List<SavedReportViewModel>>(
+            "/api/reports/saved-reports");
+
+        return result ?? new List<SavedReportViewModel>();
+    }
+
+    public async Task<SavedReportViewModel?> GetSavedReportByIdAsync(int id)
+    {
+        return await _httpClient.GetFromJsonAsync<SavedReportViewModel>(
+            $"/api/reports/saved-reports/{id}");
+    }
+
+    public async Task<bool> CreateSavedReportAsync(CreateSavedReportViewModel model)
+    {
+        var response = await _httpClient.PostAsJsonAsync("/api/reports/saved-reports", model);
+        return response.IsSuccessStatusCode;
+    }
+
+    public async Task<bool> UpdateSavedReportAsync(int id, UpdateSavedReportViewModel model)
+    {
+        var response = await _httpClient.PutAsJsonAsync($"/api/reports/saved-reports/{id}", model);
+        return response.IsSuccessStatusCode;
+    }
+
+    public async Task<bool> DeleteSavedReportAsync(int id)
+    {
+        var response = await _httpClient.DeleteAsync($"/api/reports/saved-reports/{id}");
+        return response.IsSuccessStatusCode;
+    }
 
     private class OverdueLoansResponse
     {

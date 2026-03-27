@@ -8,6 +8,22 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddControllers();
+
+// Lägger till en CORS-policy som tillåter anrop från React-appen.
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("ReactFrontend", policy =>
+    {
+        policy
+            .WithOrigins(
+                "http://localhost:5173",
+                "https://localhost:5173"
+            )
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
+
 builder.Services.AddRateLimiter(options =>
 {
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
@@ -48,6 +64,9 @@ builder.Services.AddDbContext<LoanDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 var app = builder.Build();
+
+// Aktiverar CORS-policyn så att React-frontenden får anropa API:t.
+app.UseCors("ReactFrontend");
 
 //Database Migration at startup
 using (var scope = app.Services.CreateScope())

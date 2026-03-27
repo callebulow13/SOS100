@@ -3,6 +3,8 @@ using ReportApi.DataProviders.Interfaces;
 using ReportApi.Services;
 using ReportApi.Services.Interfaces;
 using Scalar.AspNetCore;
+using Microsoft.EntityFrameworkCore;
+using ReportApi.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,6 +30,9 @@ builder.Services.AddHttpClient<IUserDataProvider, UserDataProvider>(client =>
 {
     client.BaseAddress = new Uri(builder.Configuration["ExternalApis:UserApiBaseUrl"]!);
 });
+
+builder.Services.AddDbContext<ReportDbContext>(options =>
+    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 var app = builder.Build();
 

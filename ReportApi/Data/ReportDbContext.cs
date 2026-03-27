@@ -10,4 +10,5 @@ public class ReportDbContext : DbContext
     }
 
     public DbSet<LoanRecord> Loans => Set<LoanRecord>();
+    public DbSet<SavedReport> SavedReports => Set<SavedReport>();
 }

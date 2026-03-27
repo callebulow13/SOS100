@@ -148,21 +148,21 @@
                             <div class="table-responsive">
                                 <table class="table table-hover align-middle mb-0">
                                     <thead class="table-light">
-                                        <tr>
-                                            <th>Objekt-ID</th>
-                                            <th>Objekt</th>
-                                            <th class="text-end">Antal lån</th>
-                                        </tr>
+                                    <tr>
+                                        <th>Objekt-ID</th>
+                                        <th>Objekt</th>
+                                        <th class="text-end">Antal lån</th>
+                                    </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach (var item in Model.MostLoanedItems)
-                                        {
-                                            <tr>
-                                                <td class="text-muted">@item.ItemId</td>
-                                                <td class="fw-semibold">@item.ItemTitle</td>
-                                                <td class="text-end fw-bold">@item.LoanCount</td>
-                                            </tr>
-                                        }
+                                    @foreach (var item in Model.MostLoanedItems)
+                                    {
+                                        <tr>
+                                            <td class="text-muted">@item.ItemId</td>
+                                            <td class="fw-semibold">@item.ItemTitle</td>
+                                            <td class="text-end fw-bold">@item.LoanCount</td>
+                                        </tr>
+                                    }
                                     </tbody>
                                 </table>
                             </div>
@@ -256,38 +256,38 @@
                             <div class="table-responsive">
                                 <table class="table table-hover align-middle mb-0">
                                     <thead class="table-light">
-                                        <tr>
-                                            <th>Lån-ID</th>
-                                            <th>Användare</th>
-                                            <th>Utlånad</th>
-                                            <th>Förfallodatum</th>
-                                            <th>Återlämnad</th>
-                                        </tr>
+                                    <tr>
+                                        <th>Lån-ID</th>
+                                        <th>Användare</th>
+                                        <th>Utlånad</th>
+                                        <th>Förfallodatum</th>
+                                        <th>Återlämnad</th>
+                                    </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach (var loan in Model.ItemLoanHistory)
-                                        {
-                                            <tr>
-                                                <td class="text-muted">@loan.LoanId</td>
-                                                <td class="fw-semibold">@loan.UserName</td>
-                                                <td>@loan.LoanDate.ToString("yyyy-MM-dd")</td>
-                                                <td>@loan.DueDate.ToString("yyyy-MM-dd")</td>
-                                                <td>
-                                                    @if (loan.ReturnedDate.HasValue)
-                                                    {
-                                                        <span class="badge bg-success-subtle text-success border rounded-pill px-3 py-2">
-                                                            @loan.ReturnedDate.Value.ToString("yyyy-MM-dd")
-                                                        </span>
-                                                    }
-                                                    else
-                                                    {
-                                                        <span class="badge bg-warning-subtle text-dark border rounded-pill px-3 py-2">
-                                                            Inte återlämnad
-                                                        </span>
-                                                    }
-                                                </td>
-                                            </tr>
-                                        }
+                                    @foreach (var loan in Model.ItemLoanHistory)
+                                    {
+                                        <tr>
+                                            <td class="text-muted">@loan.LoanId</td>
+                                            <td class="fw-semibold">@loan.UserName</td>
+                                            <td>@loan.LoanDate.ToString("yyyy-MM-dd")</td>
+                                            <td>@loan.DueDate.ToString("yyyy-MM-dd")</td>
+                                            <td>
+                                                @if (loan.ReturnedDate.HasValue)
+                                                {
+                                                    <span class="badge bg-success-subtle text-success border rounded-pill px-3 py-2">
+                                                        @loan.ReturnedDate.Value.ToString("yyyy-MM-dd")
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-warning-subtle text-dark border rounded-pill px-3 py-2">
+                                                        Inte återlämnad
+                                                    </span>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
                                     </tbody>
                                 </table>
                             </div>
@@ -312,38 +312,38 @@
                             <div class="table-responsive">
                                 <table class="table table-hover align-middle mb-0">
                                     <thead class="table-light">
-                                        <tr>
-                                            <th>Lån-ID</th>
-                                            <th>Objekt</th>
-                                            <th>Utlånad</th>
-                                            <th>Förfallodatum</th>
-                                            <th>Återlämnad</th>
-                                        </tr>
+                                    <tr>
+                                        <th>Lån-ID</th>
+                                        <th>Objekt</th>
+                                        <th>Utlånad</th>
+                                        <th>Förfallodatum</th>
+                                        <th>Återlämnad</th>
+                                    </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach (var loan in Model.UserLoanHistory)
-                                        {
-                                            <tr>
-                                                <td class="text-muted">@loan.LoanId</td>
-                                                <td class="fw-semibold">@loan.ItemTitle</td>
-                                                <td>@loan.LoanDate.ToString("yyyy-MM-dd")</td>
-                                                <td>@loan.DueDate.ToString("yyyy-MM-dd")</td>
-                                                <td>
-                                                    @if (loan.ReturnedDate.HasValue)
-                                                    {
-                                                        <span class="badge bg-success-subtle text-success border rounded-pill px-3 py-2">
-                                                            @loan.ReturnedDate.Value.ToString("yyyy-MM-dd")
-                                                        </span>
-                                                    }
-                                                    else
-                                                    {
-                                                        <span class="badge bg-warning-subtle text-dark border rounded-pill px-3 py-2">
-                                                            Inte återlämnad
-                                                        </span>
-                                                    }
-                                                </td>
-                                            </tr>
-                                        }
+                                    @foreach (var loan in Model.UserLoanHistory)
+                                    {
+                                        <tr>
+                                            <td class="text-muted">@loan.LoanId</td>
+                                            <td class="fw-semibold">@loan.ItemTitle</td>
+                                            <td>@loan.LoanDate.ToString("yyyy-MM-dd")</td>
+                                            <td>@loan.DueDate.ToString("yyyy-MM-dd")</td>
+                                            <td>
+                                                @if (loan.ReturnedDate.HasValue)
+                                                {
+                                                    <span class="badge bg-success-subtle text-success border rounded-pill px-3 py-2">
+                                                        @loan.ReturnedDate.Value.ToString("yyyy-MM-dd")
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-warning-subtle text-dark border rounded-pill px-3 py-2">
+                                                        Inte återlämnad
+                                                    </span>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
                                     </tbody>
                                 </table>
                             </div>
@@ -355,9 +355,94 @@
                             </div>
                         }
                     }
+                    @if (!string.IsNullOrWhiteSpace(Model.SelectedReport))
+                    {
+                        <div class="mt-4 pt-3 border-top">
+                            <h6 class="fw-bold">Spara rapport</h6>
+
+                            <form asp-action="SaveReport" method="post" class="row g-2">
+                                <input type="hidden" asp-for="SelectedReport" />
+                                <input type="hidden" asp-for="ItemId" />
+                                <input type="hidden" asp-for="ItemName" />
+                                <input type="hidden" asp-for="UserId" />
+                                <input type="hidden" asp-for="UserName" />
+                                <input type="hidden" asp-for="MostLoanedLimit" />
+
+                                <div class="col-md-8">
+                                    <input asp-for="SavedReportName" class="form-control rounded-3" placeholder="Ange namn på rapporten" />
+                                </div>
+                                <div class="col-md-4">
+                                    <button type="submit" class="btn btn-outline-dark rounded-pill w-100">
+                                        Spara rapport
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    }
                 </div>
             </div>
         </div>
+        <div class="card shadow-sm border-0 rounded-4 mt-4">
+    <div class="card-body p-4">
+        <h4 class="fw-bold mb-3">Sparade rapporter</h4>
+
+        @if (Model.SavedReports.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-sm align-middle">
+                    <thead>
+                        <tr>
+                            <th>Namn</th>
+                            <th>Typ</th>
+                            <th>Skapad</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var report in Model.SavedReports)
+                        {
+                            <tr>
+                                <td class="fw-semibold">@report.Name</td>
+                                <td>@report.ReportType</td>
+                                <td>@report.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</td>
+                                <td class="text-end">
+                                    <div class="d-flex gap-2 justify-content-end flex-wrap">
+                                        <a asp-action="OpenSavedReport" asp-route-id="@report.Id"
+                                           class="btn btn-sm btn-outline-primary rounded-pill">
+                                            Visa
+                                        </a>
+
+                                        <form asp-action="DeleteSavedReport" method="post" class="d-inline">
+                                            <input type="hidden" name="id" value="@report.Id" />
+                                            <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill">
+                                                Ta bort
+                                            </button>
+                                        </form>
+                                    </div>
+
+                                    <form asp-action="RenameSavedReport" method="post" class="mt-2 d-flex gap-2 justify-content-end">
+                                        <input type="hidden" name="id" value="@report.Id" />
+                                        <input type="text" name="name" class="form-control form-control-sm rounded-3"
+                                               placeholder="Nytt namn" style="max-width: 180px;" />
+                                        <button type="submit" class="btn btn-sm btn-outline-secondary rounded-pill">
+                                            Byt namn
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-light border rounded-3 mb-0">
+                Inga sparade rapporter ännu.
+            </div>
+        }
+    </div>
+</div>
     </div>
 </div>
 

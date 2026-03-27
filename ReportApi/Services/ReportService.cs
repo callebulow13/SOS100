@@ -1,6 +1,9 @@
 using ReportApi.DataProviders.Interfaces;
 using ReportApi.DTOs.Reports;
 using ReportApi.Services.Interfaces;
+using Microsoft.EntityFrameworkCore;
+using ReportApi.Data;
+using ReportApi.Models;
 
 namespace ReportApi.Services;
 
@@ -9,15 +12,18 @@ public class ReportService : IReportService
     private readonly ILoanDataProvider _loanDataProvider;
     private readonly IItemDataProvider _itemDataProvider;
     private readonly IUserDataProvider _userDataProvider;
+    private readonly ReportDbContext _dbContext;
 
     public ReportService(
         ILoanDataProvider loanDataProvider,
         IItemDataProvider itemDataProvider,
-        IUserDataProvider userDataProvider)
+        IUserDataProvider userDataProvider,
+        ReportDbContext dbContext)
     {
         _loanDataProvider = loanDataProvider;
         _itemDataProvider = itemDataProvider;
         _userDataProvider = userDataProvider;
+        _dbContext = dbContext;
     }
 
     public async Task<List<MostLoanedItemReportDto>> GetMostLoanedItemsAsync(int? limit)
@@ -173,4 +179,99 @@ public class ReportService : IReportService
             })
             .ToList();
     }
+    
+    public async Task<SavedReportDto> CreateSavedReportAsync(CreateSavedReportDto dto)
+{
+    var savedReport = new SavedReport
+    {
+        Name = dto.Name,
+        ReportType = dto.ReportType,
+        ItemId = dto.ItemId,
+        ItemName = dto.ItemName,
+        UserId = dto.UserId,
+        UserName = dto.UserName,
+        MostLoanedLimit = dto.MostLoanedLimit,
+        CreatedAt = DateTime.UtcNow
+    };
+
+    _dbContext.SavedReports.Add(savedReport);
+    await _dbContext.SaveChangesAsync();
+
+    return new SavedReportDto
+    {
+        Id = savedReport.Id,
+        Name = savedReport.Name,
+        ReportType = savedReport.ReportType,
+        ItemId = savedReport.ItemId,
+        ItemName = savedReport.ItemName,
+        UserId = savedReport.UserId,
+        UserName = savedReport.UserName,
+        MostLoanedLimit = savedReport.MostLoanedLimit,
+        CreatedAt = savedReport.CreatedAt
+    };
+}
+
+public async Task<List<SavedReportDto>> GetSavedReportsAsync()
+{
+    return await _dbContext.SavedReports
+        .OrderByDescending(x => x.CreatedAt)
+        .Select(x => new SavedReportDto
+        {
+            Id = x.Id,
+            Name = x.Name,
+            ReportType = x.ReportType,
+            ItemId = x.ItemId,
+            ItemName = x.ItemName,
+            UserId = x.UserId,
+            UserName = x.UserName,
+            MostLoanedLimit = x.MostLoanedLimit,
+            CreatedAt = x.CreatedAt
+        })
+        .ToListAsync();
+}
+
+public async Task<SavedReportDto?> GetSavedReportByIdAsync(int id)
+{
+    var x = await _dbContext.SavedReports.FindAsync(id);
+
+    if (x == null)
+        return null;
+
+    return new SavedReportDto
+    {
+        Id = x.Id,
+        Name = x.Name,
+        ReportType = x.ReportType,
+        ItemId = x.ItemId,
+        ItemName = x.ItemName,
+        UserId = x.UserId,
+        UserName = x.UserName,
+        MostLoanedLimit = x.MostLoanedLimit,
+        CreatedAt = x.CreatedAt
+    };
+}
+
+public async Task<bool> UpdateSavedReportAsync(int id, UpdateSavedReportDto dto)
+{
+    var report = await _dbContext.SavedReports.FindAsync(id);
+
+    if (report == null)
+        return false;
+
+    report.Name = dto.Name;
+    await _dbContext.SaveChangesAsync();
+    return true;
+}
+
+public async Task<bool> DeleteSavedReportAsync(int id)
+{
+    var report = await _dbContext.SavedReports.FindAsync(id);
+
+    if (report == null)
+        return false;
+
+    _dbContext.SavedReports.Remove(report);
+    await _dbContext.SaveChangesAsync();
+    return true;
+}
 }

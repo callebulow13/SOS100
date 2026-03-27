@@ -39,6 +39,12 @@ app.Use(async (context, next) =>
         await next(context);
         return;
     }
+    
+    if (app.Environment.IsDevelopment())
+    {
+        await next(context);
+        return;
+    }
 
     var configuredApiKey = app.Configuration.GetValue<string>("KatalogApiKey");
 

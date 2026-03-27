@@ -117,11 +117,87 @@
             <div class="card shadow-sm border-0 rounded-4">
                 <div class="card-body p-4">
                     <div class="d-flex align-items-center mb-4">
+                        <div class="bg-secondary bg-opacity-10 p-3 rounded-circle me-3">
+                            <i class="bi bi-bookmark-star text-secondary fs-4"></i>
+                        </div>
+                        <div>
+                            <h4 class="fw-bold mb-0">Sparade rapporter</h4>
+                            <p class="text-secondary small mb-0">Visa, byt namn eller ta bort sparade rapporter.</p>
+                        </div>
+                    </div>
+
+                    @if (Model.SavedReports.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-sm align-middle">
+                                <thead>
+                                <tr>
+                                    <th>Namn</th>
+                                    <th>Typ</th>
+                                    <th>Skapad</th>
+                                    <th></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                @foreach (var report in Model.SavedReports)
+                                {
+                                    <tr>
+                                        <td class="fw-semibold">@report.Name</td>
+                                        <td>@report.ReportType</td>
+                                        <td>@report.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</td>
+                                        <td class="text-end">
+                                            <div class="d-flex justify-content-end">
+                                                <form asp-action="RenameSavedReport" method="post" class="d-flex align-items-center gap-2 flex-nowrap">
+                                                    <input type="hidden" name="id" value="@report.Id" />
+
+                                                    <a asp-action="OpenSavedReport" asp-route-id="@report.Id"
+                                                       class="btn btn-sm btn-outline-primary rounded-pill px-3 me-1"
+                                                       style="min-width: 72px;">
+                                                        Visa
+                                                    </a>
+
+                                                    <input type="text" name="name" class="form-control form-control-sm rounded-3"
+                                                           placeholder="Nytt namn" style="width: 130px;" />
+
+                                                    <button type="submit" class="btn btn-sm btn-outline-secondary rounded-pill">
+                                                        Byt namn
+                                                    </button>
+                                                </form>
+
+                                                <form asp-action="DeleteSavedReport" method="post" class="ms-2">
+                                                    <input type="hidden" name="id" value="@report.Id" />
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill">
+                                                        Ta bort
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-light border rounded-3 mb-0">
+                            Inga sparade rapporter ännu.
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div class="card shadow-sm border-0 rounded-4">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-4">
                         <div class="bg-success bg-opacity-10 p-3 rounded-circle me-3">
                             <i class="bi bi-file-earmark-bar-graph text-success fs-4"></i>
                         </div>
                         <div>
                             <h4 class="fw-bold mb-0">Rapportresultat</h4>
+                            <p class="text-secondary small mb-0">Här visas resultatet för den valda rapporten.</p>
                         </div>
                     </div>
 
@@ -131,318 +207,261 @@
                             <i class="bi bi-bar-chart text-secondary fs-1 d-block mb-3"></i>
                             <h5 class="fw-bold">Ingen rapport vald ännu</h5>
                             <p class="text-muted mb-0">
-                                Välj en rapport i formuläret till vänster för att visa statistik eller historik.
+                                Välj en rapport i formuläret ovan för att visa statistik eller historik.
                             </p>
                         </div>
                     }
-
-                    @if (Model.SelectedReport == "most-loaned")
+                    else
                     {
-                        <div class="mb-3">
-                            <h5 class="fw-bold mb-1">Mest utlånade objekt</h5>
-                            <p class="text-muted small mb-0">Visar de mest utlånade objekten i systemet.</p>
+                        <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-start gap-3 mb-4">
+                            <div>
+                                @if (Model.SelectedReport == "most-loaned")
+                                {
+                                    <h5 class="fw-bold mb-1">Mest utlånade objekt</h5>
+                                    <p class="text-muted small mb-0">Visar de mest utlånade objekten i systemet.</p>
+                                }
+                                else if (Model.SelectedReport == "overdue")
+                                {
+                                    <h5 class="fw-bold mb-1">Antal försenade lån</h5>
+                                    <p class="text-muted small mb-0">Översikt över lån som ännu inte har återlämnats i tid.</p>
+                                }
+                                else if (Model.SelectedReport == "current-loaned")
+                                {
+                                    <h5 class="fw-bold mb-1">Nuvarande utlånade objekt</h5>
+                                    <p class="text-muted small mb-0">Visar objekt som för närvarande är utlånade samt vem som lånar dem.</p>
+                                }
+                                else if (Model.SelectedReport == "item-history")
+                                {
+                                    <h5 class="fw-bold mb-1">Utlåningshistorik per objekt</h5>
+                                    <p class="text-muted small mb-0">Visar historik för valt objekt.</p>
+                                }
+                                else if (Model.SelectedReport == "user-history")
+                                {
+                                    <h5 class="fw-bold mb-1">Utlåningshistorik per användare</h5>
+                                    <p class="text-muted small mb-0">Visar historik för vald användare.</p>
+                                }
+                            </div>
+
+                            <div class="ms-lg-auto" style="min-width: 320px;">
+                                <form asp-action="SaveReport" method="post" class="row g-2">
+                                    <input type="hidden" asp-for="SelectedReport" />
+                                    <input type="hidden" asp-for="ItemId" />
+                                    <input type="hidden" asp-for="ItemName" />
+                                    <input type="hidden" asp-for="UserId" />
+                                    <input type="hidden" asp-for="UserName" />
+                                    <input type="hidden" asp-for="MostLoanedLimit" />
+
+                                    <div class="col-12">
+                                        <label asp-for="SavedReportName" class="form-label fw-semibold small mb-1">Spara rapport</label>
+                                    </div>
+                                    <div class="col-8">
+                                        <input asp-for="SavedReportName" class="form-control rounded-3" placeholder="Ange namn på rapporten" />
+                                    </div>
+                                    <div class="col-4">
+                                        <button type="submit" class="btn btn-outline-dark rounded-pill w-100">
+                                            Spara
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
 
-                        @if (Model.MostLoanedItems.Any())
+                        @if (Model.SelectedReport == "most-loaned")
                         {
-                            <div class="table-responsive">
-                                <table class="table table-hover align-middle mb-0">
-                                    <thead class="table-light">
-                                    <tr>
-                                        <th>Objekt-ID</th>
-                                        <th>Objekt</th>
-                                        <th class="text-end">Antal lån</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    @foreach (var item in Model.MostLoanedItems)
-                                    {
+                            @if (Model.MostLoanedItems.Any())
+                            {
+                                <div class="table-responsive">
+                                    <table class="table table-hover align-middle mb-0">
+                                        <thead class="table-light">
                                         <tr>
-                                            <td class="text-muted">@item.ItemId</td>
-                                            <td class="fw-semibold">@item.ItemTitle</td>
-                                            <td class="text-end fw-bold">@item.LoanCount</td>
+                                            <th>Objekt-ID</th>
+                                            <th>Objekt</th>
+                                            <th class="text-end">Antal lån</th>
                                         </tr>
-                                    }
-                                    </tbody>
-                                </table>
-                            </div>
+                                        </thead>
+                                        <tbody>
+                                        @foreach (var item in Model.MostLoanedItems)
+                                        {
+                                            <tr>
+                                                <td class="text-muted">@item.ItemId</td>
+                                                <td class="fw-semibold">@item.ItemTitle</td>
+                                                <td class="text-end fw-bold">@item.LoanCount</td>
+                                            </tr>
+                                        }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="alert alert-info rounded-3 mb-0">
+                                    Ingen data att visa för denna rapport.
+                                </div>
+                            }
                         }
-                        else
-                        {
-                            <div class="alert alert-info rounded-3 mb-0">
-                                Ingen data att visa för denna rapport.
-                            </div>
-                        }
-                    }
 
-                    @if (Model.SelectedReport == "overdue")
-                    {
-                        <div class="mb-3">
-                            <h5 class="fw-bold mb-1">Antal försenade lån</h5>
-                            <p class="text-muted small mb-0">Översikt över lån som ännu inte har återlämnats i tid.</p>
-                        </div>
-
-                        @if (Model.OverdueLoanCount.HasValue)
+                        @if (Model.SelectedReport == "overdue")
                         {
-                            <div class="row">
-                                <div class="col-sm-8 col-md-6">
-                                    <div class="border rounded-4 p-4 bg-light">
-                                        <div class="text-muted small mb-2">Försenade lån</div>
-                                        <div class="display-5 fw-bold text-warning">@Model.OverdueLoanCount</div>
+                            @if (Model.OverdueLoanCount.HasValue)
+                            {
+                                <div class="row">
+                                    <div class="col-sm-8 col-md-6">
+                                        <div class="border rounded-4 p-4 bg-light">
+                                            <div class="text-muted small mb-2">Försenade lån</div>
+                                            <div class="display-5 fw-bold text-warning">@Model.OverdueLoanCount</div>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        }
-                        else
-                        {
-                            <div class="alert alert-danger rounded-3 mb-0">
-                                Kunde inte hämta rapporten.
-                            </div>
-                        }
-                    }
-                    
-                    @if (Model.SelectedReport == "current-loaned")
-                    {
-                        <div class="mb-3">
-                            <h5 class="fw-bold mb-1">Nuvarande utlånade objekt</h5>
-                            <p class="text-muted small mb-0">
-                                Visar objekt som för närvarande är utlånade samt vem som lånar dem.
-                            </p>
-                        </div>
-
-                        @if (Model.CurrentLoanedItems.Any())
-                        {
-                            <div class="table-responsive">
-                                <table class="table table-hover align-middle mb-0">
-                                    <thead class="table-light">
-                                    <tr>
-                                        <th>Objekt-ID</th>
-                                        <th>Objektnamn</th>
-                                        <th>Användare</th>
-                                        <th>Utlånad</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    @foreach (var loan in Model.CurrentLoanedItems)
-                                    {
-                                        <tr>
-                                            <td class="text-muted">@loan.ItemId</td>
-                                            <td class="fw-semibold">@loan.ItemName</td>
-                                            <td>@loan.UserName</td>
-                                            <td>@loan.LoanDate.ToString("yyyy-MM-dd")</td>
-                                        </tr>
-                                    }
-                                    </tbody>
-                                </table>
-                            </div>
-                        }
-                        else
-                        {
-                            <div class="alert alert-info rounded-3 mb-0">
-                                Det finns inga objekt som är utlånade just nu.
-                            </div>
-                        }
-                    }
-
-                    @if (Model.SelectedReport == "item-history")
-                    {
-                        <div class="mb-3">
-                            <h5 class="fw-bold mb-1">Utlåningshistorik per objekt</h5>
-                            <p class="text-muted small mb-0">Visar historik för valt objekt.</p>
-                        </div>
-
-                        @if (Model.ItemLoanHistory.Any())
-                        {
-                            <div class="table-responsive">
-                                <table class="table table-hover align-middle mb-0">
-                                    <thead class="table-light">
-                                    <tr>
-                                        <th>Lån-ID</th>
-                                        <th>Användare</th>
-                                        <th>Utlånad</th>
-                                        <th>Förfallodatum</th>
-                                        <th>Återlämnad</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    @foreach (var loan in Model.ItemLoanHistory)
-                                    {
-                                        <tr>
-                                            <td class="text-muted">@loan.LoanId</td>
-                                            <td class="fw-semibold">@loan.UserName</td>
-                                            <td>@loan.LoanDate.ToString("yyyy-MM-dd")</td>
-                                            <td>@loan.DueDate.ToString("yyyy-MM-dd")</td>
-                                            <td>
-                                                @if (loan.ReturnedDate.HasValue)
-                                                {
-                                                    <span class="badge bg-success-subtle text-success border rounded-pill px-3 py-2">
-                                                        @loan.ReturnedDate.Value.ToString("yyyy-MM-dd")
-                                                    </span>
-                                                }
-                                                else
-                                                {
-                                                    <span class="badge bg-warning-subtle text-dark border rounded-pill px-3 py-2">
-                                                        Inte återlämnad
-                                                    </span>
-                                                }
-                                            </td>
-                                        </tr>
-                                    }
-                                    </tbody>
-                                </table>
-                            </div>
-                        }
-                        else
-                        {
-                            <div class="alert alert-info rounded-3 mb-0">
-                                Ingen historik hittades för valt objekt.
-                            </div>
-                        }
-                    }
-
-                    @if (Model.SelectedReport == "user-history")
-                    {
-                        <div class="mb-3">
-                            <h5 class="fw-bold mb-1">Utlåningshistorik per användare</h5>
-                            <p class="text-muted small mb-0">Visar historik för vald användare.</p>
-                        </div>
-
-                        @if (Model.UserLoanHistory.Any())
-                        {
-                            <div class="table-responsive">
-                                <table class="table table-hover align-middle mb-0">
-                                    <thead class="table-light">
-                                    <tr>
-                                        <th>Lån-ID</th>
-                                        <th>Objekt</th>
-                                        <th>Utlånad</th>
-                                        <th>Förfallodatum</th>
-                                        <th>Återlämnad</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    @foreach (var loan in Model.UserLoanHistory)
-                                    {
-                                        <tr>
-                                            <td class="text-muted">@loan.LoanId</td>
-                                            <td class="fw-semibold">@loan.ItemTitle</td>
-                                            <td>@loan.LoanDate.ToString("yyyy-MM-dd")</td>
-                                            <td>@loan.DueDate.ToString("yyyy-MM-dd")</td>
-                                            <td>
-                                                @if (loan.ReturnedDate.HasValue)
-                                                {
-                                                    <span class="badge bg-success-subtle text-success border rounded-pill px-3 py-2">
-                                                        @loan.ReturnedDate.Value.ToString("yyyy-MM-dd")
-                                                    </span>
-                                                }
-                                                else
-                                                {
-                                                    <span class="badge bg-warning-subtle text-dark border rounded-pill px-3 py-2">
-                                                        Inte återlämnad
-                                                    </span>
-                                                }
-                                            </td>
-                                        </tr>
-                                    }
-                                    </tbody>
-                                </table>
-                            </div>
-                        }
-                        else
-                        {
-                            <div class="alert alert-info rounded-3 mb-0">
-                                Ingen historik hittades för vald användare.
-                            </div>
-                        }
-                    }
-                    @if (!string.IsNullOrWhiteSpace(Model.SelectedReport))
-                    {
-                        <div class="mt-4 pt-3 border-top">
-                            <h6 class="fw-bold">Spara rapport</h6>
-
-                            <form asp-action="SaveReport" method="post" class="row g-2">
-                                <input type="hidden" asp-for="SelectedReport" />
-                                <input type="hidden" asp-for="ItemId" />
-                                <input type="hidden" asp-for="ItemName" />
-                                <input type="hidden" asp-for="UserId" />
-                                <input type="hidden" asp-for="UserName" />
-                                <input type="hidden" asp-for="MostLoanedLimit" />
-
-                                <div class="col-md-8">
-                                    <input asp-for="SavedReportName" class="form-control rounded-3" placeholder="Ange namn på rapporten" />
+                            }
+                            else
+                            {
+                                <div class="alert alert-danger rounded-3 mb-0">
+                                    Kunde inte hämta rapporten.
                                 </div>
-                                <div class="col-md-4">
-                                    <button type="submit" class="btn btn-outline-dark rounded-pill w-100">
-                                        Spara rapport
-                                    </button>
+                            }
+                        }
+
+                        @if (Model.SelectedReport == "current-loaned")
+                        {
+                            @if (Model.CurrentLoanedItems.Any())
+                            {
+                                <div class="table-responsive">
+                                    <table class="table table-hover align-middle mb-0">
+                                        <thead class="table-light">
+                                        <tr>
+                                            <th>Objekt-ID</th>
+                                            <th>Objektnamn</th>
+                                            <th>Användare</th>
+                                            <th>Utlånad</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        @foreach (var loan in Model.CurrentLoanedItems)
+                                        {
+                                            <tr>
+                                                <td class="text-muted">@loan.ItemId</td>
+                                                <td class="fw-semibold">@loan.ItemName</td>
+                                                <td>@loan.UserName</td>
+                                                <td>@loan.LoanDate.ToString("yyyy-MM-dd")</td>
+                                            </tr>
+                                        }
+                                        </tbody>
+                                    </table>
                                 </div>
-                            </form>
-                        </div>
+                            }
+                            else
+                            {
+                                <div class="alert alert-info rounded-3 mb-0">
+                                    Det finns inga objekt som är utlånade just nu.
+                                </div>
+                            }
+                        }
+
+                        @if (Model.SelectedReport == "item-history")
+                        {
+                            @if (Model.ItemLoanHistory.Any())
+                            {
+                                <div class="table-responsive">
+                                    <table class="table table-hover align-middle mb-0">
+                                        <thead class="table-light">
+                                        <tr>
+                                            <th>Lån-ID</th>
+                                            <th>Användare</th>
+                                            <th>Utlånad</th>
+                                            <th>Förfallodatum</th>
+                                            <th>Återlämnad</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        @foreach (var loan in Model.ItemLoanHistory)
+                                        {
+                                            <tr>
+                                                <td class="text-muted">@loan.LoanId</td>
+                                                <td class="fw-semibold">@loan.UserName</td>
+                                                <td>@loan.LoanDate.ToString("yyyy-MM-dd")</td>
+                                                <td>@loan.DueDate.ToString("yyyy-MM-dd")</td>
+                                                <td>
+                                                    @if (loan.ReturnedDate.HasValue)
+                                                    {
+                                                        <span class="badge bg-success-subtle text-success border rounded-pill px-3 py-2">
+                                                            @loan.ReturnedDate.Value.ToString("yyyy-MM-dd")
+                                                        </span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge bg-warning-subtle text-dark border rounded-pill px-3 py-2">
+                                                            Inte återlämnad
+                                                        </span>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="alert alert-info rounded-3 mb-0">
+                                    Ingen historik hittades för valt objekt.
+                                </div>
+                            }
+                        }
+
+                        @if (Model.SelectedReport == "user-history")
+                        {
+                            @if (Model.UserLoanHistory.Any())
+                            {
+                                <div class="table-responsive">
+                                    <table class="table table-hover align-middle mb-0">
+                                        <thead class="table-light">
+                                        <tr>
+                                            <th>Lån-ID</th>
+                                            <th>Objekt</th>
+                                            <th>Utlånad</th>
+                                            <th>Förfallodatum</th>
+                                            <th>Återlämnad</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        @foreach (var loan in Model.UserLoanHistory)
+                                        {
+                                            <tr>
+                                                <td class="text-muted">@loan.LoanId</td>
+                                                <td class="fw-semibold">@loan.ItemTitle</td>
+                                                <td>@loan.LoanDate.ToString("yyyy-MM-dd")</td>
+                                                <td>@loan.DueDate.ToString("yyyy-MM-dd")</td>
+                                                <td>
+                                                    @if (loan.ReturnedDate.HasValue)
+                                                    {
+                                                        <span class="badge bg-success-subtle text-success border rounded-pill px-3 py-2">
+                                                            @loan.ReturnedDate.Value.ToString("yyyy-MM-dd")
+                                                        </span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge bg-warning-subtle text-dark border rounded-pill px-3 py-2">
+                                                            Inte återlämnad
+                                                        </span>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="alert alert-info rounded-3 mb-0">
+                                    Ingen historik hittades för vald användare.
+                                </div>
+                            }
+                        }
                     }
                 </div>
             </div>
         </div>
-        <div class="card shadow-sm border-0 rounded-4 mt-4">
-    <div class="card-body p-4">
-        <h4 class="fw-bold mb-3">Sparade rapporter</h4>
-
-        @if (Model.SavedReports.Any())
-        {
-            <div class="table-responsive">
-                <table class="table table-sm align-middle">
-                    <thead>
-                        <tr>
-                            <th>Namn</th>
-                            <th>Typ</th>
-                            <th>Skapad</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var report in Model.SavedReports)
-                        {
-                            <tr>
-                                <td class="fw-semibold">@report.Name</td>
-                                <td>@report.ReportType</td>
-                                <td>@report.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</td>
-                                <td class="text-end">
-                                    <div class="d-flex gap-2 justify-content-end flex-wrap">
-                                        <a asp-action="OpenSavedReport" asp-route-id="@report.Id"
-                                           class="btn btn-sm btn-outline-primary rounded-pill">
-                                            Visa
-                                        </a>
-
-                                        <form asp-action="DeleteSavedReport" method="post" class="d-inline">
-                                            <input type="hidden" name="id" value="@report.Id" />
-                                            <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill">
-                                                Ta bort
-                                            </button>
-                                        </form>
-                                    </div>
-
-                                    <form asp-action="RenameSavedReport" method="post" class="mt-2 d-flex gap-2 justify-content-end">
-                                        <input type="hidden" name="id" value="@report.Id" />
-                                        <input type="text" name="name" class="form-control form-control-sm rounded-3"
-                                               placeholder="Nytt namn" style="max-width: 180px;" />
-                                        <button type="submit" class="btn btn-sm btn-outline-secondary rounded-pill">
-                                            Byt namn
-                                        </button>
-                                    </form>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-        }
-        else
-        {
-            <div class="alert alert-light border rounded-3 mb-0">
-                Inga sparade rapporter ännu.
-            </div>
-        }
-    </div>
-</div>
     </div>
 </div>
 
@@ -555,7 +574,7 @@
                     default:
                         reportDescription.textContent = "Välj en rapport för att se vilka parametrar som behövs.";
                         submitButton.disabled = true;
-                        submitButton.textContent = "Välj en rapport";
+                        submitButton.textContent = "Välj först en rapport";
                         break;
                 }
             }

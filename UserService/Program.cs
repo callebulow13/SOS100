@@ -33,7 +33,7 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+//if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
     app.MapScalarApiReference();
@@ -47,12 +47,12 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<UserServiceDbContext>();
     var hasher = new PasswordHasher<User>();
-
-    db.Database.EnsureCreated();
+    db.Database.Migrate();
 
     if (!db.Users.Any())
     {

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 using UserService.Data;
@@ -49,84 +50,84 @@ app.MapControllers();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<UserServiceDbContext>();
+    var hasher = new PasswordHasher<User>();
 
     db.Database.EnsureCreated();
 
     if (!db.Users.Any())
     {
         db.Users.AddRange(
+            
+                new User
+                {
+                    Username = "admin",
+                    Password = hasher.HashPassword(null, "admin"),
+                    Email = "admin@test.se",
+                    FirstName = "Admin",
+                    LastName = "User",
+                    Role = "Admin"
+                },
 
-            // 🔑 ADMIN
-            new User
-            {
-                Username = "admin",
-                Password = "admin",
-                Email = "admin@test.se",
-                FirstName = "Admin",
-                LastName = "User",
-                Role = "Admin"
-            },
+                new User
+                {
+                    Username = "user",
+                    Password = hasher.HashPassword(null, "user"),
+                    Email = "user@test.se",
+                    FirstName = "Regular",
+                    LastName = "User",
+                    Role = "User"
+                },
 
-            // 👤 STANDARD USER
-            new User
-            {
-                Username = "user",
-                Password = "user",
-                Email = "user@test.se",
-                FirstName = "Regular",
-                LastName = "User",
-                Role = "User"
-            },
+                new User
+                {
+                    Username = "calle",
+                    Password = hasher.HashPassword(null, "123"),
+                    Email = "calle@test.se",
+                    FirstName = "Calle",
+                    LastName = "Bülow",
+                    Role = "User"
+                },
 
-            // 🎯 DU
-            new User
-            {
-                Username = "calle",
-                Password = "123",
-                Email = "calle@test.se",
-                FirstName = "Calle",
-                LastName = "Bülow",
-                Role = "User"
-            },
+                new User
+                {
+                    Username = "emma",
+                    Password = hasher.HashPassword(null, "123"),
+                    Email = "emma@test.se",
+                    FirstName = "Emma",
+                    LastName = "Johansson",
+                    Role = "User"
+                },
 
-            // 🎡 fler users till hjulet
-            new User
-            {
-                Username = "emma",
-                Password = "123",
-                Email = "emma@test.se",
-                FirstName = "Emma",
-                LastName = "Johansson",
-                Role = "User"
-            },
-            new User
-            {
-                Username = "oskar",
-                Password = "123",
-                Email = "oskar@test.se",
-                FirstName = "Oskar",
-                LastName = "Lindberg",
-                Role = "User"
-            },
-            new User
-            {
-                Username = "maria",
-                Password = "123",
-                Email = "maria@test.se",
-                FirstName = "Maria",
-                LastName = "Svensson",
-                Role = "User"
-            },
-            new User
-            {
-                Username = "erik",
-                Password = "123",
-                Email = "erik@test.se",
-                FirstName = "Erik",
-                LastName = "Karlsson",
-                Role = "User"
-            }
-        );
+                new User
+                {
+                    Username = "oskar",
+                    Password = hasher.HashPassword(null, "123"),
+                    Email = "oskar@test.se",
+                    FirstName = "Oskar",
+                    LastName = "Lindberg",
+                    Role = "User"
+                },
+
+                new User
+                {
+                    Username = "maria",
+                    Password = hasher.HashPassword(null, "123"),
+                    Email = "maria@test.se",
+                    FirstName = "Maria",
+                    LastName = "Svensson",
+                    Role = "User"
+                },
+
+                new User
+                {
+                    Username = "erik",
+                    Password = hasher.HashPassword(null, "123"),
+                    Email = "erik@test.se",
+                    FirstName = "Erik",
+                    LastName = "Karlsson",
+                    Role = "User"
+                }
+            );
 
         db.SaveChanges();
     }

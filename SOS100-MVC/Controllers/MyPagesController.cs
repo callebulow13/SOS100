@@ -215,6 +215,11 @@ public class MyPagesController : Controller
     {
         var client = _httpClientFactory.CreateClient();
         var loanBaseUrl = _configuration["LoanApiBaseUrl"] ?? "http://localhost:5125";
+        var loanApiKey = _configuration["LoanApiKey"];
+        if (!string.IsNullOrEmpty(loanApiKey))
+        {
+            client.DefaultRequestHeaders.Add("X-Api-Key", loanApiKey);
+        }
 
         // ── Steg 1: Återlämna lånet ──
         var response = await client.PostAsync(

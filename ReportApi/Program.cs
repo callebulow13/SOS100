@@ -17,6 +17,8 @@ builder.Services.AddScoped<IReportService, ReportService>();
 builder.Services.AddHttpClient<ILoanDataProvider, LoanDataProvider>(client =>
 {
     client.BaseAddress = new Uri(builder.Configuration["ExternalApis:LoanApiBaseUrl"]!);
+    client.DefaultRequestHeaders.Add("X-Api-Key",
+        builder.Configuration["ExternalApis:LoanApiKey"]!);
 });
 
 builder.Services.AddHttpClient<IItemDataProvider, ItemDataProvider>(client =>

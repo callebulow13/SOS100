@@ -31,6 +31,8 @@ app.MapScalarApiReference();
 
 app.UseHttpsRedirection();
 
+app.UseCors("AllowReactApp");
+
 app.UseAuthorization();
 
 // Middleware för API-nyckel
@@ -70,7 +72,7 @@ app.Use(async (context, next) =>
     await next(context);
 });
 
-app.UseCors("AllowReactApp");
+
 
 app.MapControllers();
 

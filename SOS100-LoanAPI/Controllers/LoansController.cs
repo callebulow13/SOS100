@@ -193,6 +193,26 @@ public class LoansController : ControllerBase
             new { loanId = loan.Id },
             loan);
     }
+    
+    // GET: api/loans/stats
+// Hämtar statistik till React-sidan från tabellen LoanUserItemStats
+    [HttpGet("stats")]
+    public async Task<IActionResult> GetStats(CancellationToken ct)
+    {
+        var stats = await _db.LoanUserItemStats
+            .Select(s => new
+            {
+                id = s.Id,
+                itemId = s.ItemId,
+                itemName = s.ItemName,
+                borrowerId = s.BorrowerId,
+                totalLoans = s.TotalLoans,
+                lateReturns = s.LateReturns
+            })
+            .ToListAsync(ct);
+
+        return Ok(stats);
+    }
 
     // GET: api/loans/{loanId}
     [HttpGet("{loanId:guid}")]

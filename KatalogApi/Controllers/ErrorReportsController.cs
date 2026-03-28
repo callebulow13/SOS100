@@ -16,14 +16,14 @@ public class ErrorReportsController : ControllerBase
         _context = context;
     }
 
-    // 1. READ: Hämta alla felanmälningar (GET: api/errorreports)
+    // Hämtar en lista med alla felrapporter i hela systemet.
     [HttpGet]
     public async Task<ActionResult<IEnumerable<ErrorReport>>> GetErrorReports()
     {
         return await _context.ErrorReports.ToListAsync();
     }
 
-    // 2. READ: Hämta EN specifik felanmälan (GET: api/errorreports/5)
+    // Hämtar en specifik felrapport via dess unika ID.
     [HttpGet("{id}")]
     public async Task<ActionResult<ErrorReport>> GetErrorReport(int id)
     {
@@ -37,7 +37,7 @@ public class ErrorReportsController : ControllerBase
         return errorReport;
     }
 
-    // SPECIAL: Hämta alla felanmälningar för en specifik pryl (GET: api/errorreports/item/3)
+    // Hämta felrapporter som tillhör ett specifikt objekt.
     [HttpGet("item/{itemId}")]
     public async Task<ActionResult<IEnumerable<ErrorReport>>> GetReportsForItem(int itemId)
     {
@@ -46,8 +46,7 @@ public class ErrorReportsController : ControllerBase
             .ToListAsync();
     }
 
-    // 3. CREATE: Skapa en ny felanmälan (POST: api/errorreports)
-    // Denna kommer din MVC-klient (och React-appen om vi vill) att använda!
+    // Skapar och sparar en ny felrapport.
     [HttpPost]
     public async Task<ActionResult<ErrorReport>> PostErrorReport(ErrorReport errorReport)
     {
@@ -57,8 +56,7 @@ public class ErrorReportsController : ControllerBase
         return CreatedAtAction(nameof(GetErrorReport), new { id = errorReport.Id }, errorReport);
     }
 
-    // 4. UPDATE: Uppdatera en felanmälan (PUT: api/errorreports/5)
-    // Perfekt för IT-teamet i React när de klickar "Markera som löst" (IsResolved = true)
+    // Uppdaterar en befintlig felrapport.
     [HttpPut("{id}")]
     public async Task<IActionResult> PutErrorReport(int id, ErrorReport errorReport)
     {
@@ -88,7 +86,7 @@ public class ErrorReportsController : ControllerBase
         return NoContent();
     }
 
-    // 5. DELETE: Ta bort en felanmälan (DELETE: api/errorreports/5)
+    // Tar bort en felrapport från systemet.
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteErrorReport(int id)
     {
@@ -104,7 +102,6 @@ public class ErrorReportsController : ControllerBase
         return NoContent();
     }
 
-    // Hjälpmetod
     private bool ErrorReportExists(int id)
     {
         return _context.ErrorReports.Any(e => e.Id == id);

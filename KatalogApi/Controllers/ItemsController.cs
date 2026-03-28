@@ -5,85 +5,75 @@ using Microsoft.EntityFrameworkCore;
 
 namespace KatalogApi.Controllers;
 
+// [Route] bestämmer bas-URL:en för alla anrop i denna klass.
+// "[controller]" byts automatiskt ut mot namnet på klassen minus "Controller", alltså "api/Items".
 [Route("api/[controller]")]
 [ApiController]
 public class ItemsController : ControllerBase
 {
     private readonly CatalogDbContext _context;
 
-    // Konstruktorn ber om databas-bron när API:et startar
     public ItemsController(CatalogDbContext context)
     {
         _context = context;
     }
-
-    // Hämta objekt
+    
+    // Hämtar alla objekt från bibliotekets katalog.
     [HttpGet]
     public async Task<IActionResult> GetItems()
     {
-        // Hämta alla prylar direkt från databasen!
+        // Hämtar allt från tabellen Items och gör om det till en lista.
         var items = await _context.Items.ToListAsync();
 
         return Ok(items);
     }
-
-    // Lägga till objekt
+    // Lägger till nytt objekt i katalogen.
     [HttpPost]
     public async Task<IActionResult> CreateItem([FromBody] Item newItem)
     {
-        // Sätt Id till 0. Databasen kommer automatiskt att räkna ut och ge prylen nästa lediga nummer (t.ex. 4).
+        // Tvingar ID till 0 för att säkerställa att databasen genererar ett nytt, unikt ID.
         newItem.Id = 0;
 
-        // Säg till databas-bron att vi vill lägga till en ny pryl
         _context.Items.Add(newItem);
 
-        // Spara ändringarna i SQLite-filen!
         await _context.SaveChangesAsync();
 
-        // Returnera statuskod "201 Created" och skicka tillbaka prylen 
-        // (nu med sitt nya, riktiga databas-ID) till den som skapade den.
         return Created($"/api/items/{newItem.Id}", newItem);
     }
-
-    // Denna [HttpGet] lyssnar efter ett specifikt ID i webbadressen, t.ex. /api/items/3
+    
+    // Hämtar ett specifikt objekt baserat på dess ID.
     [HttpGet("{id}")]
     public async Task<IActionResult> GetItemById(int id)
     {
-        // 1. Vi ber databasen leta upp prylen som har exakt detta ID.
-        // FindAsync är supersnabb eftersom den letar direkt efter primärnyckeln.
+        // Letar efter objektet med den angivna primärnyckeln.
         var item = await _context.Items.FindAsync(id);
 
-        // 2. Om databasen returnerar null, betyder det att ID:t inte finns.
         if (item == null)
         {
-            // Vi skickar tillbaka HTTP 404 (Not Found) och ett litet meddelande
             return NotFound($"Kunde inte hitta någon pryl med ID {id} i katalogen.");
         }
 
-        // 3. Om prylen finns, skickar vi tillbaka den!
-        // Ok() ger HTTP 200 och förvandlar automatiskt C#-objektet till JSON-kod.
         return Ok(item);
     }
-
-    // Uppdatera en befintlig pryl (PUT)
+    // Uppdaterar informationen om ett befintligt objekt.
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateItem(int id, [FromBody] Item updatedItem)
     {
-        // 1. Kontrollera att ID:t i webbadressen stämmer överens med ID:t i objektet vi skickar in
+        // Säkerhetskontroll: Matcha ID:t i URL:en med ID:t i det skickade objektet.
         if (id != updatedItem.Id)
         {
             return BadRequest("ID i webbadressen matchar inte objektets ID.");
         }
 
-        // 2. Leta upp den befintliga prylen i databasen
+        // Letar upp det befintliga objektet i databasen.
         var item = await _context.Items.FindAsync(id);
 
         if (item == null)
         {
             return NotFound($"Kunde inte hitta någon pryl med ID {id} att uppdatera.");
         }
-
-        // 3. Uppdatera alla egenskaper på prylen
+        
+        // Skriver över de gamla värdena med de nya.
         item.Name = updatedItem.Name;
         item.Type = updatedItem.Type;
         item.Description = updatedItem.Description;
@@ -91,18 +81,15 @@ public class ItemsController : ControllerBase
         item.Placement = updatedItem.Placement;
         item.PurchaseDate = updatedItem.PurchaseDate;
 
-        // 4. Spara ändringarna i SQLite-filen
         await _context.SaveChangesAsync();
 
-        // 5. Returnera 204 No Content (Standard för lyckade PUT-anrop där vi inte behöver skicka tillbaka data)
         return NoContent();
     }
 
-    // Ta bort en pryl (DELETE)
+    // Tar bort en pryl från katalogen.
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteItem(int id)
     {
-        // 1. Leta upp prylen i databasen
         var item = await _context.Items.FindAsync(id);
 
         if (item == null)
@@ -110,27 +97,22 @@ public class ItemsController : ControllerBase
             return NotFound($"Kunde inte hitta någon pryl med ID {id} att ta bort.");
         }
 
-        // 2. Säg till databas-bron att vi vill radera prylen
         _context.Items.Remove(item);
 
-        // 3. Spara ändringarna till SQLite-filen
         await _context.SaveChangesAsync();
 
-        // 4. Returnera 204 No Content
         return NoContent();
     }
 
-    // POST: api/items/seed
+    // Fyller databasen med testdata (Seeding).
     [HttpPost("seed")]
     public async Task<IActionResult> SeedDatabase()
     {
-        // 1. Kontrollera om det redan finns data, avbryt i så fall för att undvika dubbletter
         if (await _context.Items.AnyAsync())
         {
             return BadRequest("Databasen har redan data. Rensa den först!");
         }
 
-        // 2. Skapa en lista med test-prylar som matchar exakt de enums och properties ni har
         var dummyItems = new List<Item>
         {
             new Item
@@ -173,7 +155,7 @@ public class ItemsController : ControllerBase
             {
                 Name = "Systemkamera Sony",
                 Type = ItemType.Elektronik,
-                Status = ItemStatus.Trasig, // Vi lägger in en trasig för att se hur din MVC-design hanterar det!
+                Status = ItemStatus.Trasig,
                 Description = "Används av marknadsavdelningen. Objektivet är skadat.",
                 Placement = "IT-supporten",
                 PurchaseDate = DateTime.Now.AddDays(-600)
@@ -191,7 +173,7 @@ public class ItemsController : ControllerBase
             {
                 Name = "Clean Code (Bok)",
                 Type = ItemType.Bok,
-                Status = ItemStatus.Utlånad, // Testar filter för utlånade objekt
+                Status = ItemStatus.Utlånad,
                 Description = "Klassisk bok om mjukvaruarkitektur av Robert C. Martin",
                 Placement = "Bokhylla C3",
                 PurchaseDate = DateTime.Now.AddDays(-800)
@@ -414,24 +396,20 @@ public class ItemsController : ControllerBase
             }
         };
 
-        // 3. Lägg till alla prylar i databas-bron och spara
         _context.Items.AddRange(dummyItems);
         await _context.SaveChangesAsync();
 
         return Ok(new { message = $"Lade till {dummyItems.Count} test-prylar i katalogen!" });
     }
 
-    // DELETE: api/items/clear
+    // Rensar hela katalogen på all data.
     [HttpDelete("clear")]
     public async Task<IActionResult> ClearDatabase()
     {
-        // 1. Hämta alla existerande rader i tabellen
         var allItems = await _context.Items.ToListAsync();
 
-        // 2. Säg till Entity Framework att ta bort hela listan
         _context.Items.RemoveRange(allItems);
 
-        // 3. Spara ändringarna i SQLite-filen
         await _context.SaveChangesAsync();
 
         return Ok(new { message = "Katalogen är nu helt rensad!" });

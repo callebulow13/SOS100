@@ -3,7 +3,6 @@
 @{
     ViewData["Title"] = "Detaljer om " + Model.Name;
 
-    // Samma snygga färgkodning som vi har i Index-vyn
     string statusClass = Model.Status switch
     {
         SOS100_MVC.Models.ItemStatus.Tillgänglig => "badge-green",
@@ -12,7 +11,6 @@
         _ => "badge-gray"
     };
 
-    // Ikon baserat på typ
     string typeIcon = Model.Type switch
     {
         SOS100_MVC.Models.ItemType.Bok => "bi-book",

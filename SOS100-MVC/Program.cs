@@ -38,6 +38,12 @@ public class Program
             client.DefaultRequestHeaders.Add("X-Api-Key",
                 builder.Configuration["LoanApiKey"]!);
         });
+
+        builder.Services.AddHttpClient("UserApi", client =>
+        {
+            client.BaseAddress = new Uri(
+                builder.Configuration["UserServiceBaseUrl"]!);
+        });
         
         builder.Services.AddHttpClient<SOS100_MVC.Services.ReminderServiceClient>(client =>
         {

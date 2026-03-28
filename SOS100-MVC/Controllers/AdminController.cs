@@ -12,14 +12,11 @@ namespace SOS100_MVC.Controllers;
 [Authorize(Roles = "Admin")]
 public class AdminController : Controller
 {
-    private readonly HttpClient _httpClient;
+    private readonly IHttpClientFactory _httpClientFactory;
 
-    public AdminController(IConfiguration configuration)
+    public AdminController(IHttpClientFactory httpClientFactory)
     {
-        _httpClient = new HttpClient();
-
-        string apiBaseUrl = configuration.GetValue<string>("UserServiceBaseUrl");
-        _httpClient.BaseAddress = new Uri(apiBaseUrl);
+        _httpClientFactory = httpClientFactory;
     }
 
     public IActionResult Index()
@@ -35,7 +32,8 @@ public class AdminController : Controller
     [HttpGet]
     public async Task<IActionResult> EditUser(int id)
     {
-        var response = await _httpClient.GetAsync($"User/{id}");
+        var client = _httpClientFactory.CreateClient("UserApi");
+        var response = await client.GetAsync($"User/{id}");
 
         if (!response.IsSuccessStatusCode)
             return NotFound();
@@ -52,7 +50,8 @@ public class AdminController : Controller
             return View(user);
         }
 
-        var response = await _httpClient.PutAsJsonAsync($"User/{user.UserID}", user);
+        var client = _httpClientFactory.CreateClient("UserApi");
+        var response = await client.PutAsJsonAsync($"User/{user.UserID}", user);
 
         if (!response.IsSuccessStatusCode)
         {
@@ -67,7 +66,8 @@ public class AdminController : Controller
     {
         List<UserDto> users = new List<UserDto>();
 
-        HttpResponseMessage response = await _httpClient.GetAsync($"/User");
+        var client = _httpClientFactory.CreateClient("UserApi");
+        var response = await client.GetAsync($"/User");
 
         if (response.IsSuccessStatusCode)
         {
@@ -88,7 +88,8 @@ public class AdminController : Controller
         var json = JsonSerializer.Serialize(user);
         var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
 
-        HttpResponseMessage response = await _httpClient.PostAsync("/User", content);
+        var client = _httpClientFactory.CreateClient("UserApi");
+        var response = await client.PostAsync("/User", content);
 
         if (response.IsSuccessStatusCode)
         {
@@ -102,7 +103,8 @@ public class AdminController : Controller
     [HttpPost]
     public async Task<IActionResult> DeleteUser(int id)
     {
-        var response = await _httpClient.DeleteAsync($"User/{id}");
+        var client = _httpClientFactory.CreateClient("UserApi");
+        var response = await client.DeleteAsync($"User/{id}");
 
         if (!response.IsSuccessStatusCode)
         {
@@ -121,24 +123,12 @@ public class AdminController : Controller
 
 // GET: /Admin/Loans
     [HttpGet]
-    public async Task<IActionResult> Loans([FromServices] IConfiguration configuration)
+    public async Task<IActionResult> Loans()
     {
         var loans = new List<LoanDto>();
         try
         {
-            using var client = new HttpClient();
-            var baseUrl = configuration["LoanApiBaseUrl"];
-
-            if (string.IsNullOrEmpty(baseUrl))
-                throw new Exception("LoanApiBaseUrl saknas i appsettings.json.");
-
-            client.BaseAddress = new Uri(baseUrl);
-
-            var loanApiKey = configuration["LoanApiKey"];
-            if (!string.IsNullOrEmpty(loanApiKey))
-            {
-                client.DefaultRequestHeaders.Add("X-Api-Key", loanApiKey);
-            }
+            var client = _httpClientFactory.CreateClient("LoanApi");
 
             // Hämta ALLA lån från LoanAPI
             var response = await client.GetAsync("/api/loans");
@@ -167,18 +157,11 @@ public class AdminController : Controller
 
     // POST: /Admin/DeleteLoan
     [HttpPost]
-    public async Task<IActionResult> DeleteLoan(Guid id, [FromServices] IConfiguration configuration)
+    public async Task<IActionResult> DeleteLoan(Guid id)
     {
         try
         {
-            using var client = new HttpClient();
-            var baseUrl = configuration["LoanApiBaseUrl"];
-            client.BaseAddress = new Uri(baseUrl);
-            var loanApiKey = configuration["LoanApiKey"];
-            if (!string.IsNullOrEmpty(loanApiKey))
-            {
-                client.DefaultRequestHeaders.Add("X-Api-Key", loanApiKey);
-            }
+            var client = _httpClientFactory.CreateClient("LoanApi");
 
             // Gör ett DELETE-anrop till LoanAPI
             var response = await client.DeleteAsync($"/api/loans/{id}");
@@ -203,18 +186,11 @@ public class AdminController : Controller
 
     // GET: /Admin/EditLoan/{id}
     [HttpGet]
-    public async Task<IActionResult> EditLoan(Guid id, [FromServices] IConfiguration configuration)
+    public async Task<IActionResult> EditLoan(Guid id)
     {
         try
         {
-            using var client = new HttpClient();
-            var baseUrl = configuration["LoanApiBaseUrl"];
-            client.BaseAddress = new Uri(baseUrl);
-            var loanApiKey = configuration["LoanApiKey"];
-            if (!string.IsNullOrEmpty(loanApiKey))
-            {
-                client.DefaultRequestHeaders.Add("X-Api-Key", loanApiKey);
-            }
+            var client = _httpClientFactory.CreateClient("LoanApi");
 
             // Hämta det specifika lånet från LoanAPI
             var response = await client.GetAsync($"/api/loans/{id}");
@@ -244,18 +220,11 @@ public class AdminController : Controller
 
     // POST: /Admin/EditLoan
     [HttpPost]
-    public async Task<IActionResult> EditLoan(Guid id, DateTime dueAt, [FromServices] IConfiguration configuration)
+    public async Task<IActionResult> EditLoan(Guid id, DateTime dueAt)
     {
         try
         {
-            using var client = new HttpClient();
-            var baseUrl = configuration["LoanApiBaseUrl"];
-            client.BaseAddress = new Uri(baseUrl);
-            var loanApiKey = configuration["LoanApiKey"];
-            if (!string.IsNullOrEmpty(loanApiKey))
-            {
-                client.DefaultRequestHeaders.Add("X-Api-Key", loanApiKey);
-            }
+            var client = _httpClientFactory.CreateClient("LoanApi");
 
             // Vi skickar bara in det nya datumet till den slutpunkt vi skapade i LoanAPI:et
             var content = JsonContent.Create(dueAt);

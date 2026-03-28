@@ -8,18 +8,20 @@ using SOS100_MVC.Models;
 
 
 namespace SOS100_MVC.Controllers;
+
 [Authorize(Roles = "Admin")]
 public class AdminController : Controller
 {
     private readonly HttpClient _httpClient;
-    
+
     public AdminController(IConfiguration configuration)
     {
-        _httpClient = new  HttpClient();
-        
+        _httpClient = new HttpClient();
+
         string apiBaseUrl = configuration.GetValue<string>("UserServiceBaseUrl");
         _httpClient.BaseAddress = new Uri(apiBaseUrl);
     }
+
     public IActionResult Index()
     {
         return View();
@@ -33,12 +35,11 @@ public class AdminController : Controller
     [HttpGet]
     public async Task<IActionResult> EditUser(int id)
     {
-        
         var response = await _httpClient.GetAsync($"User/{id}");
 
         if (!response.IsSuccessStatusCode)
             return NotFound();
-        
+
         var user = await response.Content.ReadFromJsonAsync<User>();
         return View(user);
     }
@@ -50,6 +51,7 @@ public class AdminController : Controller
         {
             return View(user);
         }
+
         var response = await _httpClient.PutAsJsonAsync($"User/{user.UserID}", user);
 
         if (!response.IsSuccessStatusCode)
@@ -57,13 +59,14 @@ public class AdminController : Controller
             ModelState.AddModelError(string.Empty, "Kunde inte uppdatera användare");
             return View(user);
         }
+
         return RedirectToAction("Users");
     }
 
     public async Task<IActionResult> Users()
     {
         List<UserDto> users = new List<UserDto>();
-        
+
         HttpResponseMessage response = await _httpClient.GetAsync($"/User");
 
         if (response.IsSuccessStatusCode)
@@ -75,6 +78,7 @@ public class AdminController : Controller
                     PropertyNameCaseInsensitive = true
                 }) ?? new List<UserDto>();
         }
+
         return View(users);
     }
 
@@ -83,13 +87,14 @@ public class AdminController : Controller
     {
         var json = JsonSerializer.Serialize(user);
         var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
-        
+
         HttpResponseMessage response = await _httpClient.PostAsync("/User", content);
 
         if (response.IsSuccessStatusCode)
         {
             return RedirectToAction("Users");
         }
+
         ModelState.AddModelError(string.Empty, "Something went wrong");
         return View(user);
     }
@@ -104,13 +109,16 @@ public class AdminController : Controller
             ModelState.AddModelError(string.Empty, "Kunde inte radera användare");
             return RedirectToAction("Users");
         }
+
         return RedirectToAction("Users");
     }
+
     public async Task<IActionResult> SignOutUser()
     {
         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
         return RedirectToAction("Index", "Home");
     }
+
 // GET: /Admin/Loans
     [HttpGet]
     public async Task<IActionResult> Loans([FromServices] IConfiguration configuration)
@@ -119,22 +127,28 @@ public class AdminController : Controller
         try
         {
             using var client = new HttpClient();
-            var baseUrl = configuration["LoanApiBaseUrl"]; 
-            
+            var baseUrl = configuration["LoanApiBaseUrl"];
+
             if (string.IsNullOrEmpty(baseUrl))
                 throw new Exception("LoanApiBaseUrl saknas i appsettings.json.");
 
             client.BaseAddress = new Uri(baseUrl);
-            
+
+            var loanApiKey = configuration["LoanApiKey"];
+            if (!string.IsNullOrEmpty(loanApiKey))
+            {
+                client.DefaultRequestHeaders.Add("X-Api-Key", loanApiKey);
+            }
+
             // Hämta ALLA lån från LoanAPI
-            var response = await client.GetAsync("/api/loans"); 
-            
+            var response = await client.GetAsync("/api/loans");
+
             if (response.IsSuccessStatusCode)
             {
                 var json = await response.Content.ReadAsStringAsync();
-                loans = JsonSerializer.Deserialize<List<LoanDto>>(json, new JsonSerializerOptions 
-                { 
-                    PropertyNameCaseInsensitive = true 
+                loans = JsonSerializer.Deserialize<List<LoanDto>>(json, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
                 }) ?? new List<LoanDto>();
             }
             else
@@ -158,15 +172,21 @@ public class AdminController : Controller
         try
         {
             using var client = new HttpClient();
-            var baseUrl = configuration["LoanApiBaseUrl"]; 
+            var baseUrl = configuration["LoanApiBaseUrl"];
             client.BaseAddress = new Uri(baseUrl);
-            
+            var loanApiKey = configuration["LoanApiKey"];
+            if (!string.IsNullOrEmpty(loanApiKey))
+            {
+                client.DefaultRequestHeaders.Add("X-Api-Key", loanApiKey);
+            }
+
             // Gör ett DELETE-anrop till LoanAPI
             var response = await client.DeleteAsync($"/api/loans/{id}");
 
             if (response.IsSuccessStatusCode)
             {
-                TempData["SuccessMessage"] = "Lånet raderades permanent och prylen är nu tillgänglig (om lånet var aktivt).";
+                TempData["SuccessMessage"] =
+                    "Lånet raderades permanent och prylen är nu tillgänglig (om lånet var aktivt).";
             }
             else
             {
@@ -180,6 +200,7 @@ public class AdminController : Controller
 
         return RedirectToAction("Loans");
     }
+
     // GET: /Admin/EditLoan/{id}
     [HttpGet]
     public async Task<IActionResult> EditLoan(Guid id, [FromServices] IConfiguration configuration)
@@ -187,24 +208,30 @@ public class AdminController : Controller
         try
         {
             using var client = new HttpClient();
-            var baseUrl = configuration["LoanApiBaseUrl"]; 
+            var baseUrl = configuration["LoanApiBaseUrl"];
             client.BaseAddress = new Uri(baseUrl);
-            
+            var loanApiKey = configuration["LoanApiKey"];
+            if (!string.IsNullOrEmpty(loanApiKey))
+            {
+                client.DefaultRequestHeaders.Add("X-Api-Key", loanApiKey);
+            }
+
             // Hämta det specifika lånet från LoanAPI
-            var response = await client.GetAsync($"/api/loans/{id}"); 
-            
+            var response = await client.GetAsync($"/api/loans/{id}");
+
             if (response.IsSuccessStatusCode)
             {
-                var loan = await response.Content.ReadFromJsonAsync<LoanDto>(new JsonSerializerOptions 
-                { 
-                    PropertyNameCaseInsensitive = true 
+                var loan = await response.Content.ReadFromJsonAsync<LoanDto>(new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
                 });
-                
+
                 if (loan != null)
                 {
                     return View(loan);
                 }
             }
+
             TempData["ErrorMessage"] = "Kunde inte hämta lånet för redigering.";
         }
         catch (Exception ex)
@@ -222,9 +249,14 @@ public class AdminController : Controller
         try
         {
             using var client = new HttpClient();
-            var baseUrl = configuration["LoanApiBaseUrl"]; 
+            var baseUrl = configuration["LoanApiBaseUrl"];
             client.BaseAddress = new Uri(baseUrl);
-            
+            var loanApiKey = configuration["LoanApiKey"];
+            if (!string.IsNullOrEmpty(loanApiKey))
+            {
+                client.DefaultRequestHeaders.Add("X-Api-Key", loanApiKey);
+            }
+
             // Vi skickar bara in det nya datumet till den slutpunkt vi skapade i LoanAPI:et
             var content = JsonContent.Create(dueAt);
             var response = await client.PutAsync($"/api/loans/{id}/due-date", content);

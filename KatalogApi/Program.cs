@@ -53,6 +53,12 @@ app.Use(async (context, next) =>
         await next(context);
         return;
     }
+    
+    if (context.Request.Method == HttpMethods.Get)
+    {
+        await next(context);
+        return;
+    }
 
     // Hämtar den förväntade API-nyckeln från inställningarna
     var configuredApiKey = app.Configuration.GetValue<string>("KatalogApiKey");
